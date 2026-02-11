@@ -1,2053 +1,693 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
+  <title>Producción VDC 360°</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VDC360° — Notas a Crédito</title>
 
   <style>
-    :root{--ink:#111;--brand:#0a7a3b;--muted:#6b7280;--bg:#f6f7f8;--card:#fff}
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto}
-    header{background:var(--brand);color:#fff;padding:14px 18px}
-    header h1{margin:0;font-size:18px}
-    main{max-width:1240px;margin:0 auto;padding:16px;display:grid;gap:16px}
-    .card{background:var(--card);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:16px}
-    h2{margin:0 0 10px 0;font-size:18px}
-    label{display:block;margin-top:8px;font-size:14px;color:#111}
-    input,select,button,textarea{width:100%;padding:10px;margin-top:6px;font-size:14px;border:1px solid #e5e7eb;border-radius:8px;background:#fff}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:8px;border-bottom:1px solid #eef0f2;text-align:left;font-size:14px}
-    th{background:#fafafa}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    .grid-2{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
-    .flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .right{margin-left:auto}
-    .btn{cursor:pointer}
-    .btn-primary{background:var(--brand);color:#fff;border:none}
-    .btn-ghost{background:#fff;border:1px solid #e5e7eb;color:#111}
-    .btn-muted{background:#111;color:#fff;border:none}
-    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef7f0;color:#0a7a3b;font-size:12px}
-    .muted{color:var(--muted);font-size:13px}
-    .danger{color:#b91c1c}
-    .slotbar{display:flex;gap:8px;align-items:center;margin-top:8px}
-    .slotbtn{border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;background:#fff;cursor:pointer}
-    .slotbtn.active{background:#0a7a3b;color:#fff;border-color:#0a7a3b}
-    .btn-sm{padding:4px 8px;font-size:12px}
-    .cell-editing input{width:100%;padding:6px;font-size:14px}
-
-    /* ====== IMPRESIÓN GENERAL (nota individual / ticket80 usando #printArea) ====== */
-    @media print{
-      body *{visibility:hidden}
-      #printArea, #printArea *{visibility:visible}
-      #printArea{position:fixed; left:0; top:0}
-      @page{ size: A4 landscape; margin: 10mm; }
-
-      #printArea:not(.ticket80){
-        width:297mm;
-        padding:8mm 10mm;
-      }
-      #printArea:not(.ticket80) h3{ margin:0 0 4mm 0; font-size:14px; }
-      #printArea:not(.ticket80) table{ width:100%; border-collapse:collapse; }
-      #printArea:not(.ticket80) th,
-      #printArea:not(.ticket80) td{ border:1px solid #aaa; padding:3px 4px; font-size:11px; }
-
-      /* Ticket 80mm */
-      #printArea.ticket80{width:80mm; padding:2mm}
-      #printArea.ticket80 .tk-header{ text-align:center; font-size:12px; line-height:1.2; margin-bottom:6px }
-      #printArea.ticket80 .tk-header .store{ font-weight:700; font-size:14px }
-      #printArea.ticket80 .tk-meta{ font-size:11px; margin-bottom:6px }
-      #printArea.ticket80 .tk-line{ border-top:1px dashed #000; margin:6px 0 }
-      #printArea.ticket80 .tk-items{ width:100%; font-size:11px; border-collapse:collapse }
-      #printArea.ticket80 .tk-items th,
-      #printArea.ticket80 .tk-items td{ padding:2px 0; }
-      #printArea.ticket80 .right{ float:right }
-      #printArea.ticket80 .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace }
-      #printArea.ticket80 .totals{ font-size:12px; font-weight:700; margin-top:4px }
-      #printArea.ticket80 .obs-title{ font-weight:700; font-size:11px; margin-top:6px }
-      #printArea.ticket80 .obs{ white-space:pre-wrap; font-size:11px; }
-      #printArea.ticket80 .thanks{ text-align:center; margin-top:8px; font-size:11px }
+    :root{
+      --brand:#0a7a3b;
+      --brand2:#0f9a52;
+      --bg:#f6f7f8;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --shadow:0 18px 50px rgba(2,6,23,.10);
+      --shadow2:0 10px 24px rgba(2,6,23,.10);
+      --r:18px;
+      --danger:#b91c1c;
+      --navy:#0b1b44;
     }
 
-    /* ===========================
-       ✅ BANDEJA COMPACTA (SIN SCROLL INFINITO)
-       - contenedor con scroll interno
-       - header sticky
-       - buscador
-       - menú de acciones dropdown
-    =========================== */
-    .bandejaWrap{
-      max-height: 55vh;
-      overflow:auto;
-      border:1px solid #eef0f2;
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:
+        radial-gradient(1200px 520px at 18% -10%, rgba(15,154,82,.18), transparent 60%),
+        radial-gradient(1000px 520px at 110% 20%, rgba(10,122,59,.14), transparent 50%),
+        var(--bg);
+      color: var(--ink);
+      padding: 18px 14px 28px;
+    }
+
+    /* Botón VDC Central */
+    .back-central{
+      position:fixed;
+      top:12px;
+      left:12px;
+      background: var(--brand);
+      color:#fff;
+      padding:10px 14px;
       border-radius:12px;
-      margin-top:12px;
+      text-decoration:none;
+      font-weight:1000;
+      z-index:9999;
+      box-shadow:0 10px 20px rgba(0,0,0,.15);
     }
-    .bandejaWrap table{ margin-top:0; }
-    .bandejaWrap thead th{
+
+    /* Contenedor general */
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-top: 56px; /* deja espacio al botón fijo */
+    }
+
+    /* Header */
+    .header{
       position: sticky;
       top: 0;
-      z-index: 2;
-      background:#fafafa;
+      z-index: 50;
+      background: rgba(246,247,248,.86);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 18px;
+      box-shadow: 0 12px 26px rgba(2,6,23,.10);
+      padding: 14px 14px;
+      margin-bottom: 14px;
     }
-    .bandejaTools{
+    .header-top{
       display:flex;
-      gap:10px;
-      align-items:flex-end;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
       flex-wrap:wrap;
     }
-    .bandejaTools input, .bandejaTools select, .bandejaTools button{ margin-top:0; }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: 0 10px 18px rgba(0,0,0,.08);
+      font-weight: 1000;
+      white-space:nowrap;
+    }
+    .badge .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: var(--brand2);
+      box-shadow: 0 0 0 4px rgba(15,154,82,.16);
+    }
+    h1{
+      margin:0;
+      font-size: 18px;
+      font-weight: 1100;
+      letter-spacing: .2px;
+      line-height:1.15;
+    }
+    .sub{
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
 
-    details.actionMenu{ position:relative; display:inline-block; }
-    details.actionMenu summary{
-      list-style:none;
-      cursor:pointer;
-      user-select:none;
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid #e5e7eb;
-      background:#fff;
-      font-weight:800;
-    }
-    details.actionMenu[open] summary{
-      background:#0a7a3b;
-      color:#fff;
-      border-color:#0a7a3b;
-    }
-    details.actionMenu summary::-webkit-details-marker{ display:none; }
-
-    .menuPanel{
-      position:absolute;
-      right:0;
-      margin-top:8px;
-      min-width:220px;
-      background:#fff;
-      border:1px solid #e5e7eb;
-      border-radius:12px;
-      box-shadow:0 12px 28px rgba(0,0,0,.12);
-      padding:8px;
-      z-index:50;
-    }
-    .menuPanel button{
-      width:100%;
-      text-align:left;
-      padding:10px 10px;
-      border-radius:10px;
-      border:1px solid #eef0f2;
-      background:#fff;
-      margin:6px 0;
-      cursor:pointer;
-      font-weight:800;
-    }
-    .menuPanel button:hover{ background:#f6f7f8; }
-    .menuPanel button.danger{ border-color:#fee2e2; color:#b91c1c; }
-
-    /* ✅ Barra de envío masivo */
-    .massBar{
+    /* Acciones */
+    .top-actions{
       display:flex;
       gap:10px;
+      flex-wrap:wrap;
       align-items:center;
-      flex-wrap:wrap;
-      margin-top:10px;
+      justify-content:flex-end;
     }
-    .massBar .pill{margin-left:auto}
+
+    .btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 1000;
+      color:#fff;
+      background: var(--brand2);
+      box-shadow: 0 10px 18px rgba(2,6,23,.12);
+      transition: transform .05s ease, filter .2s ease;
+      white-space:nowrap;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn.secondary{ background: var(--brand); }
+    .btn.danger{ background: var(--danger); }
+    .btn.navy{ background: var(--navy); }
+    .btn.ghost{
+      background:#fff;
+      color:#111827;
+      border: 1px solid rgba(0,0,0,.10);
+      box-shadow:none;
+    }
+
+    .muted{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.10);
+      background:#fff;
+      font-weight: 1000;
+    }
+
+    /* Cards (bloques) */
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .bloque{
+      background: var(--card);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--r);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .bloque-h{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .bloque-h h2{
+      color: var(--ink);
+      margin:0;
+      font-size: 14px;
+      font-weight: 1100;
+      letter-spacing: .2px;
+    }
+    .bloque-b{
+      padding: 14px;
+    }
+
+    /* Form */
+    label{
+      display:block;
+      margin-top: 12px;
+      font-weight: 1000;
+      color: #111827;
+      font-size: 12px;
+      letter-spacing:.2px;
+    }
+    input{
+      width:100%;
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: #fff;
+      font-weight: 1000;
+      color: #0f172a;
+      outline: none;
+    }
+    input:focus{
+      border-color: rgba(15,154,82,.55);
+      box-shadow: 0 0 0 4px rgba(15,154,82,.14);
+    }
+
+    /* Grid interno para pares (patas) */
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .block-actions{
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .block-actions .btn{ width: 100%; }
+    .block-actions.inline .btn{ width:auto; }
+
+    /* Línea cards */
+    .line-row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items:end;
+    }
+
+    /* Footer button */
+    .footer-actions{
+      margin-top: 14px;
+    }
+
+    /* Responsive */
+    @media(max-width: 820px){
+      .two{ grid-template-columns: 1fr; }
+      .line-row{ grid-template-columns: 1fr; }
+      .top-actions{ justify-content:flex-start; }
+      .header{ position: static; }
+    }
   </style>
 </head>
 
 <body>
-  <a href="https://marcianoper.github.io/vdc-central/"
-   style="
-     position:fixed;
-     top:12px;
-     left:12px;
-     background:#0a7a3b;
-     color:#fff;
-     padding:10px 14px;
-     border-radius:12px;
-     text-decoration:none;
-     font-weight:900;
-     z-index:9999;
-     box-shadow:0 10px 20px rgba(0,0,0,.15);
-   ">
-  ← VDC Central
-</a>
 
-  <header>
-    <h1>VDC360° · Notas a Crédito (Slots A/B + Reporte Diario)</h1>
-  </header>
+  <a class="back-central" href="https://marcianoper.github.io/vdc-central/">← VDC Central</a>
 
-  <main>
-    <!-- SLOTS A/B -->
-    <section class="card">
-      <h2>🧭 Trabajo en paralelo (2 clientes)</h2>
-      <div class="slotbar">
-        <button class="slotbtn active" id="slotA" type="button">Slot A</button>
-        <span class="pill" id="slotALabel">—</span>
+  <div class="wrap">
 
-        <button class="slotbtn" id="slotB" type="button">Slot B</button>
-        <span class="pill" id="slotBLabel">—</span>
-
-        <span class="right flex" style="gap:6px">
-          <input type="checkbox" id="exitGuardToggle" />
-          <label for="exitGuardToggle" class="muted" style="margin:0">Confirmar al salir</label>
-        </span>
-      </div>
-    </section>
-
-    <!-- CONTROLES (slot activo) -->
-    <section class="card">
-      <h2>🧾 Nota (Slot activo)</h2>
-
-      <div class="row">
-        <div>
-          <label>Cliente</label>
-          <div class="flex" style="gap:6px; align-items:stretch">
-            <select id="cliSelect"></select>
-            <button class="btn btn-ghost" id="btnNuevoCliente" type="button">+ Cliente</button>
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="badge"><span class="dot"></span> VDC360°</div>
+          <div>
+            <h1>Producción — Formulario Camión</h1>
+            <div class="sub">Registro rápido por línea • Envío por WhatsApp • Guardado en Supabase</div>
           </div>
         </div>
 
-        <div>
-          <label>Teléfono (WhatsApp)</label>
-          <input id="cliTelefono" placeholder="10 dígitos" />
+        <div class="top-actions">
+          <button class="btn ghost" onclick="forzarGuardarBorrador()">💾 Guardar borrador</button>
+          <button class="btn danger" onclick="limpiarBorrador()">🧹 Limpiar borrador</button>
+          <span class="pill"><span class="muted" id="draftStatus">Borrador: —</span></span>
         </div>
       </div>
-
-      <div class="row-3">
-        <div>
-          <label>Folio</label>
-          <input id="notaFolio" placeholder="Autogenerado" />
-        </div>
-
-        <div>
-          <label>Fecha</label>
-          <input id="notaFecha" type="date" />
-        </div>
-
-        <div>
-          <label>Días de crédito</label>
-          <select id="notaDias">
-            <option value="7">7</option>
-            <option value="15">15</option>
-            <option value="30" selected>30</option>
-            <option value="45">45</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Vence</label>
-          <input id="notaVence" type="date" />
-        </div>
-
-        <div>
-          <label>&nbsp;</label>
-          <div class="flex">
-            <button class="btn btn-primary" id="btnContinuar" type="button">
-              Crear / Continuar Nota en Slot Activo
-            </button>
-            <span class="pill right" id="notaInfo">Sin nota en slot</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="grid-2">
-      <!-- CAPTURA -->
-      <section class="card">
-        <h2>🧺 Capturar partidas</h2>
-
-        <!-- ===== MODO NORMAL (todos los clientes) ===== -->
-        <div id="capNormal">
-          <div class="row-3">
-            <div>
-              <label>Producto</label>
-              <input id="pProducto" list="catProductos" placeholder="Ej. Panza de Res" />
-            </div>
-
-            <div>
-              <label>Kilos</label>
-              <input id="pKg" type="number" min="0" step="0.01" value="1" />
-
-              <!-- ✅ BÁSCULA (Realtime entre dispositivos vía Supabase) -->
-              <div class="flex" style="margin-top:8px; gap:8px">
-                <button type="button" class="btn btn-ghost" id="btnPeso">📥 Tomar peso</button>
-
-                <label class="muted" style="display:flex; align-items:center; gap:8px; margin:0">
-                  <input type="checkbox" id="rtBascula" />
-                  Real-time
-                </label>
-
-                <select id="rtModo" style="max-width:220px">
-                  <option value="auto" selected>Auto (Realtime Supabase)</option>
-                  <option value="poll">Poll (consultar cada X ms)</option>
-                </select>
-
-                <select id="rtMs" style="max-width:140px">
-                  <option value="250">0.25s</option>
-                  <option value="500" selected>0.50s</option>
-                  <option value="800">0.80s</option>
-                  <option value="1000">1.0s</option>
-                  <option value="1500">1.5s</option>
-                </select>
-
-                <span id="pesoStatus" class="pill">Báscula: —</span>
-              </div>
-            </div>
-
-            <div>
-              <label>Piezas (opcional)</label>
-              <input id="pPzas" type="number" min="0" step="1" />
-            </div>
-          </div>
-
-          <div style="margin-top:8px">
-            <label>Precio/kg</label>
-            <input id="pPrecio" type="number" min="0" step="0.01" value="0" />
-          </div>
-
-          <div class="flex" style="margin-top:10px">
-            <button class="btn btn-primary" id="btnAgregar" type="button">Agregar a nota (Enter)</button>
-            <span class="pill right" id="subtotalBox">Subtotal: $0.00</span>
-          </div>
-        </div>
-
-        <!-- ===== MODO Pieles y Grasas (solo ese cliente) ===== -->
-        <div id="capPG" style="display:none">
-          <!-- SEBO -->
-          <div class="row-3">
-            <div>
-              <label>Producto</label>
-              <input value="Sebo" disabled />
-            </div>
-            <div>
-              <label>Kilos</label>
-              <input id="seboKg" type="number" min="0" step="0.01" value="0" />
-            </div>
-            <div>
-              <label>Piezas (opcional)</label>
-              <input id="seboPzas" type="number" min="0" step="1" />
-            </div>
-          </div>
-
-          <div class="flex" style="margin-top:10px">
-            <button class="btn btn-primary" id="btnAgregarSebo" type="button">Agregar Sebo</button>
-            <span class="pill right" id="subtotalBox2">Subtotal: $0.00</span>
-          </div>
-
-          <hr style="border:none;border-top:1px solid #eef0f2;margin:14px 0" />
-
-          <!-- HUESO -->
-          <div class="row-3">
-            <div>
-              <label>Producto</label>
-              <input value="Hueso" disabled />
-            </div>
-            <div>
-              <label>Kilos</label>
-              <input id="huesoKg" type="number" min="0" step="0.01" value="0" />
-            </div>
-            <div>
-              <label>Piezas (opcional)</label>
-              <input id="huesoPzas" type="number" min="0" step="1" />
-            </div>
-          </div>
-
-          <div class="flex" style="margin-top:10px">
-            <button class="btn btn-primary" id="btnAgregarHueso" type="button">Agregar Hueso</button>
-          </div>
-        </div>
-
-        <label style="margin-top:12px">Observaciones</label>
-        <textarea id="notaObs" rows="2" placeholder="Instrucciones, cortes, etc."></textarea>
-      </section>
-
-      <!-- VISTA EN VIVO -->
-      <section class="card">
-        <h2>👤 Vista del cliente (slot activo)</h2>
-
-        <div class="flex" style="gap:6px;margin-bottom:6px">
-          <div class="pill">Folio: <span id="vFolio">—</span></div>
-          <div class="pill">Estado: <span id="vEstado">—</span></div>
-          <div class="pill">Saldo: $<span id="vSaldo">0.00</span></div>
-        </div>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha/Hora</th>
-              <th>Producto</th>
-              <th>Kg</th>
-              <th>Pzas</th>
-              <th>P.Unit</th>
-              <th>Importe</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="vistaBody"></tbody>
-          <tfoot>
-            <tr>
-              <td colspan="6" style="text-align:right">Total</td>
-              <td id="vistaTotal">$0.00</td>
-            </tr>
-          </tfoot>
-        </table>
-      </section>
     </div>
 
-    <!-- ✅ BANDEJA (COMPACTA + BUSCADOR + ACCIONES DROPDOWN + SCROLL INTERNO) -->
-    <section class="card">
-      <h2>📥 Notas abiertas hoy (todas)</h2>
+    <div class="grid">
 
-      <div class="bandejaTools">
-        <div style="flex:1; min-width:220px">
-          <label>Fecha</label>
-          <input id="bandejaFecha" type="date" />
+      <!-- Apertura -->
+      <div class="bloque">
+        <div class="bloque-h">
+          <h2>Apertura de Camión</h2>
+          <span class="muted">Marca el inicio de operación</span>
         </div>
+        <div class="bloque-b">
+          <label>Hora de apertura:
+            <input type="time" id="hora_apertura">
+          </label>
 
-        <div style="flex:2; min-width:260px">
-          <label>Buscar (folio o cliente)</label>
-          <input id="bandejaBuscar" placeholder="Ej. CVC-20260206... o Carnicería" />
-        </div>
-
-        <div style="min-width:220px">
-          <label>&nbsp;</label>
-          <button class="btn btn-ghost" id="btnBandeja" type="button">Actualizar</button>
-        </div>
-
-        <span class="muted" style="align-self:center">Tip: carga una nota al Slot A o B y alterna rápido.</span>
-      </div>
-
-      <!-- ✅ envío masivo -->
-      <div class="massBar">
-        <button class="btn btn-muted" id="btnWATodosHoy" type="button">📩 Enviar WA a TODOS los de hoy</button>
-        <select id="waDelay" style="max-width:220px">
-          <option value="350">Delay 0.35s</option>
-          <option value="600" selected>Delay 0.60s</option>
-          <option value="900">Delay 0.90s</option>
-          <option value="1200">Delay 1.2s</option>
-        </select>
-        <span class="pill" id="waMassStatus">WA masivo: —</span>
-      </div>
-
-      <div class="bandejaWrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Folio</th>
-              <th>Cliente</th>
-              <th>Saldo</th>
-              <th>Estado</th>
-              <th style="text-align:right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="bandejaBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- REPORTE DIARIO GENERAL -->
-    <section class="card">
-      <h2>📄 Reporte diario GENERAL (todos los clientes)</h2>
-
-      <div class="row">
-        <div>
-          <label>Fecha</label>
-          <input id="diaFecha" type="date" />
-        </div>
-
-        <div>
-          <label>&nbsp;</label>
-          <div class="flex">
-            <button class="btn btn-ghost" id="btnDiaA4" type="button">Imprimir A4 (todos)</button>
-            <button class="btn btn-ghost" id="btnDiaCSV" type="button">CSV (todos)</button>
-            <span class="pill right" id="diaResumen">—</span>
+          <div class="block-actions">
+            <button class="btn secondary" onclick="guardarEventoGeneral('hora_apertura', 'Apertura de Camión')">
+              📤 Guardar y Enviar
+            </button>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- ACCIONES NOTA -->
-    <section class="card">
-      <div class="flex">
-        <button class="btn btn-ghost" id="btnWA" type="button">WhatsApp Cuenta</button>
-        <button class="btn btn-ghost" id="btnImprimir" type="button">Imprimir A4</button>
-        <button class="btn btn-ghost" id="btnImprimir80" type="button">Imprimir 80mm</button>
-        <button class="btn btn-ghost" id="btnCSV" type="button">Exportar CSV</button>
-        <button class="btn btn-ghost danger right" id="btnCerrar" type="button">Cerrar Nota</button>
+      <!-- Patas -->
+      <div class="bloque">
+        <div class="bloque-h">
+          <h2>Registro de Patas</h2>
+          <span class="muted">Control de envío y llegada</span>
+        </div>
+        <div class="bloque-b">
+          <div class="two">
+            <div>
+              <label>Hora de envío a limpieza:
+                <input type="time" id="hora_envio_patas">
+              </label>
+            </div>
+            <div>
+              <label>Hora de llegada de limpieza:
+                <input type="time" id="hora_llegada_patas">
+              </label>
+            </div>
+          </div>
+
+          <div class="block-actions">
+            <button class="btn secondary" onclick="guardarPatas()">
+              📤 Guardar y Enviar
+            </button>
+          </div>
+        </div>
       </div>
-    </section>
-  </main>
 
-  <div id="printArea" style="display:none"></div>
-  <datalist id="catProductos"></datalist>
+      <!-- Líneas -->
+      <div id="lineas"></div>
 
-  <!-- ✅ UNA sola carga UMD -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      <!-- Resumen -->
+      <div class="footer-actions">
+        <button class="btn navy" onclick="generarResumen()" style="width:100%;">
+          📄 Generar Documento Resumen
+        </button>
+        <div class="muted" style="margin-top:8px;">
+          Se descarga como TXT con el orden en que se capturó hoy.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Supabase UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
   <script>
-    /* ========================= CONFIG ========================= */
-    const SUPABASE_URL = "https://bjebybdqcqscouxlinfd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqZWJ5YmRxY3FzY291eGxpbmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMjQ3MTksImV4cCI6MjA3MTkwMDcxOX0.mQgWtiYEyJTiF04pdcLv63SqPNrU1Iehws0vKqr82O0";
-    const sb = window.__sb || (window.__sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+  (() => {
+    // =========================
+    // 1) Render de líneas
+    // =========================
+    const lineas = [
+      { id: 'l1', nombre: 'Línea 1 - Bofe y Corazón' },
+      { id: 'l2', nombre: 'Línea 2 - Teleco' },
+      { id: 'l3', nombre: 'Línea 3 - Cuajo' },
+      { id: 'l4', nombre: 'Línea 4 - Libro' },
+      { id: 'l5', nombre: 'Línea 5 - Menudo' },
+      { id: 'l6', nombre: 'Línea 6 - Patas Sucias' }
+    ];
 
-    const STORE_NAME = "Carnes y Vísceras del Centro";
-    const CAJA_KG = 27.22;
+    const contenedor = document.getElementById("lineas");
+    contenedor.innerHTML = lineas.map(({ id, nombre }) => `
+      <div class="bloque">
+        <div class="bloque-h">
+          <h2>${nombre}</h2>
+          <span class="muted">Captura inicio / término</span>
+        </div>
 
-    /* ========================= AISENSY (LOCAL / DIRECTO) =========================
-       ⚠️ NOTA: esto deja tu API KEY en el front (GitHub Pages) => SOLO PARA PRUEBAS.
-       Para producción: usa proxy/serverless.
-    ============================================================================ */
-    const AISENSY_API_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0";
-    const AISENSY_CAMPAIGN = "Notificacionesvdc360";
-    const AISENSY_TEMPLATE = "notificacion_basica";  // template aprobado
+        <div class="bloque-b">
+          <div class="line-row">
+            <div>
+              <label>Inicio:
+                <input type="time" id="${id}_inicio">
+              </label>
+            </div>
+            <div>
+              <label>Responsable:
+                <input type="text" id="${id}_responsable" placeholder="Ej. José Luis">
+              </label>
+            </div>
+          </div>
 
-    const AISENSY_ENDPOINT = "https://apis.aisensy.com/v1/messages/template"; 
-    // ⚠️ Si tu doc de AiSensy trae otro endpoint, cámbialo aquí.
+          <div class="block-actions">
+            <button class="btn secondary" onclick="guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
+          </div>
 
-    async function sendWhatsAppAisensy({ phone, templateName, variables }){
-      const payload = {
-        campaignName: AISENSY_CAMPAIGN,
-        destination: phone,
-        templateName,
-        params: variables
+          <div class="line-row" style="margin-top:10px;">
+            <div>
+              <label>Término:
+                <input type="time" id="${id}_fin">
+              </label>
+            </div>
+            <div class="muted" style="padding:10px 0;">
+              Consejo: captura responsable al inicio para que salga en el WhatsApp.
+            </div>
+          </div>
+
+          <div class="block-actions">
+            <button class="btn secondary" onclick="guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // =========================
+    // 2) Supabase
+    // =========================
+    const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg';
+
+    if (!window.supabase || !window.supabase.createClient) {
+      alert("No se cargó Supabase. Revisa tu internet o el script CDN.");
+      return;
+    }
+
+    const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // =========================
+    // 3) Utilidades
+    // =========================
+    function hoyISO() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function abrirWhatsApp(texto) {
+      const mensaje = encodeURIComponent(texto);
+      const url = `https://api.whatsapp.com/send?text=${mensaje}`;
+      window.open(url, '_blank');
+    }
+
+    // =========================
+    // 3.1) BORRADOR LOCAL (LOCALSTORAGE)
+    // =========================
+    const DRAFT_KEY = () => `vdc360:produccion:draft:${hoyISO()}`;
+
+    function setDraftStatus(msg){
+      const el = document.getElementById('draftStatus');
+      if(el) el.textContent = msg;
+    }
+
+    function colectarBorrador(){
+      const draft = {
+        ts: Date.now(),
+        fecha: hoyISO(),
+        hora_apertura: (document.getElementById('hora_apertura')?.value || ''),
+        hora_envio_patas: (document.getElementById('hora_envio_patas')?.value || ''),
+        hora_llegada_patas: (document.getElementById('hora_llegada_patas')?.value || ''),
+        lineas: {}
+      };
+      lineas.forEach(({id})=>{
+        draft.lineas[id] = {
+          inicio: (document.getElementById(`${id}_inicio`)?.value || ''),
+          fin: (document.getElementById(`${id}_fin`)?.value || ''),
+          responsable: (document.getElementById(`${id}_responsable`)?.value || '')
+        };
+      });
+      return draft;
+    }
+
+    function aplicarBorrador(draft){
+      if(!draft) return;
+
+      const setVal = (id, v) => {
+        const el = document.getElementById(id);
+        if(el && v != null) el.value = v;
       };
 
-      const r = await fetch(AISENSY_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type":"application/json",
-          "Authorization": `Bearer ${AISENSY_API_KEY}`
-        },
-        body: JSON.stringify(payload)
+      setVal('hora_apertura', draft.hora_apertura);
+      setVal('hora_envio_patas', draft.hora_envio_patas);
+      setVal('hora_llegada_patas', draft.hora_llegada_patas);
+
+      const L = draft.lineas || {};
+      Object.keys(L).forEach(id=>{
+        setVal(`${id}_inicio`, L[id].inicio);
+        setVal(`${id}_fin`, L[id].fin);
+        setVal(`${id}_responsable`, L[id].responsable);
       });
-
-      const j = await r.json().catch(()=> ({}));
-      if(!r.ok){
-        const msg = j?.message || j?.error || "Error enviando WhatsApp (AiSensy)";
-        throw new Error(msg);
-      }
-      return j;
     }
 
-    function mxToE164(phoneRaw){
-      const digits = (phoneRaw || "").replace(/[^\d]/g, "");
-      if(!digits) return "";
-      if(digits.length === 10) return "52" + digits;
-      if(digits.startsWith("52") && digits.length === 12) return digits;
-      return digits;
+    function guardarBorrador(){
+      const draft = colectarBorrador();
+      localStorage.setItem(DRAFT_KEY(), JSON.stringify(draft));
+      const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      setDraftStatus(`Borrador guardado ✅ (${hh})`);
     }
 
-    function buildDetalleText(det){
-      return (det||[]).map(d=>{
-        const piezasTxt = d.piezas ? ` (${d.piezas} pzas)` : '';
-        const imp = d.importe != null ? ` $${to2(d.importe)}` : '';
-        return `• ${d.producto} ${to2(d.cantidad)}kg${piezasTxt}${imp}`;
-      }).join('\n');
-    }
-
-    /* ========================= BÁSCULA — REALTIME ENTRE DISPOSITIVOS (SUPABASE) ========================= */
-    const BASCULA_ID = "torrey_1";
-    const BASCULA_TABLE = "bascula_live";
-
-    const btnPeso = document.getElementById("btnPeso");
-    const rtBascula = document.getElementById("rtBascula");
-    const rtModo = document.getElementById("rtModo");
-    const rtMs = document.getElementById("rtMs");
-    const pesoStatus = document.getElementById("pesoStatus");
-
-    let basculaChannel = null;
-    let basculaPollTimer = null;
-    let basculaInFlight = false;
-
-    const bascStable = { last:null, okCount:0, needed:2, tol:0.03 };
-
-    function setPesoStatus(txt, ok=true){
-      if(!pesoStatus) return;
-      pesoStatus.textContent = txt || "Báscula: —";
-      pesoStatus.style.background = ok ? "#eef7f0" : "#fee2e2";
-      pesoStatus.style.color = ok ? "#0a7a3b" : "#b91c1c";
-    }
-
-    function setKgValue(kg){
-      const el = document.getElementById("pKg");
-      if(!el) return;
-      const next = Number(kg || 0);
-      if(!isFinite(next)) return;
-      const current = Number(el.value || 0);
-      if (Math.abs(current - next) < 0.001) return;
-      el.value = next.toFixed(2);
-      el.dispatchEvent(new Event("input", { bubbles:true }));
-      el.dispatchEvent(new Event("change", { bubbles:true }));
-    }
-
-    function updateStability(kg){
-      if (bascStable.last == null){
-        bascStable.last = kg;
-        bascStable.okCount = 1;
-        return { accept:false, okCount:bascStable.okCount };
-      }
-      if (Math.abs(kg - bascStable.last) <= bascStable.tol){
-        bascStable.okCount += 1;
-      } else {
-        bascStable.last = kg;
-        bascStable.okCount = 1;
-      }
-      return { accept: bascStable.okCount >= bascStable.needed, okCount:bascStable.okCount };
-    }
-
-    async function readPesoFromSupabase(){
-      const { data, error } = await sb
-        .from(BASCULA_TABLE)
-        .select("peso, updated_at")
-        .eq("id", BASCULA_ID)
-        .maybeSingle();
-
-      if(error) throw error;
-      const peso = data?.peso;
-      return { peso: (peso==null ? null : Math.abs(Number(peso))), updated_at: data?.updated_at || null };
-    }
-
-    async function tomarPesoManual(){
-      if(!btnPeso) return;
-      btnPeso.disabled = true;
-      setPesoStatus("Báscula: leyendo…", true);
-
-      try{
-        const { peso } = await readPesoFromSupabase();
-        if(peso == null){
-          setPesoStatus("Báscula: sin lectura", false);
-          alert("No hay peso en Supabase. Revisa que el Windows esté subiendo bascula_live.");
-          return;
-        }
-        setKgValue(peso);
-        setPesoStatus(`Báscula OK: ${peso.toFixed(2)} kg`, true);
-      }catch(e){
-        console.error(e);
-        setPesoStatus("Báscula: error", false);
-        alert("Error leyendo Supabase (bascula_live). Revisa internet / RLS / tabla.");
-      }finally{
-        btnPeso.disabled = false;
-      }
-    }
-
-    function stopBasculaRealtime(){
-      if(basculaPollTimer){ clearInterval(basculaPollTimer); basculaPollTimer = null; }
-      if(basculaChannel){ sb.removeChannel(basculaChannel); basculaChannel = null; }
-      bascStable.last = null; bascStable.okCount = 0;
-      setPesoStatus("Báscula: —", true);
-    }
-
-    function startBasculaRealtime(){
-      stopBasculaRealtime();
-
-      const modo = (rtModo?.value || "auto");
-      const interval = Number(rtMs?.value || 500);
-
-      setPesoStatus("Báscula: real-time ON…", true);
-
-      if(modo === "poll"){
-        basculaPollTimer = setInterval(async ()=>{
-          if(basculaInFlight) return;
-          basculaInFlight = true;
-          try{
-            const { peso } = await readPesoFromSupabase();
-            if(peso == null){
-              setPesoStatus("Báscula: sin lectura", false);
-              return;
-            }
-            const st = updateStability(peso);
-            if(st.accept){
-              setKgValue(peso);
-              setPesoStatus(`Báscula: ${peso.toFixed(2)} kg ✅`, true);
-            } else {
-              setPesoStatus(`Báscula: ${peso.toFixed(2)} kg (est ${st.okCount}/${bascStable.needed})`, true);
-            }
-          }catch(e){
-            console.error(e);
-            setPesoStatus("Báscula: error (poll)", false);
-          }finally{
-            basculaInFlight = false;
-          }
-        }, interval);
+    function cargarBorrador(){
+      const raw = localStorage.getItem(DRAFT_KEY());
+      if(!raw){
+        setDraftStatus('Borrador: —');
         return;
       }
-
-      basculaChannel = sb
-        .channel(`bascula-${BASCULA_ID}`)
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: BASCULA_TABLE, filter: `id=eq.${BASCULA_ID}` },
-          async (payload)=>{
-            const row = payload.new || payload.old;
-            const peso = row?.peso;
-            const kg = (peso==null ? null : Math.abs(Number(peso)));
-
-            if(kg == null){
-              setPesoStatus("Báscula: sin lectura", false);
-              return;
-            }
-
-            const st = updateStability(kg);
-            if(st.accept){
-              setKgValue(kg);
-              setPesoStatus(`Báscula: ${kg.toFixed(2)} kg ✅`, true);
-            } else {
-              setPesoStatus(`Báscula: ${kg.toFixed(2)} kg (est ${st.okCount}/${bascStable.needed})`, true);
-            }
-          }
-        )
-        .subscribe(async (status)=>{
-          if(status === "SUBSCRIBED"){
-            try{
-              const { peso } = await readPesoFromSupabase();
-              if(peso != null){
-                setKgValue(peso);
-                setPesoStatus(`Báscula: ${peso.toFixed(2)} kg (init)`, true);
-              }
-            }catch{}
-          }
-        });
+      try{
+        const draft = JSON.parse(raw);
+        aplicarBorrador(draft);
+        const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        setDraftStatus(`Borrador cargado ✅ (${hh})`);
+      }catch{
+        setDraftStatus('Borrador dañado ⚠️');
+      }
     }
 
-    btnPeso?.addEventListener("click", tomarPesoManual);
-    rtBascula?.addEventListener("change", ()=> rtBascula.checked ? startBasculaRealtime() : stopBasculaRealtime());
-    rtModo?.addEventListener("change", ()=> { if(rtBascula?.checked) startBasculaRealtime(); });
-    rtMs?.addEventListener("change", ()=> { if(rtBascula?.checked) startBasculaRealtime(); });
-
-    /* ========================= UTILS ========================= */
-    const $ = s => document.querySelector(s);
-    const $$ = s => Array.from(document.querySelectorAll(s));
-    const to2 = n => Number(n || 0).toFixed(2);
-
-    function todayISO(){
-      const d = new Date();
-      const z = d.getTimezoneOffset() * 60000;
-      return new Date(d - z).toISOString().slice(0,10);
-    }
-    function addDays(dateISO, days){
-      const d = new Date(dateISO);
-      d.setDate(d.getDate() + Number(days || 0));
-      const z = d.getTimezoneOffset() * 60000;
-      return new Date(d - z).toISOString().slice(0,10);
-    }
-    function genFolio(){
-      const d = new Date();
-      const pad = n => String(n).padStart(2,'0');
-      return `CVC-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-    }
-    function csvEscape(s){ return '"' + String(s).replaceAll('"','""') + '"'; }
-
-    function normalizeName(s){
-      return (s || '').toString().trim().toLowerCase();
+    let tSave = null;
+    function scheduleDraftSave(){
+      clearTimeout(tSave);
+      tSave = setTimeout(guardarBorrador, 350);
     }
 
-    /* === Observaciones automáticas por producto (suma kg/pzas) === */
-    function buildAutoObsFromDetalle(det){
-      if(!det || !det.length) return '';
-      const grupos = {};
-
-      det.forEach(d=>{
-        const prod = d.producto || 'Sin producto';
-        if(!grupos[prod]){
-          grupos[prod] = { kg:0, pzas:0, tienePzas:false };
-        }
-        grupos[prod].kg += Number(d.cantidad || 0);
-
-        if(d.piezas != null){
-          grupos[prod].pzas += Number(d.piezas || 0);
-          grupos[prod].tienePzas = true;
-        }
-      });
-
-      const lineas = Object.entries(grupos).map(([prod, g])=>{
-        const kgTxt = to2(g.kg);
-        const pzasTxt = g.tienePzas ? ` / ${Math.round(g.pzas)} pzas` : '';
-        return `TOTAL ${prod} = ${kgTxt} kg${pzasTxt}`;
-      });
-
-      return lineas.join('\n');
-    }
-
-    /* ========================= STATE ========================= */
-    let CLIENTES = [], PRODUCTOS = [], PRECIOS = {};
-    let slotActive = 'A';
-    let notaA = null, notaB = null;
-    let chA = null, chB = null;
-
-    const slotState = {
-      A:{cliente_id:null, telefono:null},
-      B:{cliente_id:null, telefono:null}
+    window.forzarGuardarBorrador = () => guardarBorrador();
+    window.limpiarBorrador = () => {
+      if(!confirm("¿Seguro que quieres limpiar el borrador de HOY?")) return;
+      localStorage.removeItem(DRAFT_KEY());
+      document.querySelectorAll('input').forEach(i => i.value = '');
+      setDraftStatus('Borrador limpiado 🧹');
     };
 
-    /* ===== Protector de salida ===== */
-    let exitGuardEnabled = JSON.parse(localStorage.getItem('exitGuardEnabled') || 'true');
-    let isDirty = false;
-    function markDirty(){ if(exitGuardEnabled) isDirty = true; }
-    function clearDirty(){ isDirty = false; }
-
-    /* ========================= REFS ========================= */
-    const exitGuardToggle = $('#exitGuardToggle');
-    const slotABtn = $('#slotA'), slotBBtn = $('#slotB');
-    const slotALabel = $('#slotALabel'), slotBLabel = $('#slotBLabel');
-
-    const cliSelect = $('#cliSelect');
-    const cliTelefono = $('#cliTelefono');
-
-    const notaFolio = $('#notaFolio');
-    const notaFecha = $('#notaFecha');
-    const notaDias = $('#notaDias');
-    const notaVence = $('#notaVence');
-    const notaInfo = $('#notaInfo');
-
-    // CAPTURA NORMAL
-    const capNormal = $('#capNormal');
-    const pProducto = $('#pProducto');
-    const pKg = $('#pKg');
-    const pPzas = $('#pPzas');
-    const pPrecio = $('#pPrecio');
-    const subtotalBox = $('#subtotalBox');
-
-    // CAPTURA Pieles y Grasas
-    const capPG = $('#capPG');
-    const seboKg = $('#seboKg');
-    const seboPzas = $('#seboPzas');
-    const huesoKg = $('#huesoKg');
-    const huesoPzas = $('#huesoPzas');
-    const subtotalBox2 = $('#subtotalBox2');
-
-    const vFolio = $('#vFolio');
-    const vEstado = $('#vEstado');
-    const vSaldo = $('#vSaldo');
-    const vistaBody = $('#vistaBody');
-    const vistaTotal = $('#vistaTotal');
-
-    const bandejaFecha = $('#bandejaFecha');
-    const bandejaBuscar = $('#bandejaBuscar');
-    const bandejaBody = $('#bandejaBody');
-
-    const waDelay = $('#waDelay');
-    const waMassStatus = $('#waMassStatus');
-
-    const diaFecha = $('#diaFecha');
-    const diaResumen = $('#diaResumen');
-
-    const notaObs = $('#notaObs');
-
-    /* ========================= INIT ========================= */
-    notaFecha.value = todayISO();
-    notaVence.value = addDays(notaFecha.value, notaDias.value);
-    bandejaFecha.value = todayISO();
-    diaFecha.value = todayISO();
-
-    exitGuardToggle.checked = exitGuardEnabled;
-    exitGuardToggle.addEventListener('change', ()=>{
-      exitGuardEnabled = exitGuardToggle.checked;
-      localStorage.setItem('exitGuardEnabled', JSON.stringify(exitGuardEnabled));
-      if(!exitGuardEnabled) clearDirty();
+    document.addEventListener('input', (e)=>{
+      if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
+    });
+    document.addEventListener('change', (e)=>{
+      if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
     });
 
-    window.addEventListener('beforeunload', (e)=>{
-      if(exitGuardEnabled && isDirty){
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    });
+    // =========================
+    // 4) AiSensy
+    // =========================
+    function enviarAiSensy(texto) {
+      const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0';
+      const recipients = ['+524621561193', '+524621391119', '+524621521152'];
 
-    notaDias.addEventListener('change', ()=>{ notaVence.value = addDays(notaFecha.value, notaDias.value); });
-    notaFecha.addEventListener('change', ()=>{ notaVence.value = addDays(notaFecha.value, notaDias.value); });
-
-    // ===== Auto precio + Auto kilos para cajas =====
-    ['keyup','change'].forEach(ev=> pProducto.addEventListener(ev, ()=>{
-      prefPrecio();
-      autoKgFromCaja();
-      markDirty();
-    }));
-    ['keyup','change','blur'].forEach(ev=> pPzas.addEventListener(ev, ()=>{
-      autoKgFromCaja();
-      markDirty();
-    }));
-
-    ['keyup','change'].forEach(ev=> pKg.addEventListener(ev, markDirty));
-    ['keyup','change'].forEach(ev=> pPrecio.addEventListener(ev, markDirty));
-    ['keyup','change'].forEach(ev=> notaObs.addEventListener(ev, markDirty));
-
-    notaObs.addEventListener('blur', saveNotaObs);
-
-    // Botones
-    $('#btnContinuar').addEventListener('click', continuarNota);
-    $('#btnAgregar').addEventListener('click', addPartida);
-
-    $('#btnAgregarSebo').addEventListener('click', ()=> addFixedPartidaPG('Sebo', seboKg.value, seboPzas.value));
-    $('#btnAgregarHueso').addEventListener('click', ()=> addFixedPartidaPG('Hueso', huesoKg.value, huesoPzas.value));
-
-    $('#btnWA').addEventListener('click', ()=> activeNota() && waNota(activeNota().id));
-    $('#btnImprimir').addEventListener('click', ()=> activeNota() && imprimirNotaA4(activeNota().id));
-    $('#btnImprimir80').addEventListener('click', ()=> activeNota() && imprimirNota80mm(activeNota().id));
-    $('#btnCSV').addEventListener('click', ()=> activeNota() && exportNotaCSV(activeNota().id));
-    $('#btnCerrar').addEventListener('click', cerrarNota);
-    $('#btnNuevoCliente').addEventListener('click', addCliente);
-    $('#btnBandeja').addEventListener('click', loadBandeja);
-    $('#btnDiaA4').addEventListener('click', imprimirDiaA4);
-    $('#btnDiaCSV').addEventListener('click', exportDiaCSV);
-
-    // ✅ envío masivo
-    $('#btnWATodosHoy').addEventListener('click', waEnviarTodosHoy);
-
-    // ✅ buscador en vivo
-    bandejaBuscar?.addEventListener('input', ()=> loadBandeja());
-
-    // ✅ cerrar dropdown si click fuera
-    document.addEventListener('click', (e)=>{
-      const inside = e.target.closest?.('details.actionMenu');
-      if(!inside) cerrarTodosLosMenus();
-    });
-
-    // Cambios de cliente/teléfono ligados al slot activo
-    cliSelect.addEventListener('change', ()=>{
-      slotState[slotActive].cliente_id = cliSelect.value || null;
-      const c = getClient(slotState[slotActive].cliente_id);
-      cliTelefono.value = c ? (c.telefono || '') : '';
-      slotState[slotActive].telefono = cliTelefono.value || null;
-
-      updateCaptureMode();
-    });
-
-    cliTelefono.addEventListener('blur', async ()=>{ await saveClientPhone(); });
-
-    slotABtn.onclick = ()=> setActiveSlot('A');
-    slotBBtn.onclick = ()=> setActiveSlot('B');
-
-    // ✅ Enter inteligente: modo normal vs modo Pieles y Grasas
-    document.addEventListener('keydown', (e)=>{
-      if(e.key !== 'Enter') return;
-
-      const id = document.activeElement?.id || '';
-
-      if(isPielesYGrasasSelected()){
-        if(['seboKg','seboPzas'].includes(id)){
-          e.preventDefault();
-          addFixedPartidaPG('Sebo', seboKg.value, seboPzas.value);
-          return;
-        }
-        if(['huesoKg','huesoPzas'].includes(id)){
-          e.preventDefault();
-          addFixedPartidaPG('Hueso', huesoKg.value, huesoPzas.value);
-          return;
-        }
-        return;
-      }
-
-      if(['pProducto','pKg','pPzas','pPrecio'].includes(id)){
-        e.preventDefault();
-        addPartida();
-      }
-    });
-
-    window.addEventListener('load', async ()=>{
-      await Promise.all([loadClientes(), loadProductos()]);
-      notaFolio.value = genFolio();
-      await loadBandeja();
-
-      if(CLIENTES[0]){
-        slotState.A.cliente_id = CLIENTES[0].id;
-        slotState.A.telefono = CLIENTES[0].telefono || null;
-        applySlotUI('A');
-      }
-
-      updateCaptureMode();
-    });
-
-    /* ========================= HELPERS ========================= */
-    function getClient(id){ return (CLIENTES||[]).find(c=> String(c.id)===String(id)); }
-    function getClientName(id){ return getClient(id)?.nombre || ''; }
-
-    function activeNota(){ return slotActive==='A' ? notaA : notaB; }
-
-    function setActiveSlot(s){
-      slotActive = s;
-      slotABtn.classList.toggle('active', s==='A');
-      slotBBtn.classList.toggle('active', s==='B');
-      applySlotUI(s);
-      renderVista();
-      refreshNotaInfo();
-      updateCaptureMode();
+      recipients.forEach(number => {
+        fetch("https://backend.aisensy.com/campaign/message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_KEY}`
+          },
+          body: JSON.stringify({
+            campaignName: "Notificacionesvdc360",
+            destination: number,
+            userName: "Marciano",
+            templateParams: { message: texto }
+          })
+        })
+        .then(res => res.json())
+        .then(res => console.log("AiSensy OK:", number, res))
+        .catch(err => console.error("AiSensy ERROR:", err));
+      });
     }
 
-    function setSlotNota(s, nota){
-      if(s==='A'){ notaA = nota; subRealtime('A'); }
-      else { notaB = nota; subRealtime('B'); }
+    // =========================
+    // 5) Proxy Vercel
+    // =========================
+    function enviarProxyWhatsapp(texto) {
+      const numeros = ['+524621561193', '+524621391119', '+524621521152'];
 
-      slotState[s].cliente_id = nota.cliente_id || slotState[s].cliente_id;
-      const c = getClient(slotState[s].cliente_id);
-      slotState[s].telefono = c ? (c.telefono || null) : slotState[s].telefono;
-
-      if(slotActive===s){
-        applySlotUI(s);
-        renderVista();
-      }
-      refreshNotaInfo();
-      updateCaptureMode();
+      numeros.forEach(numero => {
+        fetch("https://vdc360-proxy.vercel.app/api/mensaje", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ numero, mensaje: texto })
+        })
+        .then(res => res.json())
+        .then(data => console.log("Proxy OK:", numero, data))
+        .catch(err => console.error("Proxy ERROR:", err));
+      });
     }
 
-    function refreshNotaInfo(){
-      slotALabel.textContent = notaA ? `${notaA.folio}` : '—';
-      slotBLabel.textContent = notaB ? `${notaB.folio}` : '—';
-      const n = activeNota();
-      notaInfo.textContent = n ? `Nota: ${n.folio}` : 'Sin nota en slot';
-    }
+    // =========================
+    // 6) Funciones de negocio
+    // =========================
+    async function guardarYenviar(linea, tipo, nombreLinea) {
+      const inicio = document.getElementById(`${linea}_inicio`).value || null;
+      const fin = document.getElementById(`${linea}_fin`).value || null;
+      const responsable = (document.getElementById(`${linea}_responsable`).value || "").trim() || null;
 
-    function applySlotUI(s){
-      const n = (s==='A') ? notaA : notaB;
-      const cid = (n?.cliente_id) || slotState[s].cliente_id || (CLIENTES[0]?.id || '');
-      cliSelect.value = cid;
-      const c = getClient(cid);
-      cliTelefono.value = (n && c) ? (c.telefono || '') : (slotState[s].telefono || c?.telefono || '');
-      updateCaptureMode();
-    }
+      if (tipo === 'inicio' && !inicio) return alert("Falta la hora de inicio.");
+      if (tipo === 'fin' && !fin) return alert("Falta la hora de término.");
 
-    /* ========================= MODO Pieles y Grasas ========================= */
-    function isPielesYGrasasSelected(){
-      const cid = cliSelect.value;
-      const c = getClient(cid);
-      const nombre = c?.nombre || '';
-      return normalizeName(nombre) === normalizeName('Pieles y Grasas');
-    }
-
-    function updateCaptureMode(){
-      const pg = isPielesYGrasasSelected();
-
-      capPG.style.display = pg ? 'block' : 'none';
-      capNormal.style.display = pg ? 'none' : 'block';
-
-      if(pg){
-        setTimeout(()=>{ seboKg?.focus(); seboKg?.select(); }, 0);
-      }else{
-        setTimeout(()=>{ pProducto?.focus(); }, 0);
-      }
-    }
-
-    /* ========================= CATÁLOGOS ========================= */
-    async function loadClientes(){
-      const { data, error } = await sb
-        .from('clientes')
-        .select('id, nombre, telefono')
-        .order('nombre');
-
-      if(error){
-        console.error(error);
-        alert('No se pudieron cargar CLIENTES');
-        return;
-      }
-
-      CLIENTES = data || [];
-      cliSelect.innerHTML = (CLIENTES||[])
-        .map(c=> `<option value="${c.id}">${c.nombre}</option>`)
-        .join('');
-    }
-
-    async function loadProductos(){
-      let { data, error } = await sb
-        .from('productos')
-        .select('id,nombre,precio_kg,activo')
-        .eq('activo', true)
-        .order('nombre');
-
-      if(error){
-        ({ data } = await sb
-          .from('productos')
-          .select('id,nombre,precio_kg')
-          .order('nombre'));
-      }
-
-      PRODUCTOS = data || [];
-      PRECIOS = Object.fromEntries(PRODUCTOS.map(p=>[p.nombre, Number(p.precio_kg||0).toFixed(2)]));
-
-      $('#catProductos').innerHTML = PRODUCTOS
-        .map(p=> `<option value="${p.nombre}"></option>`)
-        .join('');
-    }
-
-    function prefPrecio(){
-      const n = (pProducto.value||'').trim();
-      if(PRECIOS[n]) pPrecio.value = PRECIOS[n];
-    }
-
-    /* ========================= AUTO-KG PARA CAJAS (27.22) ========================= */
-    function isCajaMenudoTarget(prodName){
-      const n = normalizeName(prodName);
-      return (
-        n === normalizeName('Caja Menudo National') ||
-        n === normalizeName('Caja Menudo Canadian')
-      );
-    }
-
-    function autoKgFromCaja(){
-      if(capNormal.style.display === 'none') return;
-
-      const prod = (pProducto.value||'').trim();
-      if(!isCajaMenudoTarget(prod)) return;
-
-      const pz = Number(pPzas.value || 0);
-      if(!pz || pz <= 0) return;
-
-      const kg = pz * CAJA_KG;
-      pKg.value = to2(kg);
-    }
-
-    /* ========================= GUARDAR TELÉFONO ========================= */
-    async function saveClientPhone(){
-      const cid = slotState[slotActive].cliente_id || activeNota()?.cliente_id;
-      if(!cid) return;
-
-      const val = (cliTelefono.value||'').trim() || null;
-      try{
-        await sb.from('clientes').update({ telefono: val }).eq('id', cid);
-        const c = getClient(cid);
-        if(c) c.telefono = val;
-        slotState[slotActive].telefono = val;
-      }catch(e){
-        console.error(e);
-      }
-    }
-
-    /* ========================= GUARDAR OBSERVACIONES ========================= */
-    async function saveNotaObs(){
-      const n = activeNota();
-      if(!n) return;
-      const val = (notaObs.value||'').trim() || null;
-      try{
-        await sb.from('notas_credito').update({ observaciones: val }).eq('id', n.id);
-        clearDirty();
-      }catch(e){
-        console.error(e);
-      }
-    }
-
-    /* ========================= CREAR/CONTINUAR NOTA ========================= */
-    async function continuarNota(){
-      const cliente_id = slotState[slotActive].cliente_id || cliSelect.value;
-      if(!cliente_id) return alert('Selecciona cliente');
-
-      const fecha = notaFecha.value || todayISO();
-
-      let { data: nota } = await sb
-        .from('notas_credito')
-        .select('*')
-        .eq('cliente_id', cliente_id)
-        .eq('fecha', fecha)
-        .eq('estado','abierta')
-        .order('created_at', {ascending:false})
-        .limit(1)
-        .maybeSingle();
-
-      if(!nota){
-        const payload = {
-          id: crypto.randomUUID(),
-          folio: genFolio(),
-          fecha,
-          vence: (notaVence.value || addDays(fecha, notaDias.value)),
-          cliente_id,
-          total: 0,
-          saldo: 0,
-          observaciones: (notaObs.value || null)
-        };
-
-        const { error } = await sb.from('notas_credito').insert(payload);
-        if(error){
-          console.error(error);
-          return alert('No se pudo crear la nota');
-        }
-        nota = payload;
-      }
-
-      setSlotNota(slotActive, nota);
-      notaFolio.value = nota.folio;
-      notaObs.value = nota.observaciones || '';
-
-      updateCaptureMode();
-    }
-
-    /* ========================= NUEVO CLIENTE ========================= */
-    async function addCliente(){
-      const nombre = prompt('Nombre del cliente:');
-      if(!nombre || !nombre.trim()) return;
-
-      const telefono = prompt('Teléfono (WhatsApp, opcional):') || null;
-
-      const row = {
-        id: crypto.randomUUID(),
-        nombre: nombre.trim(),
-        telefono: telefono || null
+      const registro = {
+        fecha: hoyISO(),
+        linea: nombreLinea,
+        inicio,
+        fin,
+        responsable,
+        momento: tipo
       };
 
-      const { error } = await sb.from('clientes').insert(row);
-      if(error){
-        console.error(error);
-        return alert('No se pudo crear el cliente (RLS/SQL)');
-      }
+      const { error } = await sb.from("produccion_camion").insert([registro]);
+      if (error) return alert("Error al guardar: " + error.message);
 
-      await loadClientes();
+      const texto = (tipo === 'inicio')
+        ? `🚀 *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable || '—'}`
+        : `✅ *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Término: ${fin}`;
 
-      const c = CLIENTES.find(x=>x.nombre===nombre.trim());
-      if(c){
-        slotState[slotActive].cliente_id = c.id;
-        slotState[slotActive].telefono = c.telefono || null;
-        applySlotUI(slotActive);
-      }
+      enviarAiSensy(texto);
+      enviarProxyWhatsapp(texto);
+      abrirWhatsApp(texto);
 
-      updateCaptureMode();
-      alert('✅ Cliente creado');
+      guardarBorrador();
     }
 
-    /* ========================= INSERTAR PARTIDA (NORMAL) ========================= */
-    async function addPartida(){
-      const nota = activeNota();
-      if(!nota) return alert('Primero crea/continúa una nota en el slot activo');
+    async function guardarEventoGeneral(idCampo, nombreEvento) {
+      const hora = document.getElementById(idCampo).value;
+      if (!hora) return alert("Falta la hora.");
 
-      const prod = (pProducto.value||'').trim();
-      const cant = Number(pKg.value||0);
-      const piezas = (pPzas.value !== '' && pPzas.value != null) ? Number(pPzas.value||0) : null;
-      const precio = Number(pPrecio.value||0);
+      const { error } = await sb.from("produccion_camion").insert([{
+        fecha: hoyISO(),
+        linea: nombreEvento,
+        inicio: hora,
+        momento: 'inicio'
+      }]);
 
-      if(!prod || cant<=0) return alert('Producto y kilos son obligatorios');
+      if (error) return alert("Error al guardar evento general: " + error.message);
 
-      const { error } = await sb.from('notas_detalle').insert({
-        id: crypto.randomUUID(),
-        nota_id: nota.id,
-        producto: prod,
-        cantidad: cant,
-        piezas: (piezas != null && piezas > 0 ? Math.round(piezas) : null),
-        precio,
-        importe: cant * precio
-      });
+      const texto = `🚛 *${nombreEvento}*\n🗓️ ${hoyISO()}\n🕒 Hora: ${hora}`;
+      enviarAiSensy(texto);
+      enviarProxyWhatsapp(texto);
+      abrirWhatsApp(texto);
 
-      if(error){
-        console.error(error);
-        return alert('No se pudo agregar la partida');
-      }
-
-      pProducto.value = '';
-      if(!rtBascula?.checked) pKg.value = '1';
-      pPzas.value = '';
-      prefPrecio();
-      clearDirty();
-
-      await recalcNota(nota.id);
-      pProducto.focus();
+      guardarBorrador();
     }
 
-    /* ========================= INSERTAR PARTIDA (Pieles y Grasas) ========================= */
-    async function addFixedPartidaPG(productoNombre, kgVal, pzasVal){
-      const nota = activeNota();
-      if(!nota) return alert('Primero crea/continúa una nota en el slot activo');
+    async function guardarPatas() {
+      const envio = document.getElementById("hora_envio_patas").value || null;
+      const llegada = document.getElementById("hora_llegada_patas").value || null;
 
-      const prod = (productoNombre || '').trim();
-      const cant = Number(kgVal || 0);
-      const piezas = (pzasVal !== '' && pzasVal != null) ? Number(pzasVal || 0) : null;
+      if (!envio && !llegada) return alert("Captura al menos una hora (envío o llegada).");
 
-      if(!prod || cant <= 0) return alert('Kilos deben ser mayor a 0');
+      const rows = [];
+      if (envio) rows.push({ fecha: hoyISO(), linea: 'Envío Patas', inicio: envio, momento: 'envio_patas' });
+      if (llegada) rows.push({ fecha: hoyISO(), linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' });
 
-      const precio = Number(PRECIOS[prod] || 0);
+      const { error } = await sb.from("produccion_camion").insert(rows);
+      if (error) return alert("Error al guardar patas: " + error.message);
 
-      const { error } = await sb.from('notas_detalle').insert({
-        id: crypto.randomUUID(),
-        nota_id: nota.id,
-        producto: prod,
-        cantidad: cant,
-        piezas: (piezas != null && piezas > 0 ? Math.round(piezas) : null),
-        precio,
-        importe: cant * precio
-      });
+      const texto =
+        `🐾 *Patas*\n🗓️ ${hoyISO()}` +
+        (envio ? `\n🚚 Enviadas: ${envio}` : ``) +
+        (llegada ? `\n📦 Llegaron: ${llegada}` : ``);
 
-      if(error){
-        console.error(error);
-        return alert('No se pudo agregar la partida');
-      }
+      enviarAiSensy(texto);
+      enviarProxyWhatsapp(texto);
+      abrirWhatsApp(texto);
 
-      if(normalizeName(prod) === normalizeName('sebo')){
-        seboKg.value = '0';
-        seboPzas.value = '';
-        seboKg.focus(); seboKg.select();
-      } else {
-        huesoKg.value = '0';
-        huesoPzas.value = '';
-        huesoKg.focus(); huesoKg.select();
-      }
-
-      clearDirty();
-      await recalcNota(nota.id);
+      guardarBorrador();
     }
 
-    async function recalcNota(nota_id){
-      let total = 0;
-
-      try{
-        const { data } = await sb.rpc('sum_importe_nota', { p_nota_id: nota_id });
-        total = Number(data?.total || 0);
-      }catch{
-        const { data } = await sb.from('notas_detalle').select('importe').eq('nota_id', nota_id);
-        total = (data||[]).reduce((a,b)=>a+Number(b.importe||0),0);
-      }
-
-      await sb.from('notas_credito').update({ total, saldo: total }).eq('id', nota_id);
-      await renderVista();
-      await loadBandeja();
-    }
-
-    /* ========================= VISTA (SLOT ACTIVO) ========================= */
-    async function renderVista(){
-      const n = activeNota();
-
-      if(!n){
-        vFolio.textContent='—';
-        vEstado.textContent='—';
-        vSaldo.textContent='0.00';
-        vistaBody.innerHTML='';
-        vistaTotal.textContent='$0.00';
-        subtotalBox.textContent='Subtotal: $0.00';
-        if(subtotalBox2) subtotalBox2.textContent='Subtotal: $0.00';
-        notaObs.value='';
-        refreshNotaInfo();
-        return;
-      }
-
-      const { data: nota } = await sb
-        .from('notas_credito')
-        .select('*')
-        .eq('id', n.id)
-        .single();
-
-      const { data: det } = await sb
-        .from('notas_detalle')
-        .select('*')
-        .eq('nota_id', n.id)
-        .order('created_at');
-
-      if(slotActive==='A') notaA = nota; else notaB = nota;
-
-      slotState[slotActive].cliente_id = nota.cliente_id;
-      const c = getClient(nota.cliente_id);
-      slotState[slotActive].telefono = c ? (c.telefono || null) : slotState[slotActive].telefono;
-      applySlotUI(slotActive);
-
-      vFolio.textContent = nota.folio;
-      vEstado.textContent = nota.estado || 'abierta';
-      vSaldo.textContent = to2(nota.saldo || 0);
-
-      const autoObs = buildAutoObsFromDetalle(det || []);
-      notaObs.value = autoObs;
-
-      try{
-        await sb.from('notas_credito').update({ observaciones: autoObs || null }).eq('id', nota.id);
-      }catch(e){
-        console.error(e);
-      }
-
-      vistaBody.innerHTML = (det||[]).map(d=> `
-        <tr data-id="${d.id}">
-          <td>${new Date(d.created_at).toLocaleString()}</td>
-          <td>${d.producto}</td>
-          <td class="editable" data-field="cantidad">${to2(d.cantidad)}</td>
-          <td class="editable" data-field="piezas">${d.piezas != null ? d.piezas : ''}</td>
-          <td class="editable" data-field="precio">$${to2(d.precio)}</td>
-          <td>$${to2(d.importe)}</td>
-          <td><button class="btn btn-ghost btn-sm" data-del="${d.id}" title="Borrar" type="button">🗑️</button></td>
-        </tr>
-      `).join('');
-
-      const tot = (det||[]).reduce((a,b)=>a+Number(b.importe||0),0);
-      vistaTotal.textContent = `$${to2(tot)}`;
-      subtotalBox.textContent = `Subtotal: $${to2(tot)}`;
-      if(subtotalBox2) subtotalBox2.textContent = `Subtotal: $${to2(tot)}`;
-
-      vistaBody.querySelectorAll('[data-del]').forEach(b=>{
-        b.onclick = ()=> deleteDetalle(b.dataset.del);
-      });
-
-      vistaBody.querySelectorAll('.editable').forEach(td=>{
-        td.addEventListener('click', ()=> makeCellEditable(td, n.id));
-      });
-
-      refreshNotaInfo();
-      updateCaptureMode();
-    }
-
-    function makeCellEditable(td, nota_id){
-      if(td.classList.contains('cell-editing')) return;
-
-      const field = td.dataset.field;
-      const row = td.closest('tr');
-      const detId = row.dataset.id;
-      const raw = td.textContent.replace('$','').trim();
-
-      let oldV = raw ? Number(raw.replace(',', '.')) : null;
-
-      td.classList.add('cell-editing');
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.step = (field==='piezas') ? '1' : '0.01';
-      input.min = '0';
-      input.value = (oldV != null ? oldV : 0);
-
-      td.innerHTML = '';
-      td.appendChild(input);
-      input.focus();
-      input.select();
-
-      markDirty();
-
-      const commit = async(save)=>{
-        const newV = Number(input.value||'');
-
-        let displayV;
-        if(field==='precio'){
-          const val = save ? newV : (oldV ?? 0);
-          displayV = `$${to2(val)}`;
-        } else if(field==='cantidad'){
-          const val = save ? newV : (oldV ?? 0);
-          displayV = to2(val);
-        } else if(field==='piezas'){
-          const val = save ? newV : (oldV ?? null);
-          displayV = (val == null || isNaN(val) || val === 0) ? '' : String(Math.round(val));
-        } else {
-          displayV = input.value;
-        }
-
-        td.classList.remove('cell-editing');
-        td.innerHTML = displayV;
-
-        if(!save){
-          clearDirty();
-          return;
-        }
-
-        if(field === 'piezas'){
-          const newVal = (isNaN(newV) || newV <= 0) ? null : Math.round(newV);
-          await sb.from('notas_detalle').update({ piezas: newVal }).eq('id', detId);
-          clearDirty();
-          await renderVista();
-          return;
-        }
-
-        const { data: cur } = await sb
-          .from('notas_detalle')
-          .select('cantidad, precio')
-          .eq('id', detId)
-          .single();
-
-        const cantidad = field==='cantidad' ? newV : Number(cur?.cantidad||0);
-        const precio = field==='precio' ? newV : Number(cur?.precio||0);
-        const importe = cantidad * precio;
-
-        await sb.from('notas_detalle').update({ cantidad, precio, importe }).eq('id', detId);
-        clearDirty();
-        await recalcNota(nota_id);
-      };
-
-      input.addEventListener('keydown', e=>{
-        if(e.key==='Enter') commit(true);
-        if(e.key==='Escape') commit(false);
-      });
-      input.addEventListener('blur', ()=> commit(true));
-    }
-
-    async function deleteDetalle(detId){
-      if(!confirm('¿Borrar esta partida?')) return;
-      const n = activeNota();
-      if(!n) return;
-      await sb.from('notas_detalle').delete().eq('id', detId);
-      await recalcNota(n.id);
-    }
-
-    /* ========================= REALTIME (NOTAS) ========================= */
-    function subRealtime(slot){
-      const nota = slot==='A' ? notaA : notaB;
-      if(!nota) return;
-
-      if(slot==='A' && chA){ sb.removeChannel(chA); chA=null; }
-      if(slot==='B' && chB){ sb.removeChannel(chB); chB=null; }
-
-      const ch = sb
-        .channel(`rt-${slot}-${nota.id}`)
-        .on('postgres_changes',
-          {event:'*',schema:'public',table:'notas_detalle',filter:`nota_id=eq.${nota.id}`},
-          ()=>{ if(slot===slotActive) renderVista(); }
-        )
-        .on('postgres_changes',
-          {event:'update',schema:'public',table:'notas_credito',filter:`id=eq.${nota.id}`},
-          ()=>{ if(slot===slotActive) renderVista(); }
-        )
-        .subscribe();
-
-      if(slot==='A') chA=ch; else chB=ch;
-    }
-
-    /* ========================= BANDEJA (COMPACTA) ========================= */
-    function cerrarTodosLosMenus(){
-      document.querySelectorAll('details.actionMenu[open]').forEach(d=> d.open = false);
-    }
-
-    async function loadBandeja(){
-      const f = bandejaFecha.value || todayISO();
-      const q = (bandejaBuscar?.value || '').trim().toLowerCase();
-
+    async function generarResumen() {
       const { data, error } = await sb
-        .from('notas_credito')
-        .select('id,folio,saldo,estado,clientes(nombre),cliente_id,created_at')
-        .eq('fecha', f)
-        .eq('estado','abierta')
-        .order('created_at', { ascending:false });
-
-      if(error){
-        console.error(error);
-        bandejaBody.innerHTML = `<tr><td colspan="5" class="muted">Error cargando bandeja</td></tr>`;
-        return;
-      }
-
-      let rows = data || [];
-
-      if(q){
-        rows = rows.filter(r=>{
-          const fol = (r.folio||'').toLowerCase();
-          const cli = (r.clientes?.nombre||'').toLowerCase();
-          return fol.includes(q) || cli.includes(q);
-        });
-      }
-
-      bandejaBody.innerHTML = rows.map(r=> `
-        <tr>
-          <td>${r.folio}</td>
-          <td>${r.clientes?.nombre||''}</td>
-          <td>$${to2(r.saldo||0)}</td>
-          <td>${r.estado||'abierta'}</td>
-          <td style="text-align:right">
-            <details class="actionMenu">
-              <summary>Acciones ▾</summary>
-              <div class="menuPanel">
-                <button type="button" data-usea="${r.id}" data-cid="${r.cliente_id}">Usar en A</button>
-                <button type="button" data-useb="${r.id}" data-cid="${r.cliente_id}">Usar en B</button>
-                <button type="button" data-a4="${r.id}">Imprimir A4</button>
-                <button type="button" data-id80="${r.id}">Imprimir 80mm</button>
-                <button type="button" data-wa="${r.id}">Enviar WA (AiSensy)</button>
-                <button type="button" class="danger" data-close="${r.id}">Cerrar</button>
-              </div>
-            </details>
-          </td>
-        </tr>
-      `).join('');
-
-      bandejaBody.querySelectorAll('[data-usea]').forEach(b=> b.onclick = ()=>{
-        cerrarTodosLosMenus();
-        cargarEnSlot('A', b.dataset.usea, b.dataset.cid);
-      });
-      bandejaBody.querySelectorAll('[data-useb]').forEach(b=> b.onclick = ()=>{
-        cerrarTodosLosMenus();
-        cargarEnSlot('B', b.dataset.useb, b.dataset.cid);
-      });
-      bandejaBody.querySelectorAll('[data-a4]').forEach(b=> b.onclick = ()=>{
-        cerrarTodosLosMenus();
-        imprimirNotaA4(b.dataset.a4);
-      });
-      bandejaBody.querySelectorAll('[data-id80]').forEach(b=> b.onclick = ()=>{
-        cerrarTodosLosMenus();
-        imprimirNota80mm(b.dataset.id80);
-      });
-      bandejaBody.querySelectorAll('[data-wa]').forEach(b=> b.onclick = ()=>{
-        cerrarTodosLosMenus();
-        waNota(b.dataset.wa);
-      });
-      bandejaBody.querySelectorAll('[data-close]').forEach(b=> b.onclick = ()=>{
-        cerrarTodosLosMenus();
-        cerrarNotaById(b.dataset.close);
-      });
-    }
-
-    async function cargarEnSlot(slot, nota_id, cliente_id){
-      const { data: nota } = await sb
-        .from('notas_credito')
-        .select('*')
-        .eq('id', nota_id)
-        .single();
-
-      if(!nota) return;
-
-      setSlotNota(slot, nota);
-      slotState[slot].cliente_id = cliente_id || nota.cliente_id;
-
-      const c = getClient(slotState[slot].cliente_id);
-      slotState[slot].telefono = c ? (c.telefono || null) : null;
-
-      setActiveSlot(slot);
-    }
-
-    /* ========================= WHATSAPP (AiSensy) ========================= */
-    async function waNota(nota_id){
-      const { data: nota } = await sb.from('notas_credito').select('*').eq('id', nota_id).single();
-      const { data: det }  = await sb.from('notas_detalle').select('*').eq('nota_id', nota_id).order('created_at');
-
-      const nombre = getClientName(nota.cliente_id) || 'Cliente';
-      const c = getClient(nota.cliente_id);
-      const phoneRaw = (c?.telefono || '').trim();
-
-      if(!phoneRaw){
-        alert('El cliente no tiene teléfono guardado.');
-        return;
-      }
-
-      const phone = mxToE164(phoneRaw);
-      if(!phone){
-        alert('Teléfono inválido.');
-        return;
-      }
-
-      const detalleTxt = buildDetalleText(det||[]) || '—';
-      const totalTxt = `$${to2(nota.total || 0)}`;
-
-      // Variables del template: {{1}}..{{5}}
-      const vars = [
-        nombre,           // {{1}}
-        nota.folio,       // {{2}}
-        nota.fecha,       // {{3}}
-        detalleTxt,       // {{4}}
-        totalTxt          // {{5}}
-      ];
-
-      try{
-        await sendWhatsAppAisensy({
-          phone,
-          templateName: AISENSY_TEMPLATE,
-          variables: vars
-        });
-        alert(`✅ WhatsApp enviado (AiSensy)\n${nombre} · ${nota.folio}`);
-      }catch(e){
-        console.error(e);
-        alert('❌ No se pudo enviar por AiSensy: ' + (e?.message || e));
-      }
-    }
-
-    function setWAMassStatus(txt, ok=true){
-      if(!waMassStatus) return;
-      waMassStatus.textContent = txt || 'WA masivo: —';
-      waMassStatus.style.background = ok ? "#eef7f0" : "#fee2e2";
-      waMassStatus.style.color = ok ? "#0a7a3b" : "#b91c1c";
-    }
-
-    async function waEnviarTodosHoy(){
-      const f = bandejaFecha.value || todayISO();
-      const delay = Number(waDelay?.value || 600);
-
-      if(!confirm(`¿Enviar WhatsApp (AiSensy) a TODOS los de ${f}?`)) return;
-
-      setWAMassStatus('WA masivo: preparando…', true);
-
-      const { data: notas, error } = await sb
-        .from('notas_credito')
-        .select('id, cliente_id, folio, fecha, total, estado')
-        .eq('fecha', f)
-        .eq('estado','abierta')
-        .order('created_at', { ascending:true });
-
-      if(error){
-        console.error(error);
-        setWAMassStatus('WA masivo: error cargando notas', false);
-        return alert('Error cargando notas del día');
-      }
-
-      const list = notas || [];
-      if(!list.length){
-        setWAMassStatus('WA masivo: no hay notas', false);
-        return alert('No hay notas abiertas ese día');
-      }
-
-      let ok = 0, fail = 0;
-
-      for(let i=0; i<list.length; i++){
-        const n = list[i];
-        setWAMassStatus(`WA masivo: ${i+1}/${list.length} enviando…`, true);
-
-        try{
-          await waNota(n.id);
-          ok++;
-        }catch(e){
-          console.error('Falló', n.folio, e);
-          fail++;
-        }
-
-        await new Promise(r=>setTimeout(r, delay));
-      }
-
-      setWAMassStatus(`WA masivo: listo ✅ OK:${ok} · Fallas:${fail}`, fail===0);
-      alert(`✅ Envío masivo terminado\nOK: ${ok}\nFallas: ${fail}`);
-    }
-
-    /* ========================= A4 / CSV / 80mm / Reporte (sin cambios mayores) ========================= */
-    async function imprimirNotaA4(nota_id){
-      const { data: nota } = await sb
-        .from('notas_credito')
-        .select('*, clientes(nombre)')
-        .eq('id', nota_id)
-        .single();
-
-      const { data: det } = await sb
-        .from('notas_detalle')
-        .select('*')
-        .eq('nota_id', nota_id)
-        .order('created_at');
-
-      const el = $('#printArea');
-      el.style.display='block';
-      el.classList.remove('ticket80');
-
-      el.innerHTML = `
-        <h3>Nota — ${nota.clientes?.nombre||''}</h3>
-        <div><b>Folio:</b> ${nota.folio} &nbsp; <b>Fecha:</b> ${nota.fecha} &nbsp; <b>Vence:</b> ${nota.vence||''}</div>
-        <div><b>Total:</b> $${to2(nota.total)} &nbsp; <b>Saldo:</b> $${to2(nota.saldo)}</div>
-
-        ${nota.observaciones ? `
-          <div style="margin-top:6mm">
-            <b>Notas del cliente:</b><br>${(nota.observaciones||'').replace(/\n/g,'<br>')}
-          </div>
-        ` : ''}
-
-        <br/>
-
-        <table>
-          <thead><tr><th>Fecha/Hora</th><th>Producto</th><th>Kg</th><th>Pzas</th><th>P.Unit</th><th>Importe</th></tr></thead>
-          <tbody>
-            ${(det||[]).map(d=>`
-              <tr>
-                <td>${new Date(d.created_at).toLocaleString()}</td>
-                <td>${d.producto}</td>
-                <td>${to2(d.cantidad)}</td>
-                <td>${d.piezas != null ? d.piezas : ''}</td>
-                <td>$${to2(d.precio)}</td>
-                <td>$${to2(d.importe)}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-
-      window.print();
-      setTimeout(()=>{ el.style.display='none'; el.innerHTML=''; }, 500);
-    }
-
-    async function imprimirNota80mm(nota_id){
-      await saveNotaObs();
-
-      const { data: nota } = await sb
-        .from('notas_credito')
-        .select('*, clientes(nombre)')
-        .eq('id', nota_id)
-        .single();
-
-      const { data: det } = await sb
-        .from('notas_detalle')
-        .select('*')
-        .eq('nota_id', nota_id)
-        .order('created_at');
-
-      const cliente = nota.clientes?.nombre || '(sin nombre)';
-      const obs = nota.observaciones || '—';
-
-      const filas = (det || []).map(d=>{
-        const cantidadTexto = d.piezas ? `${to2(d.cantidad)} (${d.piezas}pz)` : to2(d.cantidad);
-        return `
-          <tr>
-            <td>${d.producto}</td>
-            <td class="right">${cantidadTexto}</td>
-          </tr>
-        `;
-      }).join('');
-
-      const html = `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="utf-8" />
-          <title>Ticket 80mm</title>
-          <style>
-            :root{--ink:#111}
-            *{box-sizing:border-box}
-            body{
-              margin:0;background:#fff;color:var(--ink);
-              font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-            }
-            #ticket{
-              background:#fff;border:1px dashed #999;border-radius:10px;
-              padding:6px;max-width:80mm;margin:0 auto;
-            }
-            #ticket h3{margin:0 0 4px;text-align:center;font-size:14px}
-            #ticket .meta{font-size:11px;margin-bottom:4px}
-            #ticket .obs-block{margin-top:2px;white-space:pre-wrap}
-            #ticket table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
-            #ticket th,#ticket td{padding:2px 1px;border-bottom:1px dashed #ddd;word-wrap:break-word}
-            .right{text-align:right}
-            @media print{
-              @page{ size: 80mm auto; margin: 0mm; }
-              body{background:#fff}
-              #ticket{ width:80mm;max-width:80mm;margin:0;padding:2mm;border:none; }
-              tr, td, th, table{ page-break-inside: avoid; break-inside: avoid; }
-            }
-          </style>
-        </head>
-        <body>
-          <div id="ticket">
-            <h3>${STORE_NAME}</h3>
-            <div class="meta">
-              Nota a crédito<br/>
-              Cliente: ${cliente}<br/>
-              Folio: ${nota.folio}<br/>
-              Fecha: ${nota.fecha}<br/>
-              <div class="obs-block">Obs: ${obs}</div>
-            </div>
-
-            <table>
-              <thead><tr><th>Prod</th><th class="right">Kg/Pzas</th></tr></thead>
-              <tbody>${filas}</tbody>
-            </table>
-
-            <div style="margin-top:6px;text-align:center;font-size:11px">
-              ¡Gracias por su preferencia! ¡Carnes y Vísceras del Centro tu mejor aliado!
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
-
-      const win = window.open('', '_blank', 'width=420,height=700');
-      win.document.open();
-      win.document.write(html);
-      win.document.close();
-      win.focus();
-      setTimeout(()=>{ win.print(); }, 300);
-    }
-
-    async function imprimirDiaA4(){
-      const f = diaFecha.value || todayISO();
-
-      const { data: notas } = await sb
-        .from('notas_credito')
-        .select('id, folio, fecha, clientes(nombre)')
-        .eq('fecha', f)
-        .order('created_at');
-
-      const ids = (notas || []).map(n => n.id);
-      if(!ids.length){ alert('No hay notas ese día'); return; }
-
-      const { data: det } = await sb
-        .from('notas_detalle')
-        .select('nota_id, producto, cantidad, piezas, precio, importe, created_at')
-        .in('nota_id', ids)
-        .order('created_at');
-
-      const byClient = {};
-      (notas || []).forEach(n=>{
-        const c = n.clientes?.nombre || '—';
-        if(!byClient[c]) byClient[c] = { items: [], totalImporte: 0 };
-      });
-
-      (det || []).forEach(d=>{
-        const nota = (notas || []).find(x => x.id === d.nota_id);
-        const cliente = nota?.clientes?.nombre || '—';
-        if(!byClient[cliente]) byClient[cliente] = { items: [], totalImporte: 0 };
-        byClient[cliente].items.push({
-          folio: nota?.folio || '',
-          created_at: d.created_at,
-          producto: d.producto,
-          cantidad: d.cantidad,
-          piezas: d.piezas,
-          importe: d.importe
-        });
-        byClient[cliente].totalImporte += Number(d.importe || 0);
-      });
-
-      const totalDia = (det || []).reduce((a, b) => a + Number(b.importe || 0), 0);
-      diaResumen.textContent = `Clientes: ${Object.keys(byClient).length} · Total día: $${to2(totalDia)}`;
-
-      let html = `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="utf-8" />
-          <title>Reporte diario</title>
-          <style>
-            @page { size: letter landscape; margin: 8mm; }
-            body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11px; margin: 0; }
-            h3 { margin: 0 0 4mm 0; font-size: 14px; }
-            h4 { margin: 2mm 0 1mm 0; font-size: 11px; }
-            .subinfo { font-size: 10px; margin-bottom: 3mm; }
-            #columns { column-count: 2; column-gap: 5mm; }
-            .client-group { break-inside: avoid; page-break-inside: avoid; margin-bottom: 3mm; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid #ccc; padding: 2px 3px; font-size: 9.5px; text-align: left; }
-            th { background: #f3f3f3; }
-          </style>
-        </head>
-        <body>
-          <h3>Reporte diario — ${f}</h3>
-          <div class="subinfo">Clientes: ${Object.keys(byClient).length} · Total día: $${to2(totalDia)}</div>
-          <div id="columns">
-      `;
-
-      Object.entries(byClient).forEach(([cliente, pack])=>{
-        html += `
-          <div class="client-group">
-            <h4>${cliente} — Total: $${to2(pack.totalImporte)}</h4>
-            <table>
-              <thead>
-                <tr>
-                  <th>Folio</th>
-                  <th>Hora</th>
-                  <th>Producto</th>
-                  <th>Kg</th>
-                  <th>Pzas</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${(pack.items || []).map(d => `
-                  <tr>
-                    <td>${d.folio}</td>
-                    <td>${new Date(d.created_at).toLocaleTimeString()}</td>
-                    <td>${d.producto}</td>
-                    <td>${to2(d.cantidad)}</td>
-                    <td>${d.piezas != null ? d.piezas : ''}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      });
-
-      html += `
-          </div>
-        </body>
-        </html>
-      `;
-
-      const win = window.open('', '_blank', 'width=1200,height=800');
-      win.document.open();
-      win.document.write(html);
-      win.document.close();
-      win.focus();
-      setTimeout(() => { win.print(); }, 400);
-    }
-
-    async function exportDiaCSV(){
-      const f = diaFecha.value || todayISO();
-
-      const { data: notas } = await sb
-        .from('notas_credito')
-        .select('id, folio, fecha, clientes(nombre)')
-        .eq('fecha', f);
-
-      const ids = (notas||[]).map(n=>n.id);
-      if(!ids.length) return alert('No hay notas ese día');
-
-      const { data: det } = await sb
-        .from('notas_detalle')
-        .select('nota_id, producto, cantidad, piezas, precio, importe, created_at')
-        .in('nota_id', ids);
-
-      const head = ['Cliente','Folio','Fecha','Hora','Producto','Kg','Piezas','Precio','Importe'];
-
-      const rows = (det||[]).map(d=>{
-        const n = (notas||[]).find(x=>x.id===d.nota_id) || {};
-        return [
-          (n.clientes?.nombre||''),
-          n.folio,
-          f,
-          new Date(d.created_at).toLocaleTimeString(),
-          d.producto,
-          to2(d.cantidad),
-          (d.piezas != null ? d.piezas : ''),
-          to2(d.precio),
-          to2(d.importe)
-        ];
-      });
-
-      const csv = [head, ...rows].map(r=> r.map(csvEscape).join(',')).join('\n');
-      const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+        .from("produccion_camion")
+        .select("*")
+        .eq("fecha", hoyISO())
+        .order("created_at", { ascending: true });
+
+      if (error) return alert("Error generando resumen: " + error.message);
+
+      const texto = (data || []).map(row =>
+        `🟩 ${row.linea} - ${row.momento}\n🕒 ${row.inicio || row.fin || ''}` +
+        (row.responsable ? `\n👤 ${row.responsable}` : ``)
+      ).join("\n\n") || "Sin registros hoy.";
+
+      const blob = new Blob([texto], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `reporte_${f}.csv`;
-      a.click();
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Resumen_Produccion_VDC360_${hoyISO()}.txt`;
+      link.click();
       URL.revokeObjectURL(url);
     }
 
-    async function exportNotaCSV(nota_id){
-      const { data: nota } = await sb
-        .from('notas_credito')
-        .select('folio, fecha, clientes(nombre), cliente_id')
-        .eq('id', nota_id)
-        .single();
+    window.guardarYenviar = guardarYenviar;
+    window.guardarEventoGeneral = guardarEventoGeneral;
+    window.guardarPatas = guardarPatas;
+    window.generarResumen = generarResumen;
 
-      const { data: det } = await sb
-        .from('notas_detalle')
-        .select('*')
-        .eq('nota_id', nota_id)
-        .order('created_at');
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarBorrador();
+      guardarBorrador();
+    });
 
-      const head = ['Cliente','Folio','Fecha','Hora','Producto','Kg','Piezas','Precio','Importe'];
-      const rows = (det||[]).map(d => ([
-        (nota?.clientes?.nombre || ''),
-        nota?.folio || '',
-        nota?.fecha || '',
-        new Date(d.created_at).toLocaleTimeString(),
-        d.producto,
-        to2(d.cantidad),
-        (d.piezas != null ? d.piezas : ''),
-        to2(d.precio),
-        to2(d.importe)
-      ]));
-
-      const csv = [head, ...rows].map(r=> r.map(csvEscape).join(',')).join('\n');
-      const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `nota_${nota?.folio || 'sin_folio'}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    async function cerrarNotaById(nota_id){
-      if(!nota_id) return;
-      if(!confirm('¿Cerrar esta nota?')) return;
-
-      const { error } = await sb
-        .from('notas_credito')
-        .update({estado:'cerrada'})
-        .eq('id', nota_id);
-
-      if(error){
-        console.error(error);
-        alert('No se pudo cerrar la nota');
-        return;
-      }
-
-      if(notaA?.id === nota_id) notaA = null;
-      if(notaB?.id === nota_id) notaB = null;
-
-      await renderVista();
-      await loadBandeja();
-      alert('✅ Nota cerrada');
-    }
-
-    async function cerrarNota(){
-      const n = activeNota();
-      if(!n) return alert('Sin nota');
-
-      await sb.from('notas_credito').update({estado:'cerrada'}).eq('id', n.id);
-      await renderVista();
-      await loadBandeja();
-      alert('✅ Nota cerrada');
-    }
+  })();
   </script>
+
 </body>
 </html>
