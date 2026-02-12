@@ -325,6 +325,10 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+
+      /* ✅ Para que el ajuste por teclado sea suave */
+      transition: transform .12s ease;
+      will-change: transform;
     }
     .peso-float-left{
       display:flex;
@@ -417,7 +421,7 @@
               Total: <span id="activeTotalKg">0.0</span> kg · <span id="activeTotalPzas">0</span> pzas
             </div>
 
-            <!-- ✅ NUEVO: Totales por marca (múltiples marcas) -->
+            <!-- Totales por marca -->
             <div class="ptotals" id="activeTotalsByMark" style="margin-top:6px;">
               Sin marcas aún.
             </div>
@@ -477,7 +481,7 @@
   </div>
 
   <!-- Barra flotante báscula -->
-  <div class="peso-floatbar">
+  <div class="peso-floatbar" id="pesoFloatbar">
     <div class="peso-float-left">
       <span class="peso-mini">Peso: <span id="pesoLiveMini">--</span> kg</span>
       <span id="pesoStatusMini" class="peso-status">CONECTANDO</span>
@@ -499,7 +503,6 @@
 
     const BASCULA_TABLE = 'bascula_live';
     const BASCULA_ID = 'torrey_1';
-
     const LIVE_TABLE = 'hoja_viaje_live';
 
     const DEVICE_ID = (() => {
@@ -550,7 +553,7 @@
     /* ========= STATE ========= */
     let state = {
       fecha: todayISO(),
-      resultados: {} // { producto: [ {kg,pzas,mark} ] }
+      resultados: {}
     };
     productos.forEach(p => state.resultados[p] = []);
     let activeProduct = productos[0];
@@ -624,7 +627,7 @@
         sel.addEventListener('change', ()=>{
           state.resultados[activeProduct][idx].mark = sel.value;
           applyRowMark(tr, sel.value);
-          updateActiveTotals();   // ✅ recalcula totales por marca
+          updateActiveTotals();
           scheduleSaves();
         });
         mkTd.appendChild(sel);
@@ -690,10 +693,9 @@
       return {kg,pzas};
     }
 
-    /* ✅ NUEVO: Totales por marca (múltiples marcas a la vez) */
     function calcTotalsByMark(producto){
       const rows = state.resultados[producto] || [];
-      const out = {}; // {markKey:{kg,pzas}}
+      const out = {};
       rows.forEach(r=>{
         const mk = (r.mark || 'none');
         if(!out[mk]) out[mk] = { kg:0, pzas:0 };
@@ -709,7 +711,6 @@
 
       const totals = calcTotalsByMark(activeProduct);
 
-      // muestra SOLO marcas con algo (incluye Cliente A y Cliente B al mismo tiempo)
       const items = Object.entries(totals)
         .filter(([mk, v]) => ((v.kg||0) > 0) || ((v.pzas||0) > 0));
 
@@ -718,7 +719,6 @@
         return;
       }
 
-      // orden por kg desc
       items.sort((a,b)=> (b[1].kg||0) - (a[1].kg||0));
 
       const labelOf = (mk)=>{
@@ -749,7 +749,7 @@
       $('#activeTotalKg2').textContent = t.kg.toFixed(1);
       $('#activeTotalPzas2').textContent = t.pzas;
       renderSidebar();
-      renderActiveTotalsByMark(); // ✅ aquí se actualizan todas las marcas
+      renderActiveTotalsByMark();
     }
 
     /* ========= RECOLECTAR ========= */
@@ -1076,16 +1076,51 @@
         });
     }
 
+    /* ========= FIX ANDROID KEYBOARD (Galaxy) ========= */
+    function setupKeyboardSafeFloatbar(){
+      const bar = document.getElementById('pesoFloatbar');
+      if(!bar) return;
+
+      const vv = window.visualViewport;
+      if(!vv) return;
+
+      const update = () => {
+        const keyboardPx = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        bar.style.transform = `translateY(${-keyboardPx}px)`;
+      };
+
+      vv.addEventListener('resize', update);
+      vv.addEventListener('scroll', update);
+      window.addEventListener('orientationchange', ()=> setTimeout(update, 50));
+      setTimeout(update, 50);
+    }
+
+    /* Opcional: que el input enfocado quede visible */
+    function setupKeepFocusedInputVisible(){
+      document.addEventListener('focusin', (e)=>{
+        const el = e.target;
+        if(!el) return;
+        if(el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.isContentEditable){
+          setTimeout(()=>{
+            try{ el.scrollIntoView({ behavior:'smooth', block:'center' }); }catch{}
+          }, 80);
+        }
+      });
+    }
+
     /* ========= INIT ========= */
     document.addEventListener('DOMContentLoaded', async ()=>{
       $('#fechaViaje').value = todayISO();
       state.fecha = $('#fechaViaje').value;
 
+      setupKeyboardSafeFloatbar();       // ✅ nuevo
+      setupKeepFocusedInputVisible();    // ✅ opcional recomendado
+
       await loadLive();
 
       renderSidebar();
       renderActiveTable();
-      updateActiveTotals(); // ✅ pinta totales general + por marcas
+      updateActiveTotals();
 
       subscribeLive();
       await saveLive();
@@ -1094,6 +1129,16 @@
       await leerPesoManual();
       subscribeBascula();
     });
+
+    /* ====== stubs para evitar errores si te faltaban ======
+       (si ya las tienes en tu versión, puedes borrar estas 3)
+    */
+    function setRtPill(on, text){
+      const pill = document.getElementById('rt');
+      if(!pill) return;
+      pill.textContent = text || (on ? 'REAL TIME' : 'RT OFF');
+      pill.classList.toggle('off', !on);
+    }
   </script>
 </body>
 </html>
