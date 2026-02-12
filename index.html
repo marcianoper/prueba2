@@ -2,8 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Producción VDC 360°</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hoja de Viaje - VDC360°</title>
+
+  <!-- Supabase v1 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.6/dist/umd/supabase.min.js"></script>
 
   <style>
     :root{
@@ -18,63 +21,38 @@
       --shadow2:0 10px 24px rgba(2,6,23,.10);
       --r:18px;
       --danger:#b91c1c;
-      --navy:#0b1b44;
     }
-
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       background:
-        radial-gradient(1200px 520px at 18% -10%, rgba(15,154,82,.18), transparent 60%),
+        radial-gradient(1200px 500px at 18% -10%, rgba(15,154,82,.18), transparent 60%),
         radial-gradient(1000px 520px at 110% 20%, rgba(10,122,59,.14), transparent 50%),
         var(--bg);
       color: var(--ink);
-      padding: 18px 14px 28px;
+      padding-bottom: 120px; /* espacio barra báscula */
     }
+    a{ color:inherit; }
 
-    /* Botón VDC Central */
-    .back-central{
-      position:fixed;
-      top:12px;
-      left:12px;
-      background: var(--brand);
-      color:#fff;
-      padding:10px 14px;
-      border-radius:12px;
-      text-decoration:none;
-      font-weight:1000;
-      z-index:9999;
-      box-shadow:0 10px 20px rgba(0,0,0,.15);
-    }
-
-    /* Contenedor general */
-    .wrap{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding-top: 56px; /* deja espacio al botón fijo */
-    }
-
-    /* Header */
-    .header{
+    /* Topbar */
+    .topbar{
       position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(246,247,248,.86);
+      top:0;
+      z-index: 9990;
+      background: rgba(246,247,248,.82);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(0,0,0,.06);
-      border-radius: 18px;
-      box-shadow: 0 12px 26px rgba(2,6,23,.10);
-      padding: 14px 14px;
-      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(0,0,0,.06);
     }
-    .header-top{
+    .topbar-inner{
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 12px 14px;
       display:flex;
-      align-items:flex-start;
+      align-items:center;
       justify-content: space-between;
-      gap: 12px;
-      flex-wrap:wrap;
+      gap:12px;
     }
     .brand{
       display:flex; align-items:center; gap:10px;
@@ -87,607 +65,1035 @@
       border: 1px solid rgba(0,0,0,.08);
       box-shadow: 0 10px 18px rgba(0,0,0,.08);
       font-weight: 1000;
-      white-space:nowrap;
     }
     .badge .dot{
       width:10px; height:10px; border-radius:999px;
       background: var(--brand2);
       box-shadow: 0 0 0 4px rgba(15,154,82,.16);
     }
-    h1{
-      margin:0;
-      font-size: 18px;
-      font-weight: 1100;
-      letter-spacing: .2px;
-      line-height:1.15;
+    .title{
+      font-size: 16px;
+      font-weight: 1000;
+      line-height: 1.1;
     }
-    .sub{
-      margin-top: 4px;
-      color: var(--muted);
+    .subtitle{
       font-size: 12px;
+      color: var(--muted);
       font-weight: 800;
+      margin-top: 2px;
     }
-
-    /* Acciones */
     .top-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
       justify-content:flex-end;
     }
 
+    /* Buttons */
     .btn{
-      appearance:none;
-      border:none;
-      cursor:pointer;
       padding: 10px 14px;
+      cursor: pointer;
+      background-color: var(--brand2);
+      color: white;
+      border: none;
       border-radius: 12px;
       font-weight: 1000;
-      color:#fff;
-      background: var(--brand2);
-      box-shadow: 0 10px 18px rgba(2,6,23,.12);
-      transition: transform .05s ease, filter .2s ease;
-      white-space:nowrap;
+      box-shadow: 0 10px 20px rgba(0,0,0,.12);
     }
     .btn:active{ transform: translateY(1px); }
-    .btn.secondary{ background: var(--brand); }
-    .btn.danger{ background: var(--danger); }
-    .btn.navy{ background: var(--navy); }
+    .btn.secondary{
+      background:#111827;
+    }
     .btn.ghost{
       background:#fff;
       color:#111827;
-      border: 1px solid rgba(0,0,0,.10);
+      border:1px solid rgba(0,0,0,.10);
       box-shadow:none;
     }
+    .btn.danger{ background: var(--danger); }
 
-    .muted{
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
+    /* Layout */
+    .wrap{
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 14px;
     }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(0,0,0,.10);
-      background:#fff;
-      font-weight: 1000;
-    }
-
-    /* Cards (bloques) */
     .grid{
       display:grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 340px 1fr;
       gap: 14px;
+      align-items:start;
     }
-    .bloque{
+
+    .card{
       background: var(--card);
       border: 1px solid rgba(0,0,0,.08);
       border-radius: var(--r);
       box-shadow: var(--shadow2);
-      overflow:hidden;
     }
-    .bloque-h{
-      padding: 14px 14px 10px;
-      border-bottom: 1px solid rgba(0,0,0,.06);
+    .card-h{
+      padding: 14px 14px 0 14px;
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap:10px;
+    }
+    .card-h h2{
+      margin:0;
+      font-size: 14px;
+      font-weight: 1000;
+      letter-spacing: .2px;
+    }
+    .card-b{
+      padding: 14px;
+    }
+    .muted{ color: var(--muted); font-size: 12px; font-weight: 700; }
+
+    /* Sidebar products */
+    .search{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.10);
+      outline: none;
+      font-weight: 900;
+    }
+    .plist{
+      margin-top: 10px;
+      display:flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: calc(100vh - 260px);
+      overflow:auto;
+      padding-right: 4px;
+    }
+    .pitem{
       display:flex;
       align-items:center;
       justify-content: space-between;
       gap: 10px;
-      flex-wrap:wrap;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.08);
+      background: #fff;
+      cursor: pointer;
+      font-weight: 1000;
     }
-    .bloque-h h2{
-      color: var(--ink);
-      margin:0;
-      font-size: 14px;
-      font-weight: 1100;
-      letter-spacing: .2px;
+    .pitem:hover{
+      border-color: rgba(15,154,82,.35);
+      box-shadow: 0 10px 18px rgba(2,6,23,.08);
     }
-    .bloque-b{
-      padding: 14px;
+    .pitem.active{
+      border-color: rgba(15,154,82,.55);
+      background: rgba(15,154,82,.08);
+    }
+    .pmeta{
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 900;
+      text-align:right;
+      white-space: nowrap;
     }
 
-    /* Form */
-    label{
-      display:block;
-      margin-top: 12px;
-      font-weight: 1000;
-      color: #111827;
-      font-size: 12px;
-      letter-spacing:.2px;
+    /* Main content */
+    .main-header{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px;
+      border-bottom: 1px solid rgba(0,0,0,.06);
     }
-    input{
-      width:100%;
-      margin-top: 6px;
+    .ph{
+      display:flex; flex-direction:column;
+      gap:4px;
+    }
+    .pname{
+      font-size: 18px;
+      font-weight: 1100;
+    }
+    .ptotals{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    table{ width: 100%; border-collapse: collapse; }
+    th,td{
+      border: 1px solid rgba(0,0,0,.08);
+      padding: 10px;
+      text-align:center;
+      font-weight: 800;
+    }
+    th{
+      background: #f8fafc;
+      color:#0f172a;
+      position: sticky;
+      top: 68px; /* debajo topbar sticky */
+      z-index: 10;
+    }
+    input[type="number"]{
+      width: 110px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.12);
+      font-weight: 1000;
+      outline: none;
+    }
+    input[type="date"]{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.10);
+      font-weight: 1000;
+    }
+
+    /* Mark select */
+    .mark-select{
+      width: 150px;
       padding: 10px 12px;
       border-radius: 12px;
       border: 1px solid rgba(0,0,0,.12);
-      background: #fff;
+      background:#fff;
       font-weight: 1000;
-      color: #0f172a;
-      outline: none;
     }
-    input:focus{
-      border-color: rgba(15,154,82,.55);
-      box-shadow: 0 0 0 4px rgba(15,154,82,.14);
+    .row-mark-none { background: transparent; }
+    .row-mark-yellow { background: rgba(255, 235, 59, .35); }
+    .row-mark-blue { background: rgba(33, 150, 243, .20); }
+    .row-mark-green { background: rgba(76, 175, 80, .20); }
+    .row-mark-red { background: rgba(244, 67, 54, .18); }
+    .row-mark-purple { background: rgba(156, 39, 176, .16); }
+
+    /* Realtime pill */
+    .rt-pill{
+      display:inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 1000;
+      font-size: 12px;
+      background:#eef7ef;
+      color:#1f6f26;
+      border:1px solid rgba(0,0,0,.08);
+    }
+    .rt-pill.off{
+      background:#fff1f2;
+      color:#b91c1c;
     }
 
-    /* Grid interno para pares (patas) */
-    .two{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .block-actions{
-      margin-top: 12px;
+    /* Bascula box */
+    .bascula-box{
       display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(0,0,0,.10);
+      background: linear-gradient(180deg, rgba(15,154,82,.08), rgba(15,154,82,.02));
+    }
+    .peso-big{
+      font-size: 34px;
+      font-weight: 1200;
+      letter-spacing:.5px;
+    }
+    .peso-status{
+      display:inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 1100;
+      font-size: 12px;
+      background:#eef7ef;
+      color:#1f6f26;
+      border:1px solid rgba(0,0,0,.08);
+    }
+    .peso-status.off{
+      background:#fff1f2;
+      color:#b91c1c;
+    }
+
+    /* Float bar */
+    .peso-floatbar{
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 14px;
+      z-index: 99999;
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 16px;
+      box-shadow: 0 14px 34px rgba(0,0,0,.18);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .peso-float-left{
+      display:flex;
+      align-items:center;
       gap:10px;
       flex-wrap:wrap;
     }
-    .block-actions .btn{ width: 100%; }
-    .block-actions.inline .btn{ width:auto; }
+    .peso-mini{
+      font-weight: 1200;
+      font-size: 18px;
+    }
+    .peso-help{ font-size: 12px; color: var(--muted); font-weight: 900; }
 
-    /* Línea cards */
-    .line-row{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      align-items:end;
+    /* Mobile */
+    @media(max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      th{ top: 120px; }
+      .plist{ max-height: 280px; }
     }
 
-    /* Footer button */
-    .footer-actions{
-      margin-top: 14px;
-    }
-
-    /* Responsive */
-    @media(max-width: 820px){
-      .two{ grid-template-columns: 1fr; }
-      .line-row{ grid-template-columns: 1fr; }
-      .top-actions{ justify-content:flex-start; }
-      .header{ position: static; }
+    /* Central button */
+    .back-central{
+      position:fixed;
+      top:12px;
+      left:12px;
+      background:#0a7a3b;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      text-decoration:none;
+      font-weight:1000;
+      z-index:9999;
+      box-shadow:0 10px 20px rgba(0,0,0,.15);
     }
   </style>
 </head>
 
 <body>
-
   <a class="back-central" href="https://marcianoper.github.io/vdc-central/">← VDC Central</a>
 
-  <div class="wrap">
-
-    <!-- HEADER -->
-    <div class="header">
-      <div class="header-top">
-        <div class="brand">
-          <div class="badge"><span class="dot"></span> VDC360°</div>
-          <div>
-            <h1>Producción — Formulario Camión</h1>
-            <div class="sub">Registro rápido por línea • Envío por WhatsApp • Guardado en Supabase</div>
-          </div>
-        </div>
-
-        <div class="top-actions">
-          <button class="btn ghost" onclick="forzarGuardarBorrador()">💾 Guardar borrador</button>
-          <button class="btn danger" onclick="limpiarBorrador()">🧹 Limpiar borrador</button>
-          <span class="pill"><span class="muted" id="draftStatus">Borrador: —</span></span>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid">
-
-      <!-- Apertura -->
-      <div class="bloque">
-        <div class="bloque-h">
-          <h2>Apertura de Camión</h2>
-          <span class="muted">Marca el inicio de operación</span>
-        </div>
-        <div class="bloque-b">
-          <label>Hora de apertura:
-            <input type="time" id="hora_apertura">
-          </label>
-
-          <div class="block-actions">
-            <button class="btn secondary" onclick="guardarEventoGeneral('hora_apertura', 'Apertura de Camión')">
-              📤 Guardar y Enviar
-            </button>
-          </div>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="badge"><span class="dot"></span> VDC360°</div>
+        <div>
+          <div class="title">Hoja de Viaje</div>
+          <div class="subtitle">Captura rápida por producto (sin scroll)</div>
         </div>
       </div>
 
-      <!-- Patas -->
-      <div class="bloque">
-        <div class="bloque-h">
-          <h2>Registro de Patas</h2>
-          <span class="muted">Control de envío y llegada</span>
-        </div>
-        <div class="bloque-b">
-          <div class="two">
-            <div>
-              <label>Hora de envío a limpieza:
-                <input type="time" id="hora_envio_patas">
-              </label>
-            </div>
-            <div>
-              <label>Hora de llegada de limpieza:
-                <input type="time" id="hora_llegada_patas">
-              </label>
-            </div>
-          </div>
+      <div class="top-actions">
+        <label style="display:flex; align-items:center; gap:8px; font-weight:1000;">
+          Fecha:
+          <input type="date" id="fechaViaje" />
+        </label>
+        <span id="rt" class="rt-pill">REAL TIME</span>
 
-          <div class="block-actions">
-            <button class="btn secondary" onclick="guardarPatas()">
-              📤 Guardar y Enviar
-            </button>
-          </div>
-        </div>
+        <button class="btn ghost" type="button" onclick="mostrarHistorial()">Historial</button>
+        <button class="btn ghost" type="button" onclick="generarResumenTotales()">Documento Totales</button>
+        <button class="btn" type="button" onclick="guardarViaje()">Guardar Viaje</button>
       </div>
-
-      <!-- Líneas -->
-      <div id="lineas"></div>
-
-      <!-- Resumen -->
-      <div class="footer-actions">
-        <button class="btn navy" onclick="generarResumen()" style="width:100%;">
-          📄 Generar Documento Resumen
-        </button>
-        <div class="muted" style="margin-top:8px;">
-          Se descarga como TXT con el orden en que se capturó hoy.
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <!-- Supabase UMD -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <div class="wrap">
+    <div class="grid">
 
-  <script>
-  (() => {
-    // =========================
-    // 1) Render de líneas
-    // =========================
-    const lineas = [
-      { id: 'l1', nombre: 'Línea 1 - Bofe y Corazón' },
-      { id: 'l2', nombre: 'Línea 2 - Teleco' },
-      { id: 'l3', nombre: 'Línea 3 - Cuajo' },
-      { id: 'l4', nombre: 'Línea 4 - Libro' },
-      { id: 'l5', nombre: 'Línea 5 - Menudo' },
-      { id: 'l6', nombre: 'Línea 6 - Patas Sucias' }
-    ];
-
-    const contenedor = document.getElementById("lineas");
-    contenedor.innerHTML = lineas.map(({ id, nombre }) => `
-      <div class="bloque">
-        <div class="bloque-h">
-          <h2>${nombre}</h2>
-          <span class="muted">Captura inicio / término</span>
+      <!-- Sidebar -->
+      <div class="card">
+        <div class="card-h">
+          <h2>Productos</h2>
+          <span class="muted" id="sidebarHint">Selecciona para capturar</span>
         </div>
-
-        <div class="bloque-b">
-          <div class="line-row">
-            <div>
-              <label>Inicio:
-                <input type="time" id="${id}_inicio">
-              </label>
-            </div>
-            <div>
-              <label>Responsable:
-                <input type="text" id="${id}_responsable" placeholder="Ej. José Luis">
-              </label>
-            </div>
-          </div>
-
-          <div class="block-actions">
-            <button class="btn secondary" onclick="guardarYenviar('${id}', 'inicio', '${nombre}')">📤 Enviar Inicio</button>
-          </div>
-
-          <div class="line-row" style="margin-top:10px;">
-            <div>
-              <label>Término:
-                <input type="time" id="${id}_fin">
-              </label>
-            </div>
-            <div class="muted" style="padding:10px 0;">
-              Consejo: captura responsable al inicio para que salga en el WhatsApp.
-            </div>
-          </div>
-
-          <div class="block-actions">
-            <button class="btn secondary" onclick="guardarYenviar('${id}', 'fin', '${nombre}')">📤 Enviar Término</button>
+        <div class="card-b">
+          <input class="search" id="prodSearch" placeholder="Buscar producto…" />
+          <div class="plist" id="plist"></div>
+          <div style="margin-top:12px" class="muted">
+            Tip: cambia de producto y sigue capturando sin moverte.
           </div>
         </div>
       </div>
-    `).join('');
 
-    // =========================
-    // 2) Supabase
-    // =========================
-    const supabaseUrl = 'https://uixxrniebjfsxgouqlzh.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpeHhybmllYmpmc3hnb3VxbHpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4Njg4NzYsImV4cCI6MjA3MTQ0NDg3Nn0.Rds7LA448PbyVfEfKC-lT47YgRwNR3Hl12z0To_z-dg';
+      <!-- Main -->
+      <div class="card">
 
-    if (!window.supabase || !window.supabase.createClient) {
-      alert("No se cargó Supabase. Revisa tu internet o el script CDN.");
-      return;
-    }
+        <div class="main-header">
+          <div class="ph">
+            <div class="pname" id="activeProductName">—</div>
+            <div class="ptotals">
+              Total: <span id="activeTotalKg">0.0</span> kg · <span id="activeTotalPzas">0</span> pzas
+            </div>
 
-    const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
+            <!-- ✅ NUEVO: Totales por marca (múltiples marcas) -->
+            <div class="ptotals" id="activeTotalsByMark" style="margin-top:6px;">
+              Sin marcas aún.
+            </div>
+          </div>
 
-    // =========================
-    // 3) Utilidades
-    // =========================
-    function hoyISO() {
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn secondary" type="button" onclick="agregarFilaProductoActivo()">+ Agregar pesada</button>
+            <button class="btn ghost" type="button" onclick="scrollTablaTop()">Ir arriba</button>
+          </div>
+        </div>
+
+        <div class="card-b">
+          <!-- Báscula -->
+          <div class="bascula-box">
+            <div>
+              <div class="muted" style="margin-bottom:6px;">Báscula en vivo</div>
+              <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
+                <span class="peso-big" id="pesoLive">--</span>
+                <span style="font-weight:1100;">kg</span>
+                <span id="pesoStatus" class="peso-status">CONECTANDO</span>
+              </div>
+              <div class="muted" style="margin-top:6px;">
+                Haz click en un input de <b>Kg</b> y presiona “Usar este peso”.
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla solo del producto activo -->
+          <div style="margin-top:14px;">
+            <table id="tablaActiva">
+              <thead>
+                <tr>
+                  <th>Kg</th>
+                  <th>Piezas</th>
+                  <th>Marcador</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+
+            <div style="margin-top:12px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+              <div class="muted">
+                Consejo: si estás en “Cuajo”, ya no necesitas ir al final de la página.
+              </div>
+              <div style="font-weight:1100;">
+                Total Kg: <span id="activeTotalKg2">0.0</span> · Total Pzas: <span id="activeTotalPzas2">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="historialContainer" style="margin-top: 18px;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra flotante báscula -->
+  <div class="peso-floatbar">
+    <div class="peso-float-left">
+      <span class="peso-mini">Peso: <span id="pesoLiveMini">--</span> kg</span>
+      <span id="pesoStatusMini" class="peso-status">CONECTANDO</span>
+      <span class="peso-help">Selecciona un input de Kg</span>
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn ghost" type="button" onclick="leerPesoManual()">🔄 Actualizar</button>
+      <button class="btn" type="button" onclick="tomarPesoEnInputActivo()">⬇ Usar este peso</button>
+    </div>
+  </div>
+
+  <script>
+    /* ========= SUPABASE ========= */
+    const supabase = window.supabase.createClient(
+      'https://rcegikeiaxptolrduguc.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZWdpa2VpYXhwdG9scmR1Z3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NTMyMDcsImV4cCI6MjA3MTIyOTIwN30.jbPM9F977zeITEmFA_xvVU6SCxlWWVCi3Dx7ZhFfTp8'
+    );
+
+    const BASCULA_TABLE = 'bascula_live';
+    const BASCULA_ID = 'torrey_1';
+
+    const LIVE_TABLE = 'hoja_viaje_live';
+
+    const DEVICE_ID = (() => {
+      const k = 'vdc_device_id';
+      let v = localStorage.getItem(k);
+      if(!v){
+        v = 'dev_' + Math.random().toString(16).slice(2) + '_' + Date.now();
+        localStorage.setItem(k, v);
+      }
+      return v;
+    })();
+
+    const productos = ['Cabeza de res', 'Tripa de res', 'Menudo sucio', 'Cuajo de res', 'Pata sucia', 'Hígado', 'Libro de res', 'Teleco', 'Corazón'];
+
+    function $(s){ return document.querySelector(s); }
+    function todayISO(){
       const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
+      const z = d.getTimezoneOffset() * 60000;
+      return new Date(d - z).toISOString().slice(0,10);
     }
 
-    function abrirWhatsApp(texto) {
-      const mensaje = encodeURIComponent(texto);
-      const url = `https://api.whatsapp.com/send?text=${mensaje}`;
+    /* ========= MARKS ========= */
+    const MARKS = [
+      { key: 'none',   label: 'Sin marca',   cls: 'row-mark-none' },
+      { key: 'yellow', label: 'Cliente A',   cls: 'row-mark-yellow' },
+      { key: 'blue',   label: 'Cliente B',   cls: 'row-mark-blue' },
+      { key: 'green',  label: 'Cliente C',   cls: 'row-mark-green' },
+      { key: 'red',    label: 'Urgente',     cls: 'row-mark-red' },
+      { key: 'purple', label: 'Especial',    cls: 'row-mark-purple' },
+    ];
+
+    function markToClass(markKey){
+      const f = MARKS.find(m => m.key === markKey);
+      return (f ? f.cls : 'row-mark-none');
+    }
+    function buildMarkSelect(selectedKey = 'none'){
+      const sel = document.createElement('select');
+      sel.className = 'mark-select';
+      sel.innerHTML = MARKS.map(m => `<option value="${m.key}" ${m.key===selectedKey?'selected':''}>${m.label}</option>`).join('');
+      return sel;
+    }
+    function applyRowMark(row, markKey){
+      MARKS.forEach(m => row.classList.remove(m.cls));
+      row.classList.add(markToClass(markKey));
+      row.dataset.mark = markKey || 'none';
+    }
+
+    /* ========= STATE ========= */
+    let state = {
+      fecha: todayISO(),
+      resultados: {} // { producto: [ {kg,pzas,mark} ] }
+    };
+    productos.forEach(p => state.resultados[p] = []);
+    let activeProduct = productos[0];
+
+    function setActiveProduct(p){
+      activeProduct = p;
+      renderSidebar();
+      renderActiveTable();
+      updateActiveTotals();
+    }
+
+    /* ========= SIDEBAR ========= */
+    function renderSidebar(){
+      const list = $('#plist');
+      if(!list) return;
+      const q = ($('#prodSearch')?.value || '').toLowerCase();
+      list.innerHTML = '';
+
+      productos
+        .filter(p => p.toLowerCase().includes(q))
+        .forEach(p => {
+          const totals = calcTotals(p);
+          const div = document.createElement('div');
+          div.className = 'pitem' + (p === activeProduct ? ' active' : '');
+          div.innerHTML = `
+            <div>${p}</div>
+            <div class="pmeta">${totals.kg.toFixed(1)} kg · ${totals.pzas} pzas</div>
+          `;
+          div.onclick = () => setActiveProduct(p);
+          list.appendChild(div);
+        });
+    }
+    $('#prodSearch')?.addEventListener('input', renderSidebar);
+
+    /* ========= TABLA ACTIVA ========= */
+    function renderActiveTable(){
+      $('#activeProductName').textContent = activeProduct;
+
+      const tbody = $('#tablaActiva tbody');
+      tbody.innerHTML = '';
+
+      const rows = state.resultados[activeProduct] || [];
+
+      rows.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+
+        const kgTd = document.createElement('td');
+        const kgIn = document.createElement('input');
+        kgIn.className = 'kg-input';
+        kgIn.type = 'number';
+        kgIn.step = '0.1';
+        kgIn.value = (r.kg ?? '');
+        kgIn.addEventListener('input', ()=>{
+          state.resultados[activeProduct][idx].kg = parseFloat(kgIn.value)||0;
+          updateActiveTotals();
+          scheduleSaves();
+        });
+
+        const pzTd = document.createElement('td');
+        const pzIn = document.createElement('input');
+        pzIn.type = 'number';
+        pzIn.value = (r.pzas ?? '');
+        pzIn.addEventListener('input', ()=>{
+          state.resultados[activeProduct][idx].pzas = parseFloat(pzIn.value)||0;
+          updateActiveTotals();
+          scheduleSaves();
+        });
+
+        const mkTd = document.createElement('td');
+        const sel = buildMarkSelect(r.mark || 'none');
+        sel.addEventListener('change', ()=>{
+          state.resultados[activeProduct][idx].mark = sel.value;
+          applyRowMark(tr, sel.value);
+          updateActiveTotals();   // ✅ recalcula totales por marca
+          scheduleSaves();
+        });
+        mkTd.appendChild(sel);
+
+        const actTd = document.createElement('td');
+        const del = document.createElement('button');
+        del.className = 'btn danger';
+        del.type = 'button';
+        del.textContent = 'Eliminar';
+        del.onclick = () => {
+          state.resultados[activeProduct].splice(idx,1);
+          renderActiveTable();
+          updateActiveTotals();
+          scheduleSaves();
+        };
+        actTd.appendChild(del);
+
+        kgTd.appendChild(kgIn);
+        pzTd.appendChild(pzIn);
+
+        tr.appendChild(kgTd);
+        tr.appendChild(pzTd);
+        tr.appendChild(mkTd);
+        tr.appendChild(actTd);
+
+        applyRowMark(tr, r.mark || 'none');
+        tbody.appendChild(tr);
+      });
+
+      if(rows.length === 0){
+        addRow(activeProduct);
+      }
+    }
+
+    function addRow(producto, kgValue='', pzasValue='', markKey='none'){
+      state.resultados[producto] = state.resultados[producto] || [];
+      state.resultados[producto].push({ kg: (parseFloat(kgValue)||0), pzas: (parseFloat(pzasValue)||0), mark: markKey });
+    }
+
+    function agregarFilaProductoActivo(){
+      addRow(activeProduct);
+      renderActiveTable();
+      updateActiveTotals();
+      scheduleSaves();
+      setTimeout(()=>{
+        const inputs = document.querySelectorAll('#tablaActiva .kg-input');
+        if(inputs.length) inputs[inputs.length-1].focus();
+      }, 50);
+    }
+
+    function scrollTablaTop(){
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ========= TOTALES ========= */
+    function calcTotals(producto){
+      const rows = state.resultados[producto] || [];
+      let kg=0, pzas=0;
+      rows.forEach(r=>{
+        kg += (r.kg||0);
+        pzas += (r.pzas||0);
+      });
+      return {kg,pzas};
+    }
+
+    /* ✅ NUEVO: Totales por marca (múltiples marcas a la vez) */
+    function calcTotalsByMark(producto){
+      const rows = state.resultados[producto] || [];
+      const out = {}; // {markKey:{kg,pzas}}
+      rows.forEach(r=>{
+        const mk = (r.mark || 'none');
+        if(!out[mk]) out[mk] = { kg:0, pzas:0 };
+        out[mk].kg += (r.kg || 0);
+        out[mk].pzas += (r.pzas || 0);
+      });
+      return out;
+    }
+
+    function renderActiveTotalsByMark(){
+      const cont = $('#activeTotalsByMark');
+      if(!cont) return;
+
+      const totals = calcTotalsByMark(activeProduct);
+
+      // muestra SOLO marcas con algo (incluye Cliente A y Cliente B al mismo tiempo)
+      const items = Object.entries(totals)
+        .filter(([mk, v]) => ((v.kg||0) > 0) || ((v.pzas||0) > 0));
+
+      if(items.length === 0){
+        cont.innerHTML = `<span style="color:var(--muted); font-weight:900;">Sin marcas aún.</span>`;
+        return;
+      }
+
+      // orden por kg desc
+      items.sort((a,b)=> (b[1].kg||0) - (a[1].kg||0));
+
+      const labelOf = (mk)=>{
+        const f = MARKS.find(m=>m.key===mk);
+        return f ? f.label : mk;
+      };
+
+      cont.innerHTML = items.map(([mk, v])=>{
+        const label = labelOf(mk);
+        return `
+          <span style="
+            display:inline-flex; align-items:center; gap:8px;
+            padding:6px 10px; border-radius:999px;
+            border:1px solid rgba(0,0,0,.10);
+            background:#fff; margin-right:8px; margin-top:6px;
+            font-weight:1000;
+          ">
+            ${label}: ${Number(v.kg||0).toFixed(1)} kg · ${Number(v.pzas||0)}
+          </span>
+        `;
+      }).join('');
+    }
+
+    function updateActiveTotals(){
+      const t = calcTotals(activeProduct);
+      $('#activeTotalKg').textContent = t.kg.toFixed(1);
+      $('#activeTotalPzas').textContent = t.pzas;
+      $('#activeTotalKg2').textContent = t.kg.toFixed(1);
+      $('#activeTotalPzas2').textContent = t.pzas;
+      renderSidebar();
+      renderActiveTotalsByMark(); // ✅ aquí se actualizan todas las marcas
+    }
+
+    /* ========= RECOLECTAR ========= */
+    function recolectarResultados(){
+      const resultados = {};
+      productos.forEach(p=>{
+        resultados[p] = (state.resultados[p] || [])
+          .filter(r => (r.kg||0) || (r.pzas||0))
+          .map(r => ({ kg: r.kg||0, pzas: r.pzas||0, mark: r.mark||'none' }));
+      });
+      return resultados;
+    }
+
+    /* ========= GUARDAR / HISTORIAL / RESUMEN ========= */
+    async function guardarViaje() {
+      const fecha = $('#fechaViaje').value;
+      if (!fecha) return alert("⚠️ Por favor selecciona una fecha.");
+
+      const resultados = recolectarResultados();
+
+      const { data, error } = await supabase
+        .from('hoja_viaje')
+        .insert([{ fecha, resultados }])
+        .select()
+        .single();
+
+      if (error) {
+        alert("❌ Error al guardar: " + error.message);
+      } else {
+        alert("✅ Viaje guardado correctamente.");
+        if (data && data.id) {
+          window.viaje_id = data.id;
+          await saveLive();
+          saveLocal();
+        }
+      }
+    }
+
+    async function mostrarHistorial() {
+      const { data, error } = await supabase.from('hoja_viaje').select('*').order('fecha', { ascending: false });
+      const contenedor = $('#historialContainer');
+      contenedor.innerHTML = '';
+
+      if (error) {
+        contenedor.innerHTML = '<p style="color:red;font-weight:900;">❌ Error al cargar historial: ' + error.message + '</p>';
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        contenedor.innerHTML = '<p class="muted">No hay viajes registrados.</p>';
+        return;
+      }
+
+      const tabla = document.createElement('table');
+      tabla.style.width = '100%';
+      tabla.innerHTML = '<thead><tr><th>Fecha</th><th>Resumen</th></tr></thead><tbody>' +
+        data.map(row => `<tr><td style="font-weight:1000;">${row.fecha}</td><td><pre style="text-align:left; white-space:pre-wrap; margin:0;">${JSON.stringify(row.resultados, null, 2)}</pre></td></tr>`).join('') +
+        '</tbody>';
+      contenedor.appendChild(tabla);
+    }
+
+    async function generarResumenTotales() {
+      const { data, error } = await supabase.from('hoja_viaje').select('*');
+      if (error || !data) return alert('❌ Error al obtener datos: ' + error.message);
+
+      const totales = {};
+      data.forEach(row => {
+        const prods = row.resultados || {};
+        Object.keys(prods).forEach(nombre => {
+          prods[nombre].forEach(r => {
+            if (!totales[nombre]) totales[nombre] = { kg: 0, pzas: 0 };
+            totales[nombre].kg += r.kg || 0;
+            totales[nombre].pzas += r.pzas || 0;
+          });
+        });
+      });
+
+      let html = '<h1 style="font-family:Arial;">Resumen Total de Kilos y Piezas</h1>';
+      html += '<table border="1" cellpadding="6" style="border-collapse:collapse;font-family:Arial;">';
+      html += '<tr><th>Producto</th><th>Total Kg</th><th>Total Pzas</th></tr>';
+      Object.entries(totales).forEach(([nombre, valores]) => {
+        html += `<tr><td>${nombre}</td><td>${valores.kg.toFixed(1)}</td><td>${valores.pzas}</td></tr>`;
+      });
+      html += '</table>';
+
+      const blob = new Blob([`<html><body>${html}</body></html>`], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
     }
 
-    // =========================
-    // 3.1) BORRADOR LOCAL (LOCALSTORAGE)
-    // =========================
-    const DRAFT_KEY = () => `vdc360:produccion:draft:${hoyISO()}`;
+    /* ========= LIVE (estado hoja) ========= */
+    const MODULE = 'hoja_viaje';
+    let dirty=false, tLocal=null, tLive=null;
+    let rtSub = null;
+    let applyingRemote = false;
 
-    function setDraftStatus(msg){
-      const el = document.getElementById('draftStatus');
-      if(el) el.textContent = msg;
+    function getFechaISO(){ return $('#fechaViaje')?.value || todayISO(); }
+    function liveKey(){ return `viaje-${getFechaISO()}`; }
+    function collectState(){
+      return { fecha: getFechaISO(), resultados: recolectarResultados(), _activeProduct: activeProduct };
     }
 
-    function colectarBorrador(){
-      const draft = {
-        ts: Date.now(),
-        fecha: hoyISO(),
-        hora_apertura: (document.getElementById('hora_apertura')?.value || ''),
-        hora_envio_patas: (document.getElementById('hora_envio_patas')?.value || ''),
-        hora_llegada_patas: (document.getElementById('hora_llegada_patas')?.value || ''),
-        lineas: {}
-      };
-      lineas.forEach(({id})=>{
-        draft.lineas[id] = {
-          inicio: (document.getElementById(`${id}_inicio`)?.value || ''),
-          fin: (document.getElementById(`${id}_fin`)?.value || ''),
-          responsable: (document.getElementById(`${id}_responsable`)?.value || '')
-        };
+    function applyState(inState){
+      if(!inState) return;
+      if(inState.fecha) $('#fechaViaje').value = inState.fecha;
+
+      const res = inState.resultados || {};
+      productos.forEach(p=>{
+        const rows = res[p] || [];
+        state.resultados[p] = rows.map(r=>({ kg:r.kg||0, pzas:r.pzas||0, mark:r.mark||'none' }));
       });
-      return draft;
+
+      if(inState._activeProduct && productos.includes(inState._activeProduct)){
+        activeProduct = inState._activeProduct;
+      }
+      renderSidebar();
+      renderActiveTable();
+      updateActiveTotals();
     }
 
-    function aplicarBorrador(draft){
-      if(!draft) return;
+    function lkey(){ return `draft:${MODULE}:${liveKey()}`; }
+    function saveLocal(){
+      localStorage.setItem(lkey(), JSON.stringify({ts:Date.now(), data:collectState()}));
+      dirty=true;
+    }
+    function loadLocal(){
+      const raw=localStorage.getItem(lkey());
+      if(!raw) return;
+      try{ applyState(JSON.parse(raw).data); }catch{}
+    }
 
-      const setVal = (id, v) => {
-        const el = document.getElementById(id);
-        if(el && v != null) el.value = v;
+    async function saveLive(){
+      if(applyingRemote) return;
+
+      const row = {
+        id: liveKey(),
+        fecha: getFechaISO(),
+        data: collectState(),
+        updated_at: new Date().toISOString(),
+        updated_by: DEVICE_ID
       };
 
-      setVal('hora_apertura', draft.hora_apertura);
-      setVal('hora_envio_patas', draft.hora_envio_patas);
-      setVal('hora_llegada_patas', draft.hora_llegada_patas);
+      const { error } = await supabase
+        .from(LIVE_TABLE)
+        .upsert([row], { onConflict: 'id' });
 
-      const L = draft.lineas || {};
-      Object.keys(L).forEach(id=>{
-        setVal(`${id}_inicio`, L[id].inicio);
-        setVal(`${id}_fin`, L[id].fin);
-        setVal(`${id}_responsable`, L[id].responsable);
-      });
+      if(error){
+        console.log("LIVE UPSERT ERROR:", error);
+        setRtPill(false, 'RT OFF');
+      }else{
+        setRtPill(true, 'REAL TIME');
+      }
     }
 
-    function guardarBorrador(){
-      const draft = colectarBorrador();
-      localStorage.setItem(DRAFT_KEY(), JSON.stringify(draft));
-      const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      setDraftStatus(`Borrador guardado ✅ (${hh})`);
+    async function loadLive(){
+      const { data, error } = await supabase
+        .from(LIVE_TABLE)
+        .select('data, updated_by, updated_at')
+        .eq('id', liveKey())
+        .single();
+      if(error) return;
+      if(data && data.data){
+        applyingRemote = true;
+        applyState(data.data);
+        applyingRemote = false;
+      }
     }
 
-    function cargarBorrador(){
-      const raw = localStorage.getItem(DRAFT_KEY());
-      if(!raw){
-        setDraftStatus('Borrador: —');
+    function setRtPill(on, text){
+      const pill = $('#rt');
+      if(!pill) return;
+      pill.textContent = text || (on ? 'REAL TIME' : 'RT OFF');
+      pill.classList.toggle('off', !on);
+    }
+
+    function subscribeLive(){
+      if(rtSub){
+        try{ supabase.removeSubscription(rtSub); }catch(e){}
+        rtSub = null;
+      }
+
+      rtSub = supabase
+        .from(`${LIVE_TABLE}:id=eq.${liveKey()}`)
+        .on('INSERT', payload => onLivePayload(payload))
+        .on('UPDATE', payload => onLivePayload(payload))
+        .subscribe((status)=>{
+          if(status === 'SUBSCRIBED') setRtPill(true, 'REAL TIME');
+        });
+    }
+
+    function onLivePayload(payload){
+      try{
+        const row = payload.new || payload.record || null;
+        if(!row) return;
+        if(row.updated_by && row.updated_by === DEVICE_ID) return;
+
+        if(row.data){
+          applyingRemote = true;
+          applyState(row.data);
+          applyingRemote = false;
+          dirty = true;
+        }
+      }catch(e){
+        console.log("LIVE PAYLOAD ERROR:", e);
+      }
+    }
+
+    function scheduleSaves(){
+      clearTimeout(tLocal);
+      tLocal=setTimeout(saveLocal, 400);
+
+      clearTimeout(tLive);
+      tLive=setTimeout(saveLive, 700);
+    }
+
+    window.addEventListener('beforeunload', (e)=>{
+      if(!dirty) return;
+      e.preventDefault();
+      e.returnValue='';
+    });
+
+    $('#fechaViaje')?.addEventListener('change', async ()=>{
+      applyingRemote = true;
+      await loadLive();
+      loadLocal();
+      applyingRemote = false;
+      subscribeLive();
+    });
+
+    /* ========= BÁSCULA ========= */
+    let pesoActual = null;
+    let pesoSub = null;
+    let lastFocusedKgInput = null;
+
+    document.addEventListener('focusin', (e)=>{
+      const el = e.target;
+      if(el && el.classList && el.classList.contains('kg-input')){
+        lastFocusedKgInput = el;
+      }
+    });
+
+    function setPesoUI(p){
+      const v = (Number(p)||0);
+      const el = $('#pesoLive');
+      if(el) el.textContent = v.toFixed(2);
+      const mini = $('#pesoLiveMini');
+      if(mini) mini.textContent = v.toFixed(2);
+      pesoActual = v;
+    }
+
+    function setPesoStatus(on, text){
+      const t = text || (on ? 'OK' : 'OFF');
+
+      const pill = $('#pesoStatus');
+      if(pill){
+        pill.textContent = t;
+        pill.classList.toggle('off', !on);
+      }
+
+      const pill2 = $('#pesoStatusMini');
+      if(pill2){
+        pill2.textContent = t;
+        pill2.classList.toggle('off', !on);
+      }
+    }
+
+    async function leerPesoManual(){
+      const { data, error } = await supabase
+        .from(BASCULA_TABLE)
+        .select('peso, updated_at')
+        .eq('id', BASCULA_ID)
+        .single();
+
+      if(error){
+        console.log("BASCULA READ ERROR:", error);
+        setPesoStatus(false, 'OFF');
+        alert("Error leyendo Supabase (bascula_live). Revisa internet / RLS / tabla.");
         return;
       }
-      try{
-        const draft = JSON.parse(raw);
-        aplicarBorrador(draft);
-        const hh = new Date(draft.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        setDraftStatus(`Borrador cargado ✅ (${hh})`);
-      }catch{
-        setDraftStatus('Borrador dañado ⚠️');
+      setPesoUI(data?.peso ?? 0);
+      setPesoStatus(true, 'OK');
+    }
+
+    function tomarPesoEnInputActivo(){
+      if(pesoActual == null){
+        alert("Aún no hay peso. Presiona 'Actualizar' o espera el realtime.");
+        return;
       }
+      const target = lastFocusedKgInput || document.querySelector('.kg-input:focus');
+      if(!target){
+        alert("Primero haz click en un input de Kg y luego presiona 'Usar este peso'.");
+        return;
+      }
+      target.value = Number(pesoActual).toFixed(2);
+      target.dispatchEvent(new Event('input', { bubbles:true }));
+      target.dispatchEvent(new Event('change', { bubbles:true }));
+      scheduleSaves();
     }
 
-    let tSave = null;
-    function scheduleDraftSave(){
-      clearTimeout(tSave);
-      tSave = setTimeout(guardarBorrador, 350);
-    }
+    function subscribeBascula(){
+      if(pesoSub){
+        try{ supabase.removeSubscription(pesoSub); }catch(e){}
+        pesoSub = null;
+      }
 
-    window.forzarGuardarBorrador = () => guardarBorrador();
-    window.limpiarBorrador = () => {
-      if(!confirm("¿Seguro que quieres limpiar el borrador de HOY?")) return;
-      localStorage.removeItem(DRAFT_KEY());
-      document.querySelectorAll('input').forEach(i => i.value = '');
-      setDraftStatus('Borrador limpiado 🧹');
-    };
-
-    document.addEventListener('input', (e)=>{
-      if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
-    });
-    document.addEventListener('change', (e)=>{
-      if(e.target && e.target.tagName === 'INPUT') scheduleDraftSave();
-    });
-
-    // =========================
-    // 4) AiSensy
-    // =========================
-    function enviarAiSensy(texto) {
-      const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWI1OTJlZWRkNDM0MGMyOGEwNzdmNiIsIm5hbWUiOiJOb3RpZmljYWNpb25lc1ZEQzM2MCIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2OGFiNTdkOGVkZDQzNDBjMjhhMDUyNDciLCJhY3RpdmVQbGFuIjoiRlJFRV9GT1JFVkVSIiwiaWF0IjoxNzU2MDU5OTUwfQ.hfrN4s8u7IPA21IGi36vviFaq4ZPd12TusgfsHZKVf0';
-      const recipients = ['+524621561193', '+524621391119', '+524621521152'];
-
-      recipients.forEach(number => {
-        fetch("https://backend.aisensy.com/campaign/message", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`
-          },
-          body: JSON.stringify({
-            campaignName: "Notificacionesvdc360",
-            destination: number,
-            userName: "Marciano",
-            templateParams: { message: texto }
-          })
+      pesoSub = supabase
+        .from(`${BASCULA_TABLE}:id=eq.${BASCULA_ID}`)
+        .on('UPDATE', payload => {
+          const row = payload.new || payload.record;
+          if(row && row.peso != null){
+            setPesoUI(row.peso);
+            setPesoStatus(true, 'OK');
+          }
         })
-        .then(res => res.json())
-        .then(res => console.log("AiSensy OK:", number, res))
-        .catch(err => console.error("AiSensy ERROR:", err));
-      });
-    }
-
-    // =========================
-    // 5) Proxy Vercel
-    // =========================
-    function enviarProxyWhatsapp(texto) {
-      const numeros = ['+524621561193', '+524621391119', '+524621521152'];
-
-      numeros.forEach(numero => {
-        fetch("https://vdc360-proxy.vercel.app/api/mensaje", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ numero, mensaje: texto })
+        .on('INSERT', payload => {
+          const row = payload.new || payload.record;
+          if(row && row.peso != null){
+            setPesoUI(row.peso);
+            setPesoStatus(true, 'OK');
+          }
         })
-        .then(res => res.json())
-        .then(data => console.log("Proxy OK:", numero, data))
-        .catch(err => console.error("Proxy ERROR:", err));
-      });
+        .subscribe((status)=>{
+          if(status === 'SUBSCRIBED') setPesoStatus(true, 'OK');
+        });
     }
 
-    // =========================
-    // 6) Funciones de negocio
-    // =========================
-    async function guardarYenviar(linea, tipo, nombreLinea) {
-      const inicio = document.getElementById(`${linea}_inicio`).value || null;
-      const fin = document.getElementById(`${linea}_fin`).value || null;
-      const responsable = (document.getElementById(`${linea}_responsable`).value || "").trim() || null;
+    /* ========= INIT ========= */
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      $('#fechaViaje').value = todayISO();
+      state.fecha = $('#fechaViaje').value;
 
-      if (tipo === 'inicio' && !inicio) return alert("Falta la hora de inicio.");
-      if (tipo === 'fin' && !fin) return alert("Falta la hora de término.");
+      await loadLive();
 
-      const registro = {
-        fecha: hoyISO(),
-        linea: nombreLinea,
-        inicio,
-        fin,
-        responsable,
-        momento: tipo
-      };
+      renderSidebar();
+      renderActiveTable();
+      updateActiveTotals(); // ✅ pinta totales general + por marcas
 
-      const { error } = await sb.from("produccion_camion").insert([registro]);
-      if (error) return alert("Error al guardar: " + error.message);
+      subscribeLive();
+      await saveLive();
 
-      const texto = (tipo === 'inicio')
-        ? `🚀 *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Inicio: ${inicio}\n👤 Responsable: ${responsable || '—'}`
-        : `✅ *${nombreLinea}*\n🗓️ ${hoyISO()}\n🕒 Término: ${fin}`;
-
-      enviarAiSensy(texto);
-      enviarProxyWhatsapp(texto);
-      abrirWhatsApp(texto);
-
-      guardarBorrador();
-    }
-
-    async function guardarEventoGeneral(idCampo, nombreEvento) {
-      const hora = document.getElementById(idCampo).value;
-      if (!hora) return alert("Falta la hora.");
-
-      const { error } = await sb.from("produccion_camion").insert([{
-        fecha: hoyISO(),
-        linea: nombreEvento,
-        inicio: hora,
-        momento: 'inicio'
-      }]);
-
-      if (error) return alert("Error al guardar evento general: " + error.message);
-
-      const texto = `🚛 *${nombreEvento}*\n🗓️ ${hoyISO()}\n🕒 Hora: ${hora}`;
-      enviarAiSensy(texto);
-      enviarProxyWhatsapp(texto);
-      abrirWhatsApp(texto);
-
-      guardarBorrador();
-    }
-
-    async function guardarPatas() {
-      const envio = document.getElementById("hora_envio_patas").value || null;
-      const llegada = document.getElementById("hora_llegada_patas").value || null;
-
-      if (!envio && !llegada) return alert("Captura al menos una hora (envío o llegada).");
-
-      const rows = [];
-      if (envio) rows.push({ fecha: hoyISO(), linea: 'Envío Patas', inicio: envio, momento: 'envio_patas' });
-      if (llegada) rows.push({ fecha: hoyISO(), linea: 'Llegada Patas', inicio: llegada, momento: 'llegada_patas' });
-
-      const { error } = await sb.from("produccion_camion").insert(rows);
-      if (error) return alert("Error al guardar patas: " + error.message);
-
-      const texto =
-        `🐾 *Patas*\n🗓️ ${hoyISO()}` +
-        (envio ? `\n🚚 Enviadas: ${envio}` : ``) +
-        (llegada ? `\n📦 Llegaron: ${llegada}` : ``);
-
-      enviarAiSensy(texto);
-      enviarProxyWhatsapp(texto);
-      abrirWhatsApp(texto);
-
-      guardarBorrador();
-    }
-
-    async function generarResumen() {
-      const { data, error } = await sb
-        .from("produccion_camion")
-        .select("*")
-        .eq("fecha", hoyISO())
-        .order("created_at", { ascending: true });
-
-      if (error) return alert("Error generando resumen: " + error.message);
-
-      const texto = (data || []).map(row =>
-        `🟩 ${row.linea} - ${row.momento}\n🕒 ${row.inicio || row.fin || ''}` +
-        (row.responsable ? `\n👤 ${row.responsable}` : ``)
-      ).join("\n\n") || "Sin registros hoy.";
-
-      const blob = new Blob([texto], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `Resumen_Produccion_VDC360_${hoyISO()}.txt`;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    window.guardarYenviar = guardarYenviar;
-    window.guardarEventoGeneral = guardarEventoGeneral;
-    window.guardarPatas = guardarPatas;
-    window.generarResumen = generarResumen;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      cargarBorrador();
-      guardarBorrador();
+      setPesoStatus(true, 'CONECTANDO');
+      await leerPesoManual();
+      subscribeBascula();
     });
-
-  })();
   </script>
-
 </body>
 </html>
