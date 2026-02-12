@@ -1,13 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hoja de Viaje - VDC360°</title>
-
-  <!-- Supabase v1 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.6/dist/umd/supabase.min.js"></script>
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>VDC 360° — Inventario Mostrador (MVP)</title>
   <style>
     :root{
       --brand:#0a7a3b;
@@ -17,1128 +13,857 @@
       --ink:#0f172a;
       --muted:#64748b;
       --line:#e5e7eb;
-      --shadow:0 18px 50px rgba(2,6,23,.10);
-      --shadow2:0 10px 24px rgba(2,6,23,.10);
-      --r:18px;
       --danger:#b91c1c;
+      --shadow:0 18px 50px rgba(2,6,23,.10);
+      --r:18px;
     }
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    *{box-sizing:border-box}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       background:
         radial-gradient(1200px 500px at 18% -10%, rgba(15,154,82,.18), transparent 60%),
-        radial-gradient(1000px 520px at 110% 20%, rgba(10,122,59,.14), transparent 50%),
+        radial-gradient(800px 420px at 92% 0%, rgba(10,122,59,.14), transparent 55%),
         var(--bg);
-      color: var(--ink);
-      padding-bottom: 120px; /* espacio barra báscula */
+      color:var(--ink);
     }
-    a{ color:inherit; }
-
-    /* Topbar */
-    .topbar{
-      position: sticky;
-      top:0;
-      z-index: 9990;
-      background: rgba(246,247,248,.82);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(0,0,0,.06);
+    header{
+      position:sticky; top:0; z-index:10;
+      background:linear-gradient(90deg, var(--brand), var(--brand2));
+      color:#fff;
+      padding:14px 16px;
+      box-shadow:0 10px 24px rgba(2,6,23,.12);
     }
-    .topbar-inner{
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 12px 14px;
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap:12px;
+    .top{
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      max-width:1200px; margin:0 auto;
     }
     .brand{
-      display:flex; align-items:center; gap:10px;
+      display:flex; flex-direction:column; gap:2px;
     }
-    .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #fff;
-      border: 1px solid rgba(0,0,0,.08);
-      box-shadow: 0 10px 18px rgba(0,0,0,.08);
-      font-weight: 1000;
+    .brand b{font-size:16px; letter-spacing:.2px}
+    .brand small{opacity:.9}
+    .pill{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      font-size:12px;
     }
-    .badge .dot{
-      width:10px; height:10px; border-radius:999px;
-      background: var(--brand2);
-      box-shadow: 0 0 0 4px rgba(15,154,82,.16);
+    .pill span{
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.25);
+      padding:6px 10px;
+      border-radius:999px;
+      backdrop-filter: blur(6px);
     }
-    .title{
-      font-size: 16px;
-      font-weight: 1000;
-      line-height: 1.1;
-    }
-    .subtitle{
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 800;
-      margin-top: 2px;
-    }
-    .top-actions{
-      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    /* Buttons */
-    .btn{
-      padding: 10px 14px;
-      cursor: pointer;
-      background-color: var(--brand2);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-weight: 1000;
-      box-shadow: 0 10px 20px rgba(0,0,0,.12);
-    }
-    .btn:active{ transform: translateY(1px); }
-    .btn.secondary{
-      background:#111827;
-    }
-    .btn.ghost{
-      background:#fff;
-      color:#111827;
-      border:1px solid rgba(0,0,0,.10);
-      box-shadow:none;
-    }
-    .btn.danger{ background: var(--danger); }
-
-    /* Layout */
-    .wrap{
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 14px;
+    main{
+      max-width:1200px;
+      margin:0 auto;
+      padding:16px;
+      display:grid;
+      gap:16px;
     }
     .grid{
       display:grid;
-      grid-template-columns: 340px 1fr;
-      gap: 14px;
-      align-items:start;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
     }
-
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+    }
     .card{
-      background: var(--card);
-      border: 1px solid rgba(0,0,0,.08);
-      border-radius: var(--r);
-      box-shadow: var(--shadow2);
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:16px;
     }
-    .card-h{
-      padding: 14px 14px 0 14px;
-      display:flex;
-      align-items:flex-start;
-      justify-content: space-between;
-      gap:10px;
+    h2{
+      margin:0 0 10px;
+      font-size:16px;
     }
-    .card-h h2{
-      margin:0;
-      font-size: 14px;
-      font-weight: 1000;
-      letter-spacing: .2px;
+    .muted{color:var(--muted)}
+    .row{display:grid; gap:10px}
+    .row2{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    @media (max-width:600px){ .row2{grid-template-columns:1fr} }
+    label{font-size:12px; color:var(--muted); display:block; margin:0 0 6px}
+    input, select, textarea{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      outline:none;
+      font-size:14px;
+      background:#fff;
     }
-    .card-b{
-      padding: 14px;
-    }
-    .muted{ color: var(--muted); font-size: 12px; font-weight: 700; }
-
-    /* Sidebar products */
-    .search{
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,.10);
-      outline: none;
-      font-weight: 900;
-    }
-    .plist{
-      margin-top: 10px;
-      display:flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: calc(100vh - 260px);
-      overflow:auto;
-      padding-right: 4px;
-    }
-    .pitem{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(0,0,0,.08);
-      background: #fff;
-      cursor: pointer;
-      font-weight: 1000;
-    }
-    .pitem:hover{
-      border-color: rgba(15,154,82,.35);
-      box-shadow: 0 10px 18px rgba(2,6,23,.08);
-    }
-    .pitem.active{
+    input:focus, select:focus, textarea:focus{
       border-color: rgba(15,154,82,.55);
-      background: rgba(15,154,82,.08);
+      box-shadow: 0 0 0 4px rgba(15,154,82,.12);
     }
-    .pmeta{
-      font-size: 11px;
-      color: var(--muted);
-      font-weight: 900;
-      text-align:right;
-      white-space: nowrap;
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    button{
+      border:0;
+      border-radius:14px;
+      padding:10px 12px;
+      font-weight:800;
+      cursor:pointer;
+      width:auto;
     }
-
-    /* Main content */
-    .main-header{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-      padding: 14px;
-      border-bottom: 1px solid rgba(0,0,0,.06);
+    .btn{
+      background:linear-gradient(90deg, var(--brand), var(--brand2));
+      color:#fff;
     }
-    .ph{
-      display:flex; flex-direction:column;
-      gap:4px;
+    .btn2{
+      background:#111827;
+      color:#fff;
     }
-    .pname{
-      font-size: 18px;
-      font-weight: 1100;
+    .btnDanger{
+      background:var(--danger);
+      color:#fff;
     }
-    .ptotals{
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 900;
+    .btnGhost{
+      background:#fff;
+      border:1px solid var(--line);
+      color:var(--ink);
     }
-
-    table{ width: 100%; border-collapse: collapse; }
-    th,td{
-      border: 1px solid rgba(0,0,0,.08);
-      padding: 10px;
-      text-align:center;
-      font-weight: 800;
+    .mini{
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:12px;
+    }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius:14px;
+      border:1px solid var(--line);
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      font-size:13px;
+      text-align:left;
+      vertical-align:top;
     }
     th{
-      background: #f8fafc;
+      background:#f8fafc;
       color:#0f172a;
-      position: sticky;
-      top: 68px; /* debajo topbar sticky */
-      z-index: 10;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.6px;
     }
-    input[type="number"]{
-      width: 110px;
-      padding: 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,.12);
-      font-weight: 1000;
-      outline: none;
-    }
-    input[type="date"]{
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,.10);
-      font-weight: 1000;
-    }
-
-    /* Mark select */
-    .mark-select{
-      width: 150px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,.12);
+    tr:last-child td{border-bottom:0}
+    .right{text-align:right}
+    .tag{
+      display:inline-block;
+      font-size:11px;
+      font-weight:800;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
       background:#fff;
-      font-weight: 1000;
     }
-    .row-mark-none { background: transparent; }
-    .row-mark-yellow { background: rgba(255, 235, 59, .35); }
-    .row-mark-blue { background: rgba(33, 150, 243, .20); }
-    .row-mark-green { background: rgba(76, 175, 80, .20); }
-    .row-mark-red { background: rgba(244, 67, 54, .18); }
-    .row-mark-purple { background: rgba(156, 39, 176, .16); }
-
-    /* Realtime pill */
-    .rt-pill{
-      display:inline-block;
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-weight: 1000;
-      font-size: 12px;
-      background:#eef7ef;
-      color:#1f6f26;
-      border:1px solid rgba(0,0,0,.08);
+    .tagIn{border-color: rgba(15,154,82,.35); background: rgba(15,154,82,.08); color: var(--brand)}
+    .tagOut{border-color: rgba(185,28,28,.35); background: rgba(185,28,28,.08); color: var(--danger)}
+    .tagAdj{border-color: rgba(2,6,23,.22); background: rgba(2,6,23,.06); color:#111827}
+    .flex{display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+    .search{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:end;
     }
-    .rt-pill.off{
-      background:#fff1f2;
-      color:#b91c1c;
+    .hint{
+      background:#f8fafc;
+      border:1px dashed var(--line);
+      padding:10px 12px;
+      border-radius:14px;
+      font-size:12px;
+      color:var(--muted);
     }
-
-    /* Bascula box */
-    .bascula-box{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      padding:12px 14px;
-      border-radius:16px;
-      border:1px solid rgba(0,0,0,.10);
-      background: linear-gradient(180deg, rgba(15,154,82,.08), rgba(15,154,82,.02));
-    }
-    .peso-big{
-      font-size: 34px;
-      font-weight: 1200;
-      letter-spacing:.5px;
-    }
-    .peso-status{
-      display:inline-block;
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-weight: 1100;
-      font-size: 12px;
-      background:#eef7ef;
-      color:#1f6f26;
-      border:1px solid rgba(0,0,0,.08);
-    }
-    .peso-status.off{
-      background:#fff1f2;
-      color:#b91c1c;
-    }
-
-    /* Float bar */
-    .peso-floatbar{
-      position: fixed;
-      left: 16px;
-      right: 16px;
-      bottom: 14px;
-      z-index: 99999;
-      background: #ffffff;
-      border: 1px solid rgba(0,0,0,.12);
-      border-radius: 16px;
-      box-shadow: 0 14px 34px rgba(0,0,0,.18);
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-
-      /* ✅ Para que el ajuste por teclado sea suave */
-      transition: transform .12s ease;
-      will-change: transform;
-    }
-    .peso-float-left{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .peso-mini{
-      font-weight: 1200;
-      font-size: 18px;
-    }
-    .peso-help{ font-size: 12px; color: var(--muted); font-weight: 900; }
-
-    /* Mobile */
-    @media(max-width: 980px){
-      .grid{ grid-template-columns: 1fr; }
-      th{ top: 120px; }
-      .plist{ max-height: 280px; }
-    }
-
-    /* Central button */
-    .back-central{
+    .toast{
       position:fixed;
-      top:12px;
-      left:12px;
-      background:#0a7a3b;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:16px;
+      background:#111827;
       color:#fff;
-      padding:10px 14px;
-      border-radius:12px;
-      text-decoration:none;
-      font-weight:1000;
-      z-index:9999;
-      box-shadow:0 10px 20px rgba(0,0,0,.15);
+      padding:10px 12px;
+      border-radius:999px;
+      font-size:12px;
+      box-shadow:0 10px 28px rgba(2,6,23,.18);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s ease;
+      max-width:92vw;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
+    .toast.show{opacity:1}
+    .kpi{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+    @media (max-width: 760px){ .kpi{grid-template-columns:1fr} }
+    .kpi .box{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+    }
+    .kpi .box b{font-size:16px}
+    .kpi .box small{color:var(--muted)}
+    .divider{height:1px; background:var(--line); margin:14px 0}
+    .dangerText{color:var(--danger); font-weight:800}
   </style>
 </head>
-
 <body>
-  <a class="back-central" href="https://marcianoper.github.io/vdc-central/">← VDC Central</a>
 
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <div class="badge"><span class="dot"></span> VDC360°</div>
+<header>
+  <div class="top">
+    <div class="brand">
+      <b>VDC 360° — Inventario Mostrador</b>
+      <small>Entradas / Ventas / Devoluciones · MVP local (sin Supabase)</small>
+    </div>
+    <div class="pill">
+      <span id="todayPill">Fecha: —</span>
+      <span id="lastSavePill">Último guardado: —</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="grid">
+
+    <!-- LEFT: INVENTARIO + ACCIONES -->
+    <section class="card">
+      <div class="flex">
         <div>
-          <div class="title">Hoja de Viaje</div>
-          <div class="subtitle">Captura rápida por producto (sin scroll)</div>
+          <h2>Inventario actual (Mostrador)</h2>
+          <div class="muted">Aquí se refleja lo que está en mostrador. Las <b>Ventas</b> restan, las <b>Devoluciones</b> suman.</div>
+        </div>
+        <div class="btns">
+          <button class="btnGhost mini" id="btnDemo">Cargar demo</button>
+          <button class="btnDanger mini" id="btnReset">Borrar todo</button>
         </div>
       </div>
 
-      <div class="top-actions">
-        <label style="display:flex; align-items:center; gap:8px; font-weight:1000;">
-          Fecha:
-          <input type="date" id="fechaViaje" />
-        </label>
-        <span id="rt" class="rt-pill">REAL TIME</span>
-
-        <button class="btn ghost" type="button" onclick="mostrarHistorial()">Historial</button>
-        <button class="btn ghost" type="button" onclick="generarResumenTotales()">Documento Totales</button>
-        <button class="btn" type="button" onclick="guardarViaje()">Guardar Viaje</button>
+      <div class="kpi">
+        <div class="box">
+          <small>Productos con existencia</small><br>
+          <b id="kpiSkus">0</b>
+        </div>
+        <div class="box">
+          <small>Total cajas (solo unidad=caja)</small><br>
+          <b id="kpiCajas">0</b>
+        </div>
+        <div class="box">
+          <small>Movimientos hoy</small><br>
+          <b id="kpiMovs">0</b>
+        </div>
       </div>
-    </div>
+
+      <div class="divider"></div>
+
+      <div class="search">
+        <div style="flex:1; min-width:220px">
+          <label>Buscar producto</label>
+          <input id="searchInput" placeholder="Ej. Menudo National, Caja Excel, Cabeza..."/>
+        </div>
+        <div style="min-width:170px">
+          <label>Filtrar unidad</label>
+          <select id="unitFilter">
+            <option value="">Todas</option>
+            <option value="caja">Caja</option>
+            <option value="kg">Kg</option>
+            <option value="pza">Pza</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Unidad</th>
+              <th class="right">Existencia</th>
+              <th class="right">Acción rápida</th>
+            </tr>
+          </thead>
+          <tbody id="invTbody">
+            <tr><td colspan="4" class="muted">Sin datos aún. Registra una entrada o carga demo.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="hint" style="margin-top:12px">
+        Tip: Para cajas de menudo, usa <b>unidad=caja</b>. Para víscera por peso, usa <b>unidad=kg</b>. Si vendes en mostrador por pieza, usa <b>unidad=pza</b>.
+      </div>
+    </section>
+
+    <!-- RIGHT: REGISTRAR MOVIMIENTO -->
+    <aside class="card">
+      <h2>Registrar movimiento</h2>
+      <div class="muted">Esto alimenta el kardex y actualiza inventario automático.</div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div class="row2">
+          <div>
+            <label>Fecha</label>
+            <input id="fecha" type="date"/>
+          </div>
+          <div>
+            <label>Tipo</label>
+            <select id="tipo">
+              <option value="entrada">Entrada (mandas a mostrador)</option>
+              <option value="venta">Venta (resta)</option>
+              <option value="devolucion">Devolución (suma)</option>
+              <option value="ajuste">Ajuste (manual)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label>Producto</label>
+          <input id="producto" placeholder="Ej. Caja Menudo National"/>
+        </div>
+
+        <div class="row2">
+          <div>
+            <label>Unidad</label>
+            <select id="unidad">
+              <option value="caja">Caja</option>
+              <option value="kg">Kg</option>
+              <option value="pza">Pza</option>
+            </select>
+          </div>
+          <div>
+            <label>Cantidad</label>
+            <input id="qty" type="number" step="0.01" min="0" placeholder="Ej. 5"/>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div>
+            <label>Referencia (opcional)</label>
+            <input id="ref" placeholder="Ej. Ticket 123, Cliente X, Turno AM"/>
+          </div>
+          <div>
+            <label>Notas (opcional)</label>
+            <input id="notas" placeholder="Ej. Menudo National 5 cajas"/>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="btn" id="btnGuardar">Guardar movimiento</button>
+          <button class="btnGhost" id="btnLimpiar">Limpiar</button>
+        </div>
+
+        <div id="warn" class="muted" style="font-size:12px"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>Cierre del día</h2>
+      <div class="muted">Genera resumen del día (Entradas, Ventas, Devoluciones y neto por producto).</div>
+      <div class="btns">
+        <button class="btn2" id="btnCierre">Generar cierre</button>
+        <button class="btnGhost" id="btnCopiar">Copiar texto</button>
+      </div>
+      <textarea id="cierreOut" placeholder="Aquí aparece el cierre del día..." style="margin-top:10px; min-height:180px"></textarea>
+    </aside>
+
   </div>
 
-  <div class="wrap">
-    <div class="grid">
-
-      <!-- Sidebar -->
-      <div class="card">
-        <div class="card-h">
-          <h2>Productos</h2>
-          <span class="muted" id="sidebarHint">Selecciona para capturar</span>
+  <!-- KARDEX -->
+  <section class="card">
+    <div class="flex">
+      <div>
+        <h2>Kardex (movimientos)</h2>
+        <div class="muted">Historial completo. Puedes filtrar por fecha.</div>
+      </div>
+      <div class="row2" style="max-width:520px; width:100%">
+        <div>
+          <label>Desde</label>
+          <input id="fromDate" type="date"/>
         </div>
-        <div class="card-b">
-          <input class="search" id="prodSearch" placeholder="Buscar producto…" />
-          <div class="plist" id="plist"></div>
-          <div style="margin-top:12px" class="muted">
-            Tip: cambia de producto y sigue capturando sin moverte.
-          </div>
+        <div>
+          <label>Hasta</label>
+          <input id="toDate" type="date"/>
         </div>
       </div>
-
-      <!-- Main -->
-      <div class="card">
-
-        <div class="main-header">
-          <div class="ph">
-            <div class="pname" id="activeProductName">—</div>
-            <div class="ptotals">
-              Total: <span id="activeTotalKg">0.0</span> kg · <span id="activeTotalPzas">0</span> pzas
-            </div>
-
-            <!-- Totales por marca -->
-            <div class="ptotals" id="activeTotalsByMark" style="margin-top:6px;">
-              Sin marcas aún.
-            </div>
-          </div>
-
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn secondary" type="button" onclick="agregarFilaProductoActivo()">+ Agregar pesada</button>
-            <button class="btn ghost" type="button" onclick="scrollTablaTop()">Ir arriba</button>
-          </div>
-        </div>
-
-        <div class="card-b">
-          <!-- Báscula -->
-          <div class="bascula-box">
-            <div>
-              <div class="muted" style="margin-bottom:6px;">Báscula en vivo</div>
-              <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
-                <span class="peso-big" id="pesoLive">--</span>
-                <span style="font-weight:1100;">kg</span>
-                <span id="pesoStatus" class="peso-status">CONECTANDO</span>
-              </div>
-              <div class="muted" style="margin-top:6px;">
-                Haz click en un input de <b>Kg</b> y presiona “Usar este peso”.
-              </div>
-            </div>
-          </div>
-
-          <!-- Tabla solo del producto activo -->
-          <div style="margin-top:14px;">
-            <table id="tablaActiva">
-              <thead>
-                <tr>
-                  <th>Kg</th>
-                  <th>Piezas</th>
-                  <th>Marcador</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-
-            <div style="margin-top:12px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-              <div class="muted">
-                Consejo: si estás en “Cuajo”, ya no necesitas ir al final de la página.
-              </div>
-              <div style="font-weight:1100;">
-                Total Kg: <span id="activeTotalKg2">0.0</span> · Total Pzas: <span id="activeTotalPzas2">0</span>
-              </div>
-            </div>
-          </div>
-
-          <div id="historialContainer" style="margin-top: 18px;"></div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- Barra flotante báscula -->
-  <div class="peso-floatbar" id="pesoFloatbar">
-    <div class="peso-float-left">
-      <span class="peso-mini">Peso: <span id="pesoLiveMini">--</span> kg</span>
-      <span id="pesoStatusMini" class="peso-status">CONECTANDO</span>
-      <span class="peso-help">Selecciona un input de Kg</span>
     </div>
 
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <button class="btn ghost" type="button" onclick="leerPesoManual()">🔄 Actualizar</button>
-      <button class="btn" type="button" onclick="tomarPesoEnInputActivo()">⬇ Usar este peso</button>
+    <div style="margin-top:12px; overflow:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Producto</th>
+            <th>Unidad</th>
+            <th class="right">Cantidad</th>
+            <th>Referencia</th>
+            <th class="right">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="movTbody">
+          <tr><td colspan="7" class="muted">Sin movimientos.</td></tr>
+        </tbody>
+      </table>
     </div>
-  </div>
+  </section>
 
-  <script>
-    /* ========= SUPABASE ========= */
-    const supabase = window.supabase.createClient(
-      'https://rcegikeiaxptolrduguc.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZWdpa2VpYXhwdG9scmR1Z3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NTMyMDcsImV4cCI6MjA3MTIyOTIwN30.jbPM9F977zeITEmFA_xvVU6SCxlWWVCi3Dx7ZhFfTp8'
-    );
+</main>
 
-    const BASCULA_TABLE = 'bascula_live';
-    const BASCULA_ID = 'torrey_1';
-    const LIVE_TABLE = 'hoja_viaje_live';
+<div class="toast" id="toast">Listo</div>
 
-    const DEVICE_ID = (() => {
-      const k = 'vdc_device_id';
-      let v = localStorage.getItem(k);
-      if(!v){
-        v = 'dev_' + Math.random().toString(16).slice(2) + '_' + Date.now();
-        localStorage.setItem(k, v);
-      }
-      return v;
-    })();
+<script>
+/* =========================
+   VDC MVP — Inventario Mostrador
+   - Sin Supabase: guarda en localStorage
+   - Modelado:
+     inv: { "producto|unidad": {producto, unidad, existencia} }
+     movs: [{id, fecha, tipo, producto, unidad, qty, ref, notas, ts}]
+   ========================= */
 
-    const productos = ['Cabeza de res', 'Tripa de res', 'Menudo sucio', 'Cuajo de res', 'Pata sucia', 'Hígado', 'Libro de res', 'Teleco', 'Corazón'];
+const LS_KEY = "vdc_mostrador_mvp_v1";
 
-    function $(s){ return document.querySelector(s); }
-    function todayISO(){
-      const d = new Date();
-      const z = d.getTimezoneOffset() * 60000;
-      return new Date(d - z).toISOString().slice(0,10);
+const $ = (id)=>document.getElementById(id);
+const toastEl = $("toast");
+
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  setTimeout(()=>toastEl.classList.remove("show"), 1800);
+}
+
+function todayISO(){
+  const d = new Date();
+  const tzOff = d.getTimezoneOffset()*60000;
+  return new Date(d - tzOff).toISOString().slice(0,10);
+}
+
+function nowStamp(){
+  return new Date().toISOString();
+}
+
+function norm(s){
+  return (s||"").toString().trim();
+}
+function keyOf(prod, unidad){
+  return `${norm(prod).toLowerCase()}|${norm(unidad).toLowerCase()}`;
+}
+function prettyTipo(t){
+  if(t==="entrada") return {txt:"Entrada", cls:"tag tagIn"};
+  if(t==="venta") return {txt:"Venta", cls:"tag tagOut"};
+  if(t==="devolucion") return {txt:"Devolución", cls:"tag tagIn"};
+  return {txt:"Ajuste", cls:"tag tagAdj"};
+}
+
+let state = {
+  inv: {},     // map
+  movs: []     // array
+};
+
+function load(){
+  const raw = localStorage.getItem(LS_KEY);
+  if(raw){
+    try{
+      state = JSON.parse(raw);
+      if(!state.inv) state.inv = {};
+      if(!state.movs) state.movs = [];
+    }catch(e){
+      state = {inv:{}, movs:[]};
     }
+  }
+  updatePills();
+  renderAll();
+}
+function save(){
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  updatePills();
+}
+function updatePills(){
+  $("todayPill").textContent = `Fecha: ${$("fecha").value || todayISO()}`;
+  const last = localStorage.getItem(LS_KEY) ? "sí" : "—";
+  $("lastSavePill").textContent = `Guardado: ${last==="sí" ? "OK" : "—"}`;
+}
 
-    /* ========= MARKS ========= */
-    const MARKS = [
-      { key: 'none',   label: 'Sin marca',   cls: 'row-mark-none' },
-      { key: 'yellow', label: 'Cliente A',   cls: 'row-mark-yellow' },
-      { key: 'blue',   label: 'Cliente B',   cls: 'row-mark-blue' },
-      { key: 'green',  label: 'Cliente C',   cls: 'row-mark-green' },
-      { key: 'red',    label: 'Urgente',     cls: 'row-mark-red' },
-      { key: 'purple', label: 'Especial',    cls: 'row-mark-purple' },
-    ];
+function applyMovementToInv(m){
+  const k = keyOf(m.producto, m.unidad);
+  if(!state.inv[k]){
+    state.inv[k] = { producto: norm(m.producto), unidad: norm(m.unidad), existencia: 0 };
+  }
+  const item = state.inv[k];
+  const q = Number(m.qty)||0;
 
-    function markToClass(markKey){
-      const f = MARKS.find(m => m.key === markKey);
-      return (f ? f.cls : 'row-mark-none');
+  // Reglas:
+  // entrada: suma
+  // devolucion: suma
+  // venta: resta
+  // ajuste: puede ser positivo o negativo (se aplica tal cual)
+  if(m.tipo==="entrada" || m.tipo==="devolucion"){
+    item.existencia += q;
+  }else if(m.tipo==="venta"){
+    item.existencia -= q;
+  }else if(m.tipo==="ajuste"){
+    item.existencia += q;
+  }
+
+  // redondeo suave (evita 0.3000000004)
+  item.existencia = Math.round(item.existencia * 1000) / 1000;
+
+  // si queda casi cero, lo dejamos en 0
+  if(Math.abs(item.existencia) < 0.0005) item.existencia = 0;
+
+  // si ya no hay existencia y es 0, lo podemos mantener (para historial)
+}
+
+function rebuildInventoryFromMovs(){
+  state.inv = {};
+  for(const m of state.movs){
+    applyMovementToInv(m);
+  }
+}
+
+function addMovement(m){
+  state.movs.unshift(m); // newest first
+  applyMovementToInv(m);
+  save();
+  renderAll();
+}
+
+function deleteMovement(id){
+  state.movs = state.movs.filter(x=>x.id !== id);
+  rebuildInventoryFromMovs();
+  save();
+  renderAll();
+}
+
+function filteredInventory(){
+  const q = norm($("searchInput").value).toLowerCase();
+  const u = $("unitFilter").value;
+  const arr = Object.values(state.inv)
+    .filter(it => {
+      const matchQ = !q || it.producto.toLowerCase().includes(q);
+      const matchU = !u || it.unidad.toLowerCase() === u;
+      return matchQ && matchU;
+    })
+    .sort((a,b)=> a.producto.localeCompare(b.producto));
+  return arr;
+}
+
+function inventoryTbodyRow(it){
+  const existencia = Number(it.existencia)||0;
+  const danger = existencia < 0 ? `<span class="dangerText">(${existencia.toFixed(2)})</span>` : `${existencia.toFixed(2)}`;
+  return `
+    <tr>
+      <td><b>${escapeHtml(it.producto)}</b></td>
+      <td>${escapeHtml(it.unidad)}</td>
+      <td class="right">${danger}</td>
+      <td class="right">
+        <button class="btnGhost mini" onclick="quick('venta','${jsStr(it.producto)}','${jsStr(it.unidad)}',1)">-1</button>
+        <button class="btnGhost mini" onclick="quick('venta','${jsStr(it.producto)}','${jsStr(it.unidad)}',2)">-2</button>
+        <button class="btnGhost mini" onclick="quick('entrada','${jsStr(it.producto)}','${jsStr(it.unidad)}',1)">+1</button>
+      </td>
+    </tr>
+  `;
+}
+
+function filteredMovs(){
+  const from = $("fromDate").value;
+  const to = $("toDate").value;
+  return state.movs.filter(m=>{
+    if(from && m.fecha < from) return false;
+    if(to && m.fecha > to) return false;
+    return true;
+  });
+}
+
+function movTbodyRow(m){
+  const t = prettyTipo(m.tipo);
+  return `
+    <tr>
+      <td>${escapeHtml(m.fecha)}</td>
+      <td><span class="${t.cls}">${t.txt}</span></td>
+      <td>${escapeHtml(m.producto)}</td>
+      <td>${escapeHtml(m.unidad)}</td>
+      <td class="right"><b>${Number(m.qty).toFixed(2)}</b></td>
+      <td class="muted">${escapeHtml(m.ref || "")}</td>
+      <td class="right">
+        <button class="btnDanger mini" onclick="delMov('${m.id}')">Borrar</button>
+      </td>
+    </tr>
+  `;
+}
+
+function renderInventory(){
+  const arr = filteredInventory();
+
+  const withStock = arr.filter(it => (Number(it.existencia)||0) !== 0).length;
+  $("kpiSkus").textContent = withStock;
+
+  const cajas = arr
+    .filter(it => it.unidad.toLowerCase() === "caja")
+    .reduce((acc,it)=> acc + (Number(it.existencia)||0), 0);
+  $("kpiCajas").textContent = (Math.round(cajas*100)/100).toFixed(2);
+
+  // movimientos hoy
+  const hoy = $("fecha").value || todayISO();
+  const movsHoy = state.movs.filter(m=>m.fecha===hoy).length;
+  $("kpiMovs").textContent = movsHoy;
+
+  if(arr.length===0){
+    $("invTbody").innerHTML = `<tr><td colspan="4" class="muted">Sin datos aún. Registra una entrada o carga demo.</td></tr>`;
+    return;
+  }
+  $("invTbody").innerHTML = arr.map(inventoryTbodyRow).join("");
+}
+
+function renderMovs(){
+  const arr = filteredMovs();
+  if(arr.length===0){
+    $("movTbody").innerHTML = `<tr><td colspan="7" class="muted">Sin movimientos en este rango.</td></tr>`;
+    return;
+  }
+  $("movTbody").innerHTML = arr.map(movTbodyRow).join("");
+}
+
+function renderAll(){
+  renderInventory();
+  renderMovs();
+}
+
+function validateForm(){
+  const f = $("fecha").value;
+  const tipo = $("tipo").value;
+  const prod = norm($("producto").value);
+  const unidad = $("unidad").value;
+  const qty = Number($("qty").value);
+
+  if(!f) return "Selecciona fecha.";
+  if(!prod) return "Escribe el producto.";
+  if(!unidad) return "Selecciona unidad.";
+  if(!(qty>0) && tipo!=="ajuste") return "Cantidad debe ser > 0.";
+  if(tipo==="ajuste" && !isFinite(qty)) return "En ajuste, la cantidad puede ser positiva o negativa (ej. -1).";
+
+  // Warning si va a quedar negativo
+  const k = keyOf(prod, unidad);
+  const cur = state.inv[k] ? Number(state.inv[k].existencia)||0 : 0;
+  if(tipo==="venta" && qty>cur){
+    return `Ojo: estás vendiendo más de lo disponible (${cur.toFixed(2)}). Se permitirá, pero quedará negativo.`;
+  }
+  return "";
+}
+
+function clearForm(){
+  $("tipo").value = "entrada";
+  $("producto").value = "";
+  $("unidad").value = "caja";
+  $("qty").value = "";
+  $("ref").value = "";
+  $("notas").value = "";
+  $("warn").textContent = "";
+}
+
+function quick(tipo, producto, unidad, qty){
+  $("tipo").value = tipo;
+  $("producto").value = producto;
+  $("unidad").value = unidad;
+  $("qty").value = qty;
+  $("ref").value = "Acción rápida";
+  $("notas").value = "";
+  $("btnGuardar").click();
+}
+
+window.quick = quick;
+
+function genId(){
+  return "M" + Math.random().toString(16).slice(2) + Date.now().toString(16);
+}
+
+function buildCierre(fecha){
+  // agrupa movimientos por producto|unidad y por tipo
+  const movs = state.movs.filter(m=>m.fecha===fecha);
+
+  const agg = {}; // key -> {producto, unidad, entrada, venta, devolucion, ajuste, neto}
+  for(const m of movs){
+    const k = keyOf(m.producto, m.unidad);
+    if(!agg[k]){
+      agg[k] = {producto:norm(m.producto), unidad:norm(m.unidad), entrada:0, venta:0, devolucion:0, ajuste:0};
     }
-    function buildMarkSelect(selectedKey = 'none'){
-      const sel = document.createElement('select');
-      sel.className = 'mark-select';
-      sel.innerHTML = MARKS.map(m => `<option value="${m.key}" ${m.key===selectedKey?'selected':''}>${m.label}</option>`).join('');
-      return sel;
-    }
-    function applyRowMark(row, markKey){
-      MARKS.forEach(m => row.classList.remove(m.cls));
-      row.classList.add(markToClass(markKey));
-      row.dataset.mark = markKey || 'none';
-    }
+    agg[k][m.tipo] = (agg[k][m.tipo]||0) + (Number(m.qty)||0);
+  }
+
+  // construir texto
+  const lines = [];
+  lines.push(`VDC 360° — Cierre Mostrador`);
+  lines.push(`Fecha: ${fecha}`);
+  lines.push(`----------------------------------`);
+
+  const items = Object.values(agg).sort((a,b)=>a.producto.localeCompare(b.producto));
+  if(items.length===0){
+    lines.push(`Sin movimientos registrados en este día.`);
+    return lines.join("\n");
+  }
+
+  for(const it of items){
+    const neto = (it.entrada||0) + (it.devolucion||0) + (it.ajuste||0) - (it.venta||0);
+    lines.push(`• ${it.producto} (${it.unidad})`);
+    if((it.entrada||0) !== 0) lines.push(`   + Entradas: ${fmt(it.entrada)}`);
+    if((it.devolucion||0) !== 0) lines.push(`   + Devoluciones: ${fmt(it.devolucion)}`);
+    if((it.ajuste||0) !== 0) lines.push(`   ± Ajuste: ${fmt(it.ajuste)}`);
+    if((it.venta||0) !== 0) lines.push(`   - Ventas: ${fmt(it.venta)}`);
+    lines.push(`   = Neto del día: ${fmt(neto)}`);
+  }
+
+  lines.push(`----------------------------------`);
+  lines.push(`Movimientos del día: ${movs.length}`);
+
+  return lines.join("\n");
+}
+
+function fmt(n){
+  return (Math.round((Number(n)||0)*100)/100).toFixed(2);
+}
+
+// escape helpers
+function escapeHtml(str){
+  return (str||"").toString()
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function jsStr(str){
+  return (str||"").toString()
+    .replaceAll("\\","\\\\")
+    .replaceAll("'","\\'")
+    .replaceAll('"','\\"');
+}
+
+window.delMov = function(id){
+  if(confirm("¿Borrar este movimiento?")){
+    deleteMovement(id);
+    toast("Movimiento borrado");
+  }
+};
+
+function setDefaultDates(){
+  const t = todayISO();
+  $("fecha").value = t;
+  $("fromDate").value = "";
+  $("toDate").value = "";
+}
+
+function loadDemo(){
+  const t = $("fecha").value || todayISO();
+  state = {inv:{}, movs:[]};
+
+  const demo = [
+    {fecha:t, tipo:"entrada", producto:"Caja Menudo National", unidad:"caja", qty:5, ref:"Envio AM", notas:""},
+    {fecha:t, tipo:"entrada", producto:"Menudo National", unidad:"kg", qty:120, ref:"Envio AM", notas:""},
+    {fecha:t, tipo:"venta", producto:"Caja Menudo National", unidad:"caja", qty:2, ref:"Ticket 101", notas:""},
+    {fecha:t, tipo:"venta", producto:"Menudo National", unidad:"kg", qty:36.5, ref:"Ticket 102", notas:""},
+    {fecha:t, tipo:"devolucion", producto:"Menudo National", unidad:"kg", qty:2.0, ref:"Devolución", notas:""},
+    {fecha:t, tipo:"entrada", producto:"Caja Excel", unidad:"caja", qty:3, ref:"Envio PM", notas:""}
+  ].map(x=>({ ...x, id:genId(), ts:nowStamp() }));
+
+  state.movs = demo.slice().reverse(); // para que al unshift quede orden
+  rebuildInventoryFromMovs();
+  save();
+  renderAll();
+  toast("Demo cargada");
+}
+
+function resetAll(){
+  if(confirm("Esto borrará TODO el inventario y movimientos (local). ¿Seguro?")){
+    state = {inv:{}, movs:[]};
+    localStorage.removeItem(LS_KEY);
+    save();
+    renderAll();
+    $("cierreOut").value = "";
+    toast("Datos borrados");
+  }
+}
+
+function copyCierre(){
+  const text = $("cierreOut").value || "";
+  if(!text.trim()){
+    toast("No hay cierre para copiar");
+    return;
+  }
+  navigator.clipboard.writeText(text).then(()=>{
+    toast("Cierre copiado");
+  }).catch(()=>{
+    toast("No se pudo copiar (permiso del navegador)");
+  });
+}
+
+// Events
+$("btnGuardar").addEventListener("click", ()=>{
+  const warn = validateForm();
+  $("warn").textContent = warn;
+
+  const f = $("fecha").value;
+  const tipo = $("tipo").value;
+  const prod = norm($("producto").value);
+  const unidad = $("unidad").value;
+  const qtyVal = Number($("qty").value);
+
+  // bloquear errores duros
+  if(!f || !prod || !unidad) return toast("Faltan datos");
+  if(tipo!=="ajuste" && !(qtyVal>0)) return toast("Cantidad inválida");
+  if(tipo==="ajuste" && !isFinite(qtyVal)) return toast("Cantidad inválida");
+
+  const m = {
+    id: genId(),
+    fecha: f,
+    tipo,
+    producto: prod,
+    unidad,
+    qty: qtyVal,
+    ref: norm($("ref").value),
+    notas: norm($("notas").value),
+    ts: nowStamp()
+  };
+
+  addMovement(m);
+  toast("Movimiento guardado");
+  clearForm();
+});
+
+$("btnLimpiar").addEventListener("click", ()=>{
+  clearForm();
+  toast("Formulario limpio");
+});
+
+$("btnCierre").addEventListener("click", ()=>{
+  const f = $("fecha").value || todayISO();
+  $("cierreOut").value = buildCierre(f);
+  toast("Cierre generado");
+});
+
+$("btnCopiar").addEventListener("click", copyCierre);
+
+$("btnDemo").addEventListener("click", loadDemo);
+$("btnReset").addEventListener("click", resetAll);
+
+$("searchInput").addEventListener("input", renderInventory);
+$("unitFilter").addEventListener("change", renderInventory);
+
+$("fromDate").addEventListener("change", renderMovs);
+$("toDate").addEventListener("change", renderMovs);
+
+// init
+setDefaultDates();
+load();
+</script>
 
-    /* ========= STATE ========= */
-    let state = {
-      fecha: todayISO(),
-      resultados: {}
-    };
-    productos.forEach(p => state.resultados[p] = []);
-    let activeProduct = productos[0];
-
-    function setActiveProduct(p){
-      activeProduct = p;
-      renderSidebar();
-      renderActiveTable();
-      updateActiveTotals();
-    }
-
-    /* ========= SIDEBAR ========= */
-    function renderSidebar(){
-      const list = $('#plist');
-      if(!list) return;
-      const q = ($('#prodSearch')?.value || '').toLowerCase();
-      list.innerHTML = '';
-
-      productos
-        .filter(p => p.toLowerCase().includes(q))
-        .forEach(p => {
-          const totals = calcTotals(p);
-          const div = document.createElement('div');
-          div.className = 'pitem' + (p === activeProduct ? ' active' : '');
-          div.innerHTML = `
-            <div>${p}</div>
-            <div class="pmeta">${totals.kg.toFixed(1)} kg · ${totals.pzas} pzas</div>
-          `;
-          div.onclick = () => setActiveProduct(p);
-          list.appendChild(div);
-        });
-    }
-    $('#prodSearch')?.addEventListener('input', renderSidebar);
-
-    /* ========= TABLA ACTIVA ========= */
-    function renderActiveTable(){
-      $('#activeProductName').textContent = activeProduct;
-
-      const tbody = $('#tablaActiva tbody');
-      tbody.innerHTML = '';
-
-      const rows = state.resultados[activeProduct] || [];
-
-      rows.forEach((r, idx) => {
-        const tr = document.createElement('tr');
-
-        const kgTd = document.createElement('td');
-        const kgIn = document.createElement('input');
-        kgIn.className = 'kg-input';
-        kgIn.type = 'number';
-        kgIn.step = '0.1';
-        kgIn.value = (r.kg ?? '');
-        kgIn.addEventListener('input', ()=>{
-          state.resultados[activeProduct][idx].kg = parseFloat(kgIn.value)||0;
-          updateActiveTotals();
-          scheduleSaves();
-        });
-
-        const pzTd = document.createElement('td');
-        const pzIn = document.createElement('input');
-        pzIn.type = 'number';
-        pzIn.value = (r.pzas ?? '');
-        pzIn.addEventListener('input', ()=>{
-          state.resultados[activeProduct][idx].pzas = parseFloat(pzIn.value)||0;
-          updateActiveTotals();
-          scheduleSaves();
-        });
-
-        const mkTd = document.createElement('td');
-        const sel = buildMarkSelect(r.mark || 'none');
-        sel.addEventListener('change', ()=>{
-          state.resultados[activeProduct][idx].mark = sel.value;
-          applyRowMark(tr, sel.value);
-          updateActiveTotals();
-          scheduleSaves();
-        });
-        mkTd.appendChild(sel);
-
-        const actTd = document.createElement('td');
-        const del = document.createElement('button');
-        del.className = 'btn danger';
-        del.type = 'button';
-        del.textContent = 'Eliminar';
-        del.onclick = () => {
-          state.resultados[activeProduct].splice(idx,1);
-          renderActiveTable();
-          updateActiveTotals();
-          scheduleSaves();
-        };
-        actTd.appendChild(del);
-
-        kgTd.appendChild(kgIn);
-        pzTd.appendChild(pzIn);
-
-        tr.appendChild(kgTd);
-        tr.appendChild(pzTd);
-        tr.appendChild(mkTd);
-        tr.appendChild(actTd);
-
-        applyRowMark(tr, r.mark || 'none');
-        tbody.appendChild(tr);
-      });
-
-      if(rows.length === 0){
-        addRow(activeProduct);
-      }
-    }
-
-    function addRow(producto, kgValue='', pzasValue='', markKey='none'){
-      state.resultados[producto] = state.resultados[producto] || [];
-      state.resultados[producto].push({ kg: (parseFloat(kgValue)||0), pzas: (parseFloat(pzasValue)||0), mark: markKey });
-    }
-
-    function agregarFilaProductoActivo(){
-      addRow(activeProduct);
-      renderActiveTable();
-      updateActiveTotals();
-      scheduleSaves();
-      setTimeout(()=>{
-        const inputs = document.querySelectorAll('#tablaActiva .kg-input');
-        if(inputs.length) inputs[inputs.length-1].focus();
-      }, 50);
-    }
-
-    function scrollTablaTop(){
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    /* ========= TOTALES ========= */
-    function calcTotals(producto){
-      const rows = state.resultados[producto] || [];
-      let kg=0, pzas=0;
-      rows.forEach(r=>{
-        kg += (r.kg||0);
-        pzas += (r.pzas||0);
-      });
-      return {kg,pzas};
-    }
-
-    function calcTotalsByMark(producto){
-      const rows = state.resultados[producto] || [];
-      const out = {};
-      rows.forEach(r=>{
-        const mk = (r.mark || 'none');
-        if(!out[mk]) out[mk] = { kg:0, pzas:0 };
-        out[mk].kg += (r.kg || 0);
-        out[mk].pzas += (r.pzas || 0);
-      });
-      return out;
-    }
-
-    function renderActiveTotalsByMark(){
-      const cont = $('#activeTotalsByMark');
-      if(!cont) return;
-
-      const totals = calcTotalsByMark(activeProduct);
-
-      const items = Object.entries(totals)
-        .filter(([mk, v]) => ((v.kg||0) > 0) || ((v.pzas||0) > 0));
-
-      if(items.length === 0){
-        cont.innerHTML = `<span style="color:var(--muted); font-weight:900;">Sin marcas aún.</span>`;
-        return;
-      }
-
-      items.sort((a,b)=> (b[1].kg||0) - (a[1].kg||0));
-
-      const labelOf = (mk)=>{
-        const f = MARKS.find(m=>m.key===mk);
-        return f ? f.label : mk;
-      };
-
-      cont.innerHTML = items.map(([mk, v])=>{
-        const label = labelOf(mk);
-        return `
-          <span style="
-            display:inline-flex; align-items:center; gap:8px;
-            padding:6px 10px; border-radius:999px;
-            border:1px solid rgba(0,0,0,.10);
-            background:#fff; margin-right:8px; margin-top:6px;
-            font-weight:1000;
-          ">
-            ${label}: ${Number(v.kg||0).toFixed(1)} kg · ${Number(v.pzas||0)}
-          </span>
-        `;
-      }).join('');
-    }
-
-    function updateActiveTotals(){
-      const t = calcTotals(activeProduct);
-      $('#activeTotalKg').textContent = t.kg.toFixed(1);
-      $('#activeTotalPzas').textContent = t.pzas;
-      $('#activeTotalKg2').textContent = t.kg.toFixed(1);
-      $('#activeTotalPzas2').textContent = t.pzas;
-      renderSidebar();
-      renderActiveTotalsByMark();
-    }
-
-    /* ========= RECOLECTAR ========= */
-    function recolectarResultados(){
-      const resultados = {};
-      productos.forEach(p=>{
-        resultados[p] = (state.resultados[p] || [])
-          .filter(r => (r.kg||0) || (r.pzas||0))
-          .map(r => ({ kg: r.kg||0, pzas: r.pzas||0, mark: r.mark||'none' }));
-      });
-      return resultados;
-    }
-
-    /* ========= GUARDAR / HISTORIAL / RESUMEN ========= */
-    async function guardarViaje() {
-      const fecha = $('#fechaViaje').value;
-      if (!fecha) return alert("⚠️ Por favor selecciona una fecha.");
-
-      const resultados = recolectarResultados();
-
-      const { data, error } = await supabase
-        .from('hoja_viaje')
-        .insert([{ fecha, resultados }])
-        .select()
-        .single();
-
-      if (error) {
-        alert("❌ Error al guardar: " + error.message);
-      } else {
-        alert("✅ Viaje guardado correctamente.");
-        if (data && data.id) {
-          window.viaje_id = data.id;
-          await saveLive();
-          saveLocal();
-        }
-      }
-    }
-
-    async function mostrarHistorial() {
-      const { data, error } = await supabase.from('hoja_viaje').select('*').order('fecha', { ascending: false });
-      const contenedor = $('#historialContainer');
-      contenedor.innerHTML = '';
-
-      if (error) {
-        contenedor.innerHTML = '<p style="color:red;font-weight:900;">❌ Error al cargar historial: ' + error.message + '</p>';
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        contenedor.innerHTML = '<p class="muted">No hay viajes registrados.</p>';
-        return;
-      }
-
-      const tabla = document.createElement('table');
-      tabla.style.width = '100%';
-      tabla.innerHTML = '<thead><tr><th>Fecha</th><th>Resumen</th></tr></thead><tbody>' +
-        data.map(row => `<tr><td style="font-weight:1000;">${row.fecha}</td><td><pre style="text-align:left; white-space:pre-wrap; margin:0;">${JSON.stringify(row.resultados, null, 2)}</pre></td></tr>`).join('') +
-        '</tbody>';
-      contenedor.appendChild(tabla);
-    }
-
-    async function generarResumenTotales() {
-      const { data, error } = await supabase.from('hoja_viaje').select('*');
-      if (error || !data) return alert('❌ Error al obtener datos: ' + error.message);
-
-      const totales = {};
-      data.forEach(row => {
-        const prods = row.resultados || {};
-        Object.keys(prods).forEach(nombre => {
-          prods[nombre].forEach(r => {
-            if (!totales[nombre]) totales[nombre] = { kg: 0, pzas: 0 };
-            totales[nombre].kg += r.kg || 0;
-            totales[nombre].pzas += r.pzas || 0;
-          });
-        });
-      });
-
-      let html = '<h1 style="font-family:Arial;">Resumen Total de Kilos y Piezas</h1>';
-      html += '<table border="1" cellpadding="6" style="border-collapse:collapse;font-family:Arial;">';
-      html += '<tr><th>Producto</th><th>Total Kg</th><th>Total Pzas</th></tr>';
-      Object.entries(totales).forEach(([nombre, valores]) => {
-        html += `<tr><td>${nombre}</td><td>${valores.kg.toFixed(1)}</td><td>${valores.pzas}</td></tr>`;
-      });
-      html += '</table>';
-
-      const blob = new Blob([`<html><body>${html}</body></html>`], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    }
-
-    /* ========= LIVE (estado hoja) ========= */
-    const MODULE = 'hoja_viaje';
-    let dirty=false, tLocal=null, tLive=null;
-    let rtSub = null;
-    let applyingRemote = false;
-
-    function getFechaISO(){ return $('#fechaViaje')?.value || todayISO(); }
-    function liveKey(){ return `viaje-${getFechaISO()}`; }
-    function collectState(){
-      return { fecha: getFechaISO(), resultados: recolectarResultados(), _activeProduct: activeProduct };
-    }
-
-    function applyState(inState){
-      if(!inState) return;
-      if(inState.fecha) $('#fechaViaje').value = inState.fecha;
-
-      const res = inState.resultados || {};
-      productos.forEach(p=>{
-        const rows = res[p] || [];
-        state.resultados[p] = rows.map(r=>({ kg:r.kg||0, pzas:r.pzas||0, mark:r.mark||'none' }));
-      });
-
-      if(inState._activeProduct && productos.includes(inState._activeProduct)){
-        activeProduct = inState._activeProduct;
-      }
-      renderSidebar();
-      renderActiveTable();
-      updateActiveTotals();
-    }
-
-    function lkey(){ return `draft:${MODULE}:${liveKey()}`; }
-    function saveLocal(){
-      localStorage.setItem(lkey(), JSON.stringify({ts:Date.now(), data:collectState()}));
-      dirty=true;
-    }
-    function loadLocal(){
-      const raw=localStorage.getItem(lkey());
-      if(!raw) return;
-      try{ applyState(JSON.parse(raw).data); }catch{}
-    }
-
-    async function saveLive(){
-      if(applyingRemote) return;
-
-      const row = {
-        id: liveKey(),
-        fecha: getFechaISO(),
-        data: collectState(),
-        updated_at: new Date().toISOString(),
-        updated_by: DEVICE_ID
-      };
-
-      const { error } = await supabase
-        .from(LIVE_TABLE)
-        .upsert([row], { onConflict: 'id' });
-
-      if(error){
-        console.log("LIVE UPSERT ERROR:", error);
-        setRtPill(false, 'RT OFF');
-      }else{
-        setRtPill(true, 'REAL TIME');
-      }
-    }
-
-    async function loadLive(){
-      const { data, error } = await supabase
-        .from(LIVE_TABLE)
-        .select('data, updated_by, updated_at')
-        .eq('id', liveKey())
-        .single();
-      if(error) return;
-      if(data && data.data){
-        applyingRemote = true;
-        applyState(data.data);
-        applyingRemote = false;
-      }
-    }
-
-    function setRtPill(on, text){
-      const pill = $('#rt');
-      if(!pill) return;
-      pill.textContent = text || (on ? 'REAL TIME' : 'RT OFF');
-      pill.classList.toggle('off', !on);
-    }
-
-    function subscribeLive(){
-      if(rtSub){
-        try{ supabase.removeSubscription(rtSub); }catch(e){}
-        rtSub = null;
-      }
-
-      rtSub = supabase
-        .from(`${LIVE_TABLE}:id=eq.${liveKey()}`)
-        .on('INSERT', payload => onLivePayload(payload))
-        .on('UPDATE', payload => onLivePayload(payload))
-        .subscribe((status)=>{
-          if(status === 'SUBSCRIBED') setRtPill(true, 'REAL TIME');
-        });
-    }
-
-    function onLivePayload(payload){
-      try{
-        const row = payload.new || payload.record || null;
-        if(!row) return;
-        if(row.updated_by && row.updated_by === DEVICE_ID) return;
-
-        if(row.data){
-          applyingRemote = true;
-          applyState(row.data);
-          applyingRemote = false;
-          dirty = true;
-        }
-      }catch(e){
-        console.log("LIVE PAYLOAD ERROR:", e);
-      }
-    }
-
-    function scheduleSaves(){
-      clearTimeout(tLocal);
-      tLocal=setTimeout(saveLocal, 400);
-
-      clearTimeout(tLive);
-      tLive=setTimeout(saveLive, 700);
-    }
-
-    window.addEventListener('beforeunload', (e)=>{
-      if(!dirty) return;
-      e.preventDefault();
-      e.returnValue='';
-    });
-
-    $('#fechaViaje')?.addEventListener('change', async ()=>{
-      applyingRemote = true;
-      await loadLive();
-      loadLocal();
-      applyingRemote = false;
-      subscribeLive();
-    });
-
-    /* ========= BÁSCULA ========= */
-    let pesoActual = null;
-    let pesoSub = null;
-    let lastFocusedKgInput = null;
-
-    document.addEventListener('focusin', (e)=>{
-      const el = e.target;
-      if(el && el.classList && el.classList.contains('kg-input')){
-        lastFocusedKgInput = el;
-      }
-    });
-
-    function setPesoUI(p){
-      const v = (Number(p)||0);
-      const el = $('#pesoLive');
-      if(el) el.textContent = v.toFixed(2);
-      const mini = $('#pesoLiveMini');
-      if(mini) mini.textContent = v.toFixed(2);
-      pesoActual = v;
-    }
-
-    function setPesoStatus(on, text){
-      const t = text || (on ? 'OK' : 'OFF');
-
-      const pill = $('#pesoStatus');
-      if(pill){
-        pill.textContent = t;
-        pill.classList.toggle('off', !on);
-      }
-
-      const pill2 = $('#pesoStatusMini');
-      if(pill2){
-        pill2.textContent = t;
-        pill2.classList.toggle('off', !on);
-      }
-    }
-
-    async function leerPesoManual(){
-      const { data, error } = await supabase
-        .from(BASCULA_TABLE)
-        .select('peso, updated_at')
-        .eq('id', BASCULA_ID)
-        .single();
-
-      if(error){
-        console.log("BASCULA READ ERROR:", error);
-        setPesoStatus(false, 'OFF');
-        alert("Error leyendo Supabase (bascula_live). Revisa internet / RLS / tabla.");
-        return;
-      }
-      setPesoUI(data?.peso ?? 0);
-      setPesoStatus(true, 'OK');
-    }
-
-    function tomarPesoEnInputActivo(){
-      if(pesoActual == null){
-        alert("Aún no hay peso. Presiona 'Actualizar' o espera el realtime.");
-        return;
-      }
-      const target = lastFocusedKgInput || document.querySelector('.kg-input:focus');
-      if(!target){
-        alert("Primero haz click en un input de Kg y luego presiona 'Usar este peso'.");
-        return;
-      }
-      target.value = Number(pesoActual).toFixed(2);
-      target.dispatchEvent(new Event('input', { bubbles:true }));
-      target.dispatchEvent(new Event('change', { bubbles:true }));
-      scheduleSaves();
-    }
-
-    function subscribeBascula(){
-      if(pesoSub){
-        try{ supabase.removeSubscription(pesoSub); }catch(e){}
-        pesoSub = null;
-      }
-
-      pesoSub = supabase
-        .from(`${BASCULA_TABLE}:id=eq.${BASCULA_ID}`)
-        .on('UPDATE', payload => {
-          const row = payload.new || payload.record;
-          if(row && row.peso != null){
-            setPesoUI(row.peso);
-            setPesoStatus(true, 'OK');
-          }
-        })
-        .on('INSERT', payload => {
-          const row = payload.new || payload.record;
-          if(row && row.peso != null){
-            setPesoUI(row.peso);
-            setPesoStatus(true, 'OK');
-          }
-        })
-        .subscribe((status)=>{
-          if(status === 'SUBSCRIBED') setPesoStatus(true, 'OK');
-        });
-    }
-
-    /* ========= FIX ANDROID KEYBOARD (Galaxy) ========= */
-    function setupKeyboardSafeFloatbar(){
-      const bar = document.getElementById('pesoFloatbar');
-      if(!bar) return;
-
-      const vv = window.visualViewport;
-      if(!vv) return;
-
-      const update = () => {
-        const keyboardPx = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-        bar.style.transform = `translateY(${-keyboardPx}px)`;
-      };
-
-      vv.addEventListener('resize', update);
-      vv.addEventListener('scroll', update);
-      window.addEventListener('orientationchange', ()=> setTimeout(update, 50));
-      setTimeout(update, 50);
-    }
-
-    /* Opcional: que el input enfocado quede visible */
-    function setupKeepFocusedInputVisible(){
-      document.addEventListener('focusin', (e)=>{
-        const el = e.target;
-        if(!el) return;
-        if(el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.isContentEditable){
-          setTimeout(()=>{
-            try{ el.scrollIntoView({ behavior:'smooth', block:'center' }); }catch{}
-          }, 80);
-        }
-      });
-    }
-
-    /* ========= INIT ========= */
-    document.addEventListener('DOMContentLoaded', async ()=>{
-      $('#fechaViaje').value = todayISO();
-      state.fecha = $('#fechaViaje').value;
-
-      setupKeyboardSafeFloatbar();       // ✅ nuevo
-      setupKeepFocusedInputVisible();    // ✅ opcional recomendado
-
-      await loadLive();
-
-      renderSidebar();
-      renderActiveTable();
-      updateActiveTotals();
-
-      subscribeLive();
-      await saveLive();
-
-      setPesoStatus(true, 'CONECTANDO');
-      await leerPesoManual();
-      subscribeBascula();
-    });
-
-    /* ====== stubs para evitar errores si te faltaban ======
-       (si ya las tienes en tu versión, puedes borrar estas 3)
-    */
-    function setRtPill(on, text){
-      const pill = document.getElementById('rt');
-      if(!pill) return;
-      pill.textContent = text || (on ? 'REAL TIME' : 'RT OFF');
-      pill.classList.toggle('off', !on);
-    }
-  </script>
 </body>
 </html>
