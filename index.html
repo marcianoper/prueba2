@@ -1,61 +1,333 @@
-<input id="qrInput" placeholder="Escanea aquí el QR..." style="width:100%;padding:14px;font-size:18px">
-<select id="clienteSelect"></select>
-<div id="msg"></div>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VDC 360° — Escáner QR (Temporal)</title>
+  <style>
+    :root{
+      --brand:#0a7a3b;
+      --bg:#f6f7f8;
+      --card:#fff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --r:18px;
+      --shadow:0 18px 50px rgba(2,6,23,.10);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    header{
+      background: linear-gradient(135deg, var(--brand), #0f9a52);
+      color:#fff;
+      padding:16px 16px 18px;
+    }
+    header h1{margin:0;font-size:18px}
+    header p{margin:6px 0 0;opacity:.9;font-size:13px}
+    main{max-width:980px;margin:0 auto;padding:14px;display:grid;gap:12px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    button{
+      border:0; cursor:pointer;
+      background:var(--brand); color:#fff;
+      padding:12px 14px; border-radius:14px;
+      font-weight:800; font-size:15px;
+      box-shadow:0 10px 24px rgba(2,6,23,.12);
+    }
+    button.secondary{background:#111827}
+    button.ghost{
+      background:#fff; color:var(--ink);
+      border:1px solid var(--line);
+      box-shadow:none;
+      font-weight:700;
+    }
+    .hint{color:var(--muted);font-size:13px;margin:6px 0 0}
+    #reader{
+      width:100%;
+      overflow:hidden;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#000;
+    }
+    pre{
+      margin:0;
+      padding:12px;
+      background:#0b1220;
+      color:#e5e7eb;
+      border-radius:16px;
+      overflow:auto;
+      font-size:12px;
+      line-height:1.35;
+    }
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border-bottom:1px solid var(--line);padding:10px 6px;text-align:left}
+    th{color:#111827;font-size:13px}
+    td{font-size:14px}
+    .pill{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:12px;color:var(--muted);
+    }
+    .ok{color:#16a34a;font-weight:900}
+    .bad{color:#dc2626;font-weight:900}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>VDC 360° — Escáner QR (Temporal)</h1>
+    <p>Escanea el ticket con tu teléfono → detecta JSON → lista productos y cantidades.</p>
+  </header>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "TU_URL";
-const SUPABASE_KEY = "TU_ANON_KEY";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <main>
+    <div class="card">
+      <div class="row">
+        <button id="startBtn">📷 Iniciar cámara</button>
+        <button id="stopBtn" class="ghost" disabled>⛔ Detener</button>
+        <button id="torchBtn" class="ghost" disabled>🔦 Linterna</button>
+        <span id="status" class="pill">Estado: listo</span>
+      </div>
+      <p class="hint">
+        Si no abre cámara: asegúrate de estar en <b>https</b> (GitHub Pages/Vercel) y da permiso de cámara.
+      </p>
+    </div>
 
-const qrInput = document.getElementById("qrInput");
-const msg = document.getElementById("msg");
-const clienteSelect = document.getElementById("clienteSelect");
+    <div class="card">
+      <div id="reader"></div>
+      <p class="hint">Tip: acerca el QR y evita reflejos. Si tu ticket es muy brillante, usa linterna.</p>
+    </div>
 
-// 1) Carga clientes (ajusta tabla/campos)
-async function cargarClientes(){
-  const { data, error } = await sb.from("clientes").select("id,nombre").order("nombre");
-  if(error){ msg.textContent = error.message; return; }
-  clienteSelect.innerHTML = data.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join("");
-}
-cargarClientes();
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3 style="margin:0">Resultado</h3>
+        <span id="parseBadge" class="pill">JSON: —</span>
+      </div>
 
-// 2) Maneja escaneo (Enter)
-qrInput.addEventListener("keydown", async (e)=>{
-  if(e.key !== "Enter") return;
-  const payload = qrInput.value.trim();
-  qrInput.value = "";
+      <div id="itemsWrap" style="display:none">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th style="width:120px">Cantidad</th>
+            </tr>
+          </thead>
+          <tbody id="itemsTbody"></tbody>
+        </table>
+      </div>
 
-  const cliente_id = clienteSelect.value;
-  if(!cliente_id){ msg.textContent = "Selecciona un cliente."; return; }
+      <div style="margin-top:12px">
+        <p class="hint" style="margin:0 0 8px">Payload crudo leído del QR:</p>
+        <pre id="rawOut">(aquí aparecerá el texto del QR)</pre>
+      </div>
+    </div>
 
-  let items;
-  try{
-    items = JSON.parse(payload); // tu QR trae un array JSON
-    if(!Array.isArray(items)) throw new Error("El QR no trae un arreglo de items.");
-  }catch(err){
-    msg.textContent = "QR inválido: " + err.message;
-    return;
-  }
+    <div class="card">
+      <h3 style="margin:0 0 8px">Modo demo (por si quieres probar sin cámara)</h3>
+      <p class="hint" style="margin:0 0 10px">Pega el JSON del QR y dale “Procesar”.</p>
+      <textarea id="demoTxt" style="width:100%;min-height:110px;padding:12px;border-radius:14px;border:1px solid var(--line)"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button id="processBtn" class="secondary">✅ Procesar texto</button>
+        <button id="clearBtn" class="ghost">🧹 Limpiar</button>
+      </div>
+    </div>
+  </main>
 
-  // Limpieza ligera
-  items = items.map(x => ({
-    producto: (x.producto || "").trim(),
-    cantidad: String(x.cantidad || "0").trim()
-  }));
+  <!-- Librería simple de escaneo -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
 
-  msg.textContent = "Registrando venta...";
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn  = document.getElementById("stopBtn");
+    const torchBtn = document.getElementById("torchBtn");
+    const statusEl = document.getElementById("status");
+    const rawOut   = document.getElementById("rawOut");
+    const badge    = document.getElementById("parseBadge");
+    const itemsWrap= document.getElementById("itemsWrap");
+    const itemsTbody = document.getElementById("itemsTbody");
 
-  const { data, error } = await sb.rpc("registrar_venta_descontar_inventario", {
-    p_cliente_id: cliente_id,
-    p_items: items
-  });
+    const demoTxt  = document.getElementById("demoTxt");
+    const processBtn = document.getElementById("processBtn");
+    const clearBtn = document.getElementById("clearBtn");
 
-  if(error){
-    msg.textContent = "❌ " + error.message;
-    return;
-  }
+    let qr = null;
+    let currentTrack = null;
+    let torchOn = false;
+    let lastText = "";
+    let lockMs = 1200; // anti doble lectura
 
-  msg.textContent = "✅ Venta registrada. ID: " + data;
-});
-</script>
+    function setStatus(txt){
+      statusEl.textContent = "Estado: " + txt;
+    }
+
+    function normalizeQty(q){
+      // viene como "1.000" -> 1
+      const n = Number(String(q).replace(",", "."));
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function renderItems(arr){
+      itemsTbody.innerHTML = "";
+      arr.forEach(it=>{
+        const tr = document.createElement("tr");
+        const tdP = document.createElement("td");
+        const tdQ = document.createElement("td");
+        tdP.textContent = (it.producto || "").trim();
+        tdQ.textContent = normalizeQty(it.cantidad);
+        tr.appendChild(tdP);
+        tr.appendChild(tdQ);
+        itemsTbody.appendChild(tr);
+      });
+      itemsWrap.style.display = arr.length ? "block" : "none";
+    }
+
+    function processPayload(text){
+      rawOut.textContent = text || "";
+      badge.textContent = "JSON: —";
+      badge.className = "pill";
+      itemsWrap.style.display = "none";
+      itemsTbody.innerHTML = "";
+
+      if(!text) return;
+
+      // intenta parsear JSON array como el tuyo
+      try{
+        const data = JSON.parse(text);
+
+        if(Array.isArray(data)){
+          badge.textContent = "JSON: OK";
+          badge.className = "pill ok";
+          renderItems(data);
+          return;
+        } else {
+          badge.textContent = "JSON: no es arreglo";
+          badge.className = "pill bad";
+        }
+      }catch(e){
+        badge.textContent = "JSON: inválido";
+        badge.className = "pill bad";
+      }
+    }
+
+    async function tryTorch(enable){
+      if(!currentTrack) return false;
+      const caps = currentTrack.getCapabilities ? currentTrack.getCapabilities() : null;
+      if(!caps || !caps.torch) return false;
+      try{
+        await currentTrack.applyConstraints({ advanced: [{ torch: enable }] });
+        return true;
+      }catch(_){
+        return false;
+      }
+    }
+
+    startBtn.addEventListener("click", async ()=>{
+      if(qr) return;
+      setStatus("iniciando cámara...");
+      qr = new Html5Qrcode("reader");
+
+      try{
+        const config = { fps: 12, qrbox: { width: 260, height: 260 }, aspectRatio: 1.0 };
+
+        await qr.start(
+          { facingMode: "environment" },
+          config,
+          async (decodedText) => {
+            const now = Date.now();
+            if(decodedText === lastText) return;
+            lastText = decodedText;
+
+            processPayload(decodedText);
+
+            // pausa breve para evitar lecturas repetidas
+            await qr.pause(true);
+            setTimeout(()=>{ if(qr) qr.resume(); }, lockMs);
+          },
+          (_err) => { /* silencioso */ }
+        );
+
+        // obtener track para linterna si existe
+        const stream = qr.getState() === Html5QrcodeScannerState.SCANNING
+          ? qr.getRunningTrackCapabilities
+          : null;
+
+        // hack seguro: pedir track vía getUserMedia para torch
+        // (si falla, solo deshabilita botón)
+        try{
+          const st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+          const track = st.getVideoTracks()[0];
+          currentTrack = track;
+          const caps = track.getCapabilities ? track.getCapabilities() : {};
+          torchBtn.disabled = !caps.torch;
+        }catch(e){
+          torchBtn.disabled = true;
+        }
+
+        setStatus("escaneando...");
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+
+      }catch(e){
+        setStatus("error: " + (e.message || e));
+        qr = null;
+      }
+    });
+
+    stopBtn.addEventListener("click", async ()=>{
+      if(!qr) return;
+      setStatus("deteniendo...");
+      try{
+        await qr.stop();
+        await qr.clear();
+      }catch(_){}
+      qr = null;
+
+      if(currentTrack){
+        try{ currentTrack.stop(); }catch(_){}
+        currentTrack = null;
+      }
+      torchOn = false;
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      torchBtn.disabled = true;
+      setStatus("listo");
+    });
+
+    torchBtn.addEventListener("click", async ()=>{
+      torchOn = !torchOn;
+      const ok = await tryTorch(torchOn);
+      if(!ok){
+        torchOn = false;
+        torchBtn.disabled = true;
+        setStatus("linterna no disponible");
+      }else{
+        setStatus(torchOn ? "linterna encendida" : "linterna apagada");
+      }
+    });
+
+    processBtn.addEventListener("click", ()=>{
+      processPayload(demoTxt.value.trim());
+    });
+
+    clearBtn.addEventListener("click", ()=>{
+      demoTxt.value = "";
+      rawOut.textContent = "(aquí aparecerá el texto del QR)";
+      badge.textContent = "JSON: —";
+      badge.className = "pill";
+      itemsWrap.style.display = "none";
+      itemsTbody.innerHTML = "";
+    });
+  </script>
+</body>
+</html>
