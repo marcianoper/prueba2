@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Tacos Paisa Chema — Menú</title>
+
   <style>
     :root{
       /* paleta tipo foto */
@@ -132,7 +133,7 @@
       box-shadow: var(--shadow);
       overflow:hidden;
       display:grid;
-      grid-template-columns: 1fr 200px; /* derecha para foto + botón */
+      grid-template-columns: 1fr 200px;
       min-height:128px;
     }
     .info{ padding:14px 16px; min-width:0; }
@@ -150,33 +151,16 @@
       justify-content:center;
       background:#fff3e0;
     }
-    .thumb .img{
+    .thumb img{
       width:100%;
       height:92px;
+      object-fit:cover;
       border-radius:12px;
       background:#0b1220;
-      overflow:hidden;
-      position:relative;
       box-shadow:0 10px 20px rgba(0,0,0,.18);
     }
-    .thumb .img::before{
-      content:"";
-      position:absolute; inset:0;
-      background-image:url("menu.png");
-      background-size: 900px auto;
-      background-repeat:no-repeat;
-      transform: scale(1.03);
-    }
-    /* recortes distintos */
-    .img.promos::before   { background-position: 80% 20%; }
-    .img.tacos::before    { background-position: 85% 45%; }
-    .img.gringas::before  { background-position: 95% 76%; }
-    .img.volcanes::before { background-position: 90% 70%; }
-    .img.tortas::before   { background-position: 92% 90%; }
-    .img.bebidas::before  { background-position: 97% 95%; }
-    .img.extras::before   { background-position: 88% 60%; }
 
-    /* BOTÓN AGREGAR estilo foto */
+    /* BOTÓN AGREGAR */
     .btn-add{
       background: linear-gradient(135deg, var(--btn), var(--btn2));
       color:var(--btnText);
@@ -350,7 +334,7 @@
       <div class="barRow">
         <div class="badge"><span class="dot"></span> Abierto</div>
         <div class="pillBar">
-          <div class="left">🚚 Enviar a domicilio</div>
+          <div class="left">🚚 Sí manejamos a domicilio</div>
           <div class="caret">▾</div>
         </div>
       </div>
@@ -369,7 +353,7 @@
     <div class="tabs" id="tabs">
       <div class="tab active" data-cat="PROMOS">TACOMANÍA</div>
       <div class="tab" data-cat="TACOS">TACOS</div>
-      <div class="tab" data-cat="GRINGAS">QUESOS</div>
+      <div class="tab" data-cat="GRINGAS">GRINGAS</div>
       <div class="tab" data-cat="VOLCANES">VOLCANES</div>
       <div class="tab" data-cat="TORTAS">TORTAS</div>
       <div class="tab" data-cat="BEBIDAS">BEBIDAS</div>
@@ -382,7 +366,7 @@
       <!-- MENÚ -->
       <div>
         <div class="hero">
-          <img src="menu.png" alt="Menú Tacos Paisa Chema">
+          <img id="heroImg" src="img/menu.png" alt="Menú Tacos Paisa Chema">
         </div>
 
         <section class="section" data-sec="PROMOS">
@@ -396,7 +380,7 @@
         </section>
 
         <section class="section" data-sec="GRINGAS">
-          <h2>QUESO</h2>
+          <h2>GRINGAS</h2>
           <div class="grid" id="sec_GRINGAS"></div>
         </section>
 
@@ -474,7 +458,7 @@
             <label>Domicilio para la entrega</label>
             <div class="row2">
               <div><input id="zona" placeholder="Zona / Colonia / SMZ (Ej. Las Plazas)"/></div>
-              <div><input id="calle" placeholder="Calle o mz (Ej. Plaza del Convento)"/></div>
+              <div><input id="calle" placeholder="Calle (Ej. Plaza del Convento)"/></div>
             </div>
             <div class="row2" style="margin-top:10px">
               <div><input id="numExt" placeholder="Número exterior (Ej. 135)"/></div>
@@ -509,7 +493,7 @@
       <div class="modalHead">
         <div>
           <h3 id="mTitle">Producto</h3>
-          <div id="mSub" style="font-size:12px;color:var(--muted)">Configura como lo quieres</div>
+          <div style="font-size:12px;color:var(--muted)">Configura como lo quieres</div>
         </div>
         <button class="closeX" id="mClose">✕</button>
       </div>
@@ -524,13 +508,20 @@
   </div>
 
 <script>
-/** =========================
- * CONFIG
- * ========================= */
+/* ===== Helper rutas GitHub Pages ===== */
+const BASE = (location.hostname.includes("github.io"))
+  ? location.pathname.replace(/\/[^\/]*$/, "/")
+  : "./";
+function asset(p){
+  return (BASE + p).replace(/\/{2,}/g, "/");
+}
+
+/* ===== CONFIG ===== */
 const TAQUERIA_NOMBRE = "Tacos Paisa Chema";
 const WHATSAPP_TAQ = "524621872594"; // 52 + número sin +
 
 function pad(n, w){ return String(n).padStart(w, "0"); }
+function money(n){ return "$" + (Math.round(n*100)/100).toFixed(2); }
 function getNextOrderNumber(){
   const d = new Date();
   const ymd = `${d.getFullYear()}${pad(d.getMonth()+1,2)}${pad(d.getDate(),2)}`;
@@ -540,39 +531,35 @@ function getNextOrderNumber(){
   localStorage.setItem(key, String(next));
   return String(next);
 }
-function money(n){ return "$" + (Math.round(n*100)/100).toFixed(2); }
+const el = (id)=>document.getElementById(id);
 
-/** =========================
- * DATA
- * ========================= */
+/* ===== CATÁLOGO (imagenes en /img) ===== */
 const catalogo = [
-  {id:"promo_1", cat:"PROMOS", name:"Miércoles de TACOMANÍA", price:18, desc:"Cada miércoles hay promo en tacos. Solo por hoy, pasa a echar unos.", mods:true, thumbClass:"promos"},
-  {id:"promo_2", cat:"PROMOS", name:"Promo 2 Gringas", price:120, desc:"Para compartir bien a gusto.", mods:true, thumbClass:"promos"},
+  {id:"promo_1", cat:"PROMOS", name:"Miércoles de TACOMANÍA", price:18, desc:"Promo especial de tacos", mods:true, imgSrc:"img/promo_taco_refresco.png"},
+  {id:"promo_2", cat:"PROMOS", name:"Promo 2 Gringas", price:120, desc:"Para compartir", mods:true, imgSrc:"img/promo_2gringas.png"},
 
-  {id:"taco", cat:"TACOS", name:"Taco", price:18, desc:"Tortilla de maíz o harina, elige la carne", mods:true, thumbClass:"tacos"},
-  {id:"taco_doble", cat:"TACOS", name:"Taco doble", price:28, desc:"Doble tortilla para más tacos - elige la carne", mods:true, thumbClass:"tacos"},
-  {id:"orden5", cat:"TACOS", name:"Orden 5 tacos", price:85, desc:"Ideal para no batallar", mods:true, thumbClass:"tacos"},
+  {id:"taco", cat:"TACOS", name:"Taco", price:18, desc:"Maíz o harina, elige la carne", mods:true, imgSrc:"img/taco_1.png"},
+  {id:"taco_doble", cat:"TACOS", name:"Taco doble", price:28, desc:"Doble tortilla", mods:true, imgSrc:"img/taco_doble.png"},
+  {id:"orden5", cat:"TACOS", name:"Orden 5 tacos", price:85, desc:"Ideal para no batallar", mods:true, imgSrc:"img/orden_5_tacos.png"},
 
-  {id:"quesadilla", cat:"GRINGAS", name:"Quesadilla", price:35, desc:"Tortilla de maíz, queso y carne a elegir", mods:true, thumbClass:"gringas"},
-  {id:"gringa", cat:"GRINGAS", name:"Gringa", price:70, desc:"Tortilla de harina, queso y carne a elegir", mods:true, thumbClass:"gringas"},
+  {id:"quesadilla", cat:"GRINGAS", name:"Quesadilla", price:35, desc:"Con queso y carne", mods:true, imgSrc:"img/quesadilla.png"},
+  {id:"gringa", cat:"GRINGAS", name:"Gringa", price:70, desc:"Harina + queso + carne", mods:true, imgSrc:"img/gringa.png"},
 
-  {id:"volcan", cat:"VOLCANES", name:"Volcán", price:45, desc:"Tostada + queso + carne a elegir", mods:true, thumbClass:"volcanes"},
-  {id:"volcan_doble", cat:"VOLCANES", name:"Volcán doble", price:65, desc:"Tostada + doble queso", mods:true, thumbClass:"volcanes"},
+  {id:"volcan", cat:"VOLCANES", name:"Volcán", price:45, desc:"Tostada + queso", mods:true, imgSrc:"img/volcan.png"},
+  {id:"volcan_doble", cat:"VOLCANES", name:"Volcán doble", price:65, desc:"Doble queso", mods:true, imgSrc:"img/volcan_doble.png"},
 
-  {id:"torta", cat:"TORTAS", name:"Torta", price:75, desc:"Bolillo relleno con la carne de tu elección", mods:true, thumbClass:"tortas"},
-  {id:"torta_especial", cat:"TORTAS", name:"Torta especial", price:89, desc:"Con queso y extras", mods:true, thumbClass:"tortas"},
+  {id:"torta", cat:"TORTAS", name:"Torta", price:75, desc:"Bolillo relleno", mods:true, imgSrc:"img/torta.png"},
+  {id:"torta_especial", cat:"TORTAS", name:"Torta especial", price:89, desc:"Con queso y extras", mods:true, imgSrc:"img/torta_especial.png"},
 
-  {id:"coca", cat:"BEBIDAS", name:"Coca 600ml", price:25, desc:"Bien fría", mods:false, thumbClass:"bebidas"},
-  {id:"agua", cat:"BEBIDAS", name:"Agua fresca 1/2L", price:30, desc:"Del día", mods:false, thumbClass:"bebidas"},
+  {id:"coca", cat:"BEBIDAS", name:"Coca 600ml", price:25, desc:"Bien fría", mods:false, imgSrc:"img/coca_600ml.png"},
+  {id:"agua", cat:"BEBIDAS", name:"Agua fresca 1/2L", price:30, desc:"Del día", mods:false, imgSrc:"img/agua_fresca.png"},
 
-  {id:"queso_extra", cat:"EXTRAS", name:"Queso extra", price:10, desc:"Agrégalo a tu pedido", mods:false, thumbClass:"extras"},
-  {id:"aguacate_extra", cat:"EXTRAS", name:"Aguacate extra", price:10, desc:"Para que quede fino", mods:false, thumbClass:"extras"},
-  {id:"cebollitas", cat:"EXTRAS", name:"Cebollitas", price:10, desc:"Doraditas", mods:false, thumbClass:"extras"},
+  {id:"queso_extra", cat:"EXTRAS", name:"Queso extra", price:10, desc:"Agrégalo", mods:false, imgSrc:"img/queso_extra.png"},
+  {id:"aguacate_extra", cat:"EXTRAS", name:"Aguacate extra", price:10, desc:"Más sabor", mods:false, imgSrc:"img/aguacate_extra.png"},
+  {id:"cebollitas", cat:"EXTRAS", name:"Cebollitas", price:10, desc:"Doraditas", mods:false, imgSrc:"img/cebollitas.png"},
 ];
 
-/** =========================
- * MODIFICADORES
- * ========================= */
+/* ===== MODIFICADORES ===== */
 const MODS = {
   carne: { title:"Carne", type:"single", required:true,
     options:["Pastor","Suadero","Bistec","Chorizo","Tripa","Campechano","Cabeza","Lengua"] },
@@ -592,14 +579,7 @@ function modsPara(item){
   return ["carne","tortilla","conSin","salsas","extras"];
 }
 
-/** =========================
- * HELPERS DOM
- * ========================= */
-const el = (id)=>document.getElementById(id);
-
-/** =========================
- * RENDER SECCIONES (con botón Agregar)
- * ========================= */
+/* ===== RENDER MENÚ ===== */
 function renderSections(list){
   const cats = ["PROMOS","TACOS","GRINGAS","VOLCANES","TORTAS","BEBIDAS","EXTRAS"];
   cats.forEach(c=>{
@@ -608,7 +588,6 @@ function renderSections(list){
     list.filter(x=>x.cat===c).forEach(it=>{
       const card = document.createElement("article");
       card.className = "item";
-      card.dataset.name = (it.name+" "+(it.desc||"")).toLowerCase();
       card.innerHTML = `
         <div class="info">
           <h3 class="name">${it.name}</h3>
@@ -616,7 +595,7 @@ function renderSections(list){
           <div class="price">MXN ${money(it.price)}</div>
         </div>
         <div class="thumb">
-          <div class="img ${it.thumbClass || "tacos"}"></div>
+          <img loading="lazy" src="${asset(it.imgSrc)}" alt="${it.name}">
           <button class="btn-add" type="button">Agregar</button>
         </div>
       `;
@@ -626,18 +605,7 @@ function renderSections(list){
   });
 }
 
-/** =========================
- * BUSCADOR
- * ========================= */
-el("q").addEventListener("input", ()=>{
-  const v = (el("q").value||"").trim().toLowerCase();
-  const filtered = !v ? catalogo : catalogo.filter(x=> (x.name+" "+(x.desc||"")).toLowerCase().includes(v));
-  renderSections(filtered);
-});
-
-/** =========================
- * TABS scroll
- * ========================= */
+/* ===== TABS ===== */
 el("tabs").addEventListener("click", (e)=>{
   const t = e.target.closest(".tab");
   if(!t) return;
@@ -647,10 +615,15 @@ el("tabs").addEventListener("click", (e)=>{
   if(sec) sec.scrollIntoView({behavior:"smooth", block:"start"});
 });
 
-/** =========================
- * CARRITO
- * ========================= */
-let cart = []; // {key,id,name,basePrice,extraPrice,qty,mods,note}
+/* ===== BUSCADOR ===== */
+el("q").addEventListener("input", ()=>{
+  const v = (el("q").value||"").trim().toLowerCase();
+  const filtered = !v ? catalogo : catalogo.filter(x=> (x.name+" "+(x.desc||"")).toLowerCase().includes(v));
+  renderSections(filtered);
+});
+
+/* ===== CARRITO ===== */
+let cart = [];
 const cartBox = el("cart");
 const totalEl = el("total");
 const cartPill = el("cartPill");
@@ -682,11 +655,13 @@ function extraPriceFrom(mods){
   });
   return add;
 }
+
 function renderCart(){
   cartPill.textContent = `Carrito: ${cartCount()}`;
   totalEl.textContent = money(cartTotal());
+
   if(cart.length===0){
-    cartBox.innerHTML = `<div class="muted" style="color:var(--muted)">Aún no agregas nada 😄</div>`;
+    cartBox.innerHTML = `<div style="color:var(--muted)">Aún no agregas nada 😄</div>`;
     return;
   }
   cartBox.innerHTML = "";
@@ -730,9 +705,7 @@ function addLine(item, mods, note){
   renderCart();
 }
 
-/** =========================
- * MODAL
- * ========================= */
+/* ===== MODAL ===== */
 const backdrop = el("backdrop");
 const mTitle = el("mTitle");
 const mBody  = el("mBody");
@@ -741,7 +714,7 @@ const mCancel= el("mCancel");
 const mAdd   = el("mAdd");
 
 let currentItem = null;
-let draft = null; // {mods:{}, note:""}
+let draft = null;
 
 function validateRequired(item, mods){
   const keys = modsPara(item);
@@ -785,7 +758,7 @@ function openModal(item){
         <b>${g.title}${g.required ? " *":""}</b>
         <span>${g.type==="single" ? "elige 1" : "elige las que quieras"}</span>
       </div>
-      <div class="optList" data-k="${k}"></div>
+      <div class="optList"></div>
     `;
     const list = box.querySelector(".optList");
     g.options.forEach(opt=>{
@@ -822,7 +795,6 @@ function closeModal(){
   currentItem = null;
   draft = null;
 }
-
 function onAddClicked(item){
   if(item.mods) openModal(item);
   else addLine(item, {}, "");
@@ -840,17 +812,13 @@ mAdd.onclick = ()=>{
   closeModal();
 };
 
-/** =========================
- * CANAL DOMICILIO
- * ========================= */
+/* ===== CANAL DOMICILIO ===== */
 const canalEl = el("canal");
 const domicilioBox = el("domicilioBox");
 canalEl.onchange = ()=>{ domicilioBox.style.display = canalEl.value==="domicilio" ? "block" : "none"; };
 canalEl.onchange();
 
-/** =========================
- * WHATSAPP (estilo Plick)
- * ========================= */
+/* ===== WHATSAPP ===== */
 function buildWhatsAppText(orderNo){
   const nombre = (el("nombre").value || "").trim() || "Cliente";
   const tel    = (el("tel").value || "").trim();
@@ -915,9 +883,6 @@ function buildWhatsAppText(orderNo){
   return msg.join("\n");
 }
 
-/** =========================
- * BOTONES
- * ========================= */
 el("btnWA").onclick = ()=>{
   if(cart.length===0){ alert("Agrega algo al carrito primero 😄"); return; }
 
@@ -951,9 +916,8 @@ el("btnClear").onclick = ()=>{
   }
 };
 
-/** =========================
- * INIT
- * ========================= */
+/* ===== INIT ===== */
+el("heroImg").src = asset("img/menu.png"); // opcional si tienes img/menu.png
 renderSections(catalogo);
 renderCart();
 </script>
