@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Menú Taquería — Pedido por WhatsApp</title>
+  <title>Tacos Paisa Chema — Pedido por WhatsApp</title>
   <style>
     :root{
       --brand:#0a7a3b;
@@ -82,7 +82,6 @@
     }
     .item .name{font-weight:800; font-size:14px}
     .item .desc{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.25}
-    .price{font-weight:900}
     .btn{
       border:none;
       background:linear-gradient(135deg, var(--brand), var(--brand2));
@@ -101,9 +100,7 @@
       box-shadow:none;
       font-weight:800;
     }
-    .btn.danger{
-      background: linear-gradient(135deg, #dc2626, #b91c1c);
-    }
+    .btn.danger{ background: linear-gradient(135deg, #dc2626, #b91c1c); }
     .muted{color:var(--muted)}
     .cartLine{
       display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
@@ -210,8 +207,8 @@
 <header>
   <div class="row">
     <div>
-      <h1>🌮 Menú Taquería — Pedidos por WhatsApp</h1>
-      <div class="sub">Modo MVP • 1 sucursal • rápido y taquero</div>
+      <h1>🌮 Tacos Paisa Chema — Pedidos por WhatsApp</h1>
+      <div class="sub">Modo MVP • 1 sucursal • domicilio incluido • estilo #plick</div>
     </div>
     <div class="pill" id="cartPill">Carrito: 0</div>
   </div>
@@ -235,6 +232,7 @@
     <aside class="card">
       <h2>Tu pedido</h2>
       <div class="content">
+
         <div class="row2">
           <div>
             <label>Canal</label>
@@ -246,7 +244,7 @@
           </div>
           <div>
             <label>Nombre</label>
-            <input id="nombre" placeholder="Ej. Juan Pérez"/>
+            <input id="nombre" placeholder="Ej. Marciano Pérez"/>
           </div>
         </div>
 
@@ -261,13 +259,47 @@
           </div>
         </div>
 
-        <div id="domicilioBox" style="display:none">
-          <label>Dirección (para domicilio)</label>
-          <textarea id="direccion" placeholder="Calle, número, colonia, referencias..."></textarea>
+        <!-- PAGO -->
+        <div class="row2">
+          <div>
+            <label>Pagaré con (monto)</label>
+            <input id="pagaCon" inputmode="decimal" placeholder="Ej. 1000"/>
+          </div>
+          <div>
+            <label>Forma de pago</label>
+            <select id="formaPago">
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="tarjeta">Tarjeta</option>
+            </select>
+          </div>
         </div>
 
-        <label>Notas generales</label>
-        <textarea id="notas" placeholder="Ej. '2 salsas extra', 'sin cebolla para el niño', etc."></textarea>
+        <!-- DOMICILIO DETALLADO -->
+        <div id="domicilioBox" style="display:none">
+          <label>Domicilio para la entrega</label>
+
+          <div class="row2">
+            <div>
+              <input id="zona" placeholder="Zona / Colonia / SMZ (Ej. Las Plazas)"/>
+            </div>
+            <div>
+              <input id="calle" placeholder="Calle o mz (Ej. Plaza del Convento)"/>
+            </div>
+          </div>
+
+          <div class="row2" style="margin-top:10px">
+            <div>
+              <input id="numExt" placeholder="Número exterior (Ej. 135)"/>
+            </div>
+            <div>
+              <input id="refs" placeholder="Referencias (Ej. Portón casa dorada)"/>
+            </div>
+          </div>
+        </div>
+
+        <label>Indicaciones</label>
+        <textarea id="notas" placeholder="Ej. 'Por favor que no llegue fría la comida', 'sin cebolla para el niño', etc."></textarea>
 
         <div style="margin-top:12px" id="cart"></div>
 
@@ -311,67 +343,56 @@
 
 <script>
 /** =========================
- *  CONFIG BÁSICA (edita aquí)
+ *  CONFIG
  *  ========================= */
-const TAQUERIA_NOMBRE = "Taquería El Marciano";
-const WHATSAPP_TAQ = "524621872594"; // <-- CAMBIA: 52 + número (sin +, sin espacios)
+const TAQUERIA_NOMBRE = "Tacos Paisa Chema";
+const WHATSAPP_TAQ = "524621872594"; // 52 + número sin +
+
+function pad(n, w){ return String(n).padStart(w, "0"); }
+function getNextOrderNumber(){
+  const d = new Date();
+  const ymd = `${d.getFullYear()}${pad(d.getMonth()+1,2)}${pad(d.getDate(),2)}`;
+  const key = `order_seq_${ymd}`;
+  const last = Number(localStorage.getItem(key) || "56600");
+  const next = last + 1;
+  localStorage.setItem(key, String(next));
+  return String(next);
+}
+function money(n){ return "$" + (Math.round(n*100)/100).toFixed(2); }
 
 /** =========================
- *  DATA: productos y categorías
+ *  CATÁLOGO
  *  ========================= */
 const catalogo = [
-  // Tacos
   {id:"taco", cat:"Tacos", name:"Taco", price:18, desc:"1 pieza • elige carne y tortilla", mods: true},
   {id:"taco_doble", cat:"Tacos", name:"Taco doble", price:28, desc:"doble tortilla • más macizo", mods:true},
   {id:"orden5", cat:"Tacos", name:"Orden 5 tacos", price:85, desc:"ideal para no batallar", mods:true},
 
-  // Queso
   {id:"quesadilla", cat:"Queso", name:"Quesadilla", price:35, desc:"con queso • elige carne", mods:true},
   {id:"gringa", cat:"Queso", name:"Gringa", price:70, desc:"harina + queso + carne", mods:true},
   {id:"volcan", cat:"Queso", name:"Volcán", price:45, desc:"tostada + queso + carne", mods:true},
 
-  // Tortas
   {id:"torta", cat:"Tortas", name:"Torta", price:75, desc:"bolillo • elige carne", mods:true},
 
-  // Bebidas
   {id:"coca", cat:"Bebidas", name:"Coca", price:25, desc:"600 ml", mods:false},
   {id:"agua", cat:"Bebidas", name:"Agua fresca", price:30, desc:"1/2 litro", mods:false},
 ];
-
 const cats = [...new Set(catalogo.map(x=>x.cat))];
 
 /** =========================
- *  MODIFICADORES (taqueros)
+ *  MODIFICADORES
  *  ========================= */
 const MODS = {
-  carne: {
-    title:"Carne", type:"single", required:true,
-    options:["Pastor","Suadero","Bistec","Chorizo","Tripa","Campechano","Cabeza","Lengua"]
-  },
-  tortilla: {
-    title:"Tortilla", type:"single", required:true,
-    options:["Maíz","Harina"]
-  },
-  conSin: {
-    title:"Con todo / Sin…", type:"multi", required:false,
-    options:["Con todo","Sin cebolla","Sin cilantro","Sin piña","Sin salsa"]
-  },
-  salsas: {
-    title:"Salsas", type:"multi", required:false,
-    options:["Verde","Roja","Habanero","Guacamole","Tatemada"]
-  },
-  extras: {
-    title:"Extras", type:"multi", required:false,
-    options:["Queso +$10","Aguacate +$10","Piña extra +$5","Cebollitas +$10"]
-  }
+  carne: { title:"Carne", type:"single", required:true, options:["Pastor","Suadero","Bistec","Chorizo","Tripa","Campechano","Cabeza","Lengua"] },
+  tortilla:{ title:"Tortilla", type:"single", required:true, options:["Maíz","Harina"] },
+  conSin:{ title:"Con todo / Sin…", type:"multi", required:false, options:["Con todo","Sin cebolla","Sin cilantro","Sin piña","Sin salsa"] },
+  salsas:{ title:"Salsas", type:"multi", required:false, options:["Verde","Roja","Habanero","Guacamole","Tatemada"] },
+  extras:{ title:"Extras", type:"multi", required:false, options:["Queso +$10","Aguacate +$10","Piña extra +$5","Cebollitas +$10"] }
 };
 
-// qué modificadores aplica a qué producto
 function modsPara(item){
   if(!item.mods) return [];
-  // gringa siempre harina
   if(item.id==="gringa") return ["carne","conSin","salsas","extras"];
-  // bebidas sin mods
   return ["carne","tortilla","conSin","salsas","extras"];
 }
 
@@ -381,8 +402,6 @@ function modsPara(item){
 const catChips = document.getElementById("catChips");
 const itemsBox = document.getElementById("items");
 let activeCat = cats[0];
-
-function money(n){ return "$" + (Math.round(n*100)/100).toFixed(2); }
 
 function renderCats(){
   catChips.innerHTML = "";
@@ -394,7 +413,6 @@ function renderCats(){
     catChips.appendChild(el);
   });
 }
-
 function renderItems(){
   itemsBox.innerHTML = "";
   catalogo.filter(x=>x.cat===activeCat).forEach(it=>{
@@ -418,17 +436,14 @@ function renderItems(){
 /** =========================
  *  CARRITO
  *  ========================= */
-let cart = []; // {key, id, name, basePrice, qty, mods:{...}, extraPrice, note}
+let cart = [];
 const cartBox = document.getElementById("cart");
 const totalEl = document.getElementById("total");
 const cartPill = document.getElementById("cartPill");
 
-function cartCount(){
-  return cart.reduce((a,x)=>a + x.qty, 0);
-}
-function cartTotal(){
-  return cart.reduce((a,x)=> a + x.qty*(x.basePrice + x.extraPrice), 0);
-}
+function cartCount(){ return cart.reduce((a,x)=>a + x.qty, 0); }
+function cartTotal(){ return cart.reduce((a,x)=> a + x.qty*(x.basePrice + x.extraPrice), 0); }
+
 function modsToText(mods){
   const parts = [];
   for(const k of Object.keys(mods||{})){
@@ -438,6 +453,10 @@ function modsToText(mods){
   }
   return parts.join(" • ");
 }
+function escapeHtml(s){
+  return (s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+
 function renderCart(){
   cartPill.textContent = `Carrito: ${cartCount()}`;
   totalEl.textContent = money(cartTotal());
@@ -473,12 +492,37 @@ function renderCart(){
   });
 }
 
-function escapeHtml(s){
-  return (s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+function buildKey(item, mods, note){
+  return item.id + "|" + JSON.stringify(mods) + "|" + (note||"");
+}
+
+function extraPriceFrom(mods){
+  let add = 0;
+  const extras = mods.extras || [];
+  extras.forEach(x=>{
+    const m = x.match(/\+\$(\d+(\.\d+)?)/);
+    if(m) add += Number(m[1]);
+  });
+  return add;
+}
+
+function addLine(item, mods, note){
+  const extra = extraPriceFrom(mods);
+  const key = buildKey(item, mods, note);
+  const existing = cart.find(x=>x.key===key);
+  if(existing){ existing.qty += 1; }
+  else{
+    cart.push({
+      key, id:item.id, name:item.name,
+      basePrice:item.price, extraPrice: extra,
+      qty:1, mods: mods, note: note || ""
+    });
+  }
+  renderCart();
 }
 
 /** =========================
- *  MODAL LOGIC
+ *  MODAL
  *  ========================= */
 const backdrop = document.getElementById("backdrop");
 const mTitle = document.getElementById("mTitle");
@@ -488,7 +532,34 @@ const mCancel= document.getElementById("mCancel");
 const mAdd   = document.getElementById("mAdd");
 
 let currentItem = null;
-let draft = null; // {mods:{}, note:""}
+let draft = null;
+
+function validateRequired(item, mods){
+  const keys = modsPara(item);
+  for(const k of keys){
+    const g = MODS[k];
+    if(!g.required) continue;
+    const v = mods[k];
+    if(g.type==="single" && !v) return `${g.title} es obligatorio.`;
+    if(g.type==="multi" && (!v || !v.length)) return `${g.title} es obligatorio.`;
+  }
+  return null;
+}
+
+function toggleOpt(k, opt, el){
+  const g = MODS[k];
+  if(g.type==="single"){
+    draft.mods[k] = opt;
+    el.parentElement.querySelectorAll(".opt").forEach(x=>x.classList.remove("active"));
+    el.classList.add("active");
+  }else{
+    draft.mods[k] = draft.mods[k] || [];
+    const arr = draft.mods[k];
+    const i = arr.indexOf(opt);
+    if(i>=0){ arr.splice(i,1); el.classList.remove("active"); }
+    else{ arr.push(opt); el.classList.add("active"); }
+  }
+}
 
 function openModal(item){
   currentItem = item;
@@ -519,7 +590,6 @@ function openModal(item){
     mBody.appendChild(box);
   });
 
-  // Nota por producto
   const n = document.createElement("div");
   n.className = "optGroup";
   n.innerHTML = `
@@ -546,84 +616,11 @@ function closeModal(){
   draft = null;
 }
 
-function toggleOpt(k, opt, el){
-  const g = MODS[k];
-  if(g.type==="single"){
-    draft.mods[k] = opt;
-    // desactivar otros
-    el.parentElement.querySelectorAll(".opt").forEach(x=>x.classList.remove("active"));
-    el.classList.add("active");
-  }else{
-    draft.mods[k] = draft.mods[k] || [];
-    const arr = draft.mods[k];
-    const i = arr.indexOf(opt);
-    if(i>=0){ arr.splice(i,1); el.classList.remove("active"); }
-    else{ arr.push(opt); el.classList.add("active"); }
-  }
-}
-
-function extraPriceFrom(mods){
-  let add = 0;
-  const extras = mods.extras || [];
-  // parse " +$10"
-  extras.forEach(x=>{
-    const m = x.match(/\+\$(\d+(\.\d+)?)/);
-    if(m) add += Number(m[1]);
-  });
-  return add;
-}
-
-function validateRequired(item, mods){
-  const keys = modsPara(item);
-  for(const k of keys){
-    const g = MODS[k];
-    if(!g.required) continue;
-    const v = mods[k];
-    if(g.type==="single" && !v) return `${g.title} es obligatorio.`;
-    if(g.type==="multi" && (!v || !v.length)) return `${g.title} es obligatorio.`;
-  }
-  return null;
-}
-
-function buildKey(item, mods, note){
-  // key para “merge”: mismo producto + mismos mods + misma nota
-  return item.id + "|" + JSON.stringify(mods) + "|" + (note||"");
-}
-
-/** =========================
- *  Agregar al carrito
- *  ========================= */
 function onAddClicked(item){
-  if(item.mods){
-    openModal(item);
-  }else{
-    addLine(item, {}, "");
-  }
+  if(item.mods) openModal(item);
+  else addLine(item, {}, "");
 }
 
-function addLine(item, mods, note){
-  const extra = extraPriceFrom(mods);
-  const key = buildKey(item, mods, note);
-  const existing = cart.find(x=>x.key===key);
-  if(existing){ existing.qty += 1; }
-  else{
-    cart.push({
-      key,
-      id:item.id,
-      name:item.name,
-      basePrice:item.price,
-      extraPrice: extra,
-      qty:1,
-      mods: mods,
-      note: note || ""
-    });
-  }
-  renderCart();
-}
-
-/** =========================
- *  Modal buttons
- *  ========================= */
 mClose.onclick = closeModal;
 mCancel.onclick = closeModal;
 backdrop.addEventListener("click", (e)=>{ if(e.target===backdrop) closeModal(); });
@@ -637,7 +634,7 @@ mAdd.onclick = ()=>{
 };
 
 /** =========================
- *  Canal domicilio
+ *  CANAL / DOMICILIO
  *  ========================= */
 const canalEl = document.getElementById("canal");
 const domicilioBox = document.getElementById("domicilioBox");
@@ -647,49 +644,99 @@ canalEl.onchange = ()=>{
 canalEl.onchange();
 
 /** =========================
- *  WhatsApp message
+ *  MENSAJE WHATSAPP (VERSIÓN 3 estilo Plick)
  *  ========================= */
-function buildWhatsAppText(){
-  const nombre = (document.getElementById("nombre").value || "").trim();
+function buildWhatsAppText_V3(orderNo){
+  const nombre = (document.getElementById("nombre").value || "").trim() || "Cliente";
   const tel    = (document.getElementById("tel").value || "").trim();
+
   const canal  = canalEl.value;
-  const hora   = (document.getElementById("hora").value || "").trim();
-  const dir    = (document.getElementById("direccion").value || "").trim();
+
+  const formaPago = (document.getElementById("formaPago").value || "efectivo");
+  const pagaConRaw = (document.getElementById("pagaCon").value || "").trim();
+
   const notasG = (document.getElementById("notas").value || "").trim();
 
-  const canalTxt = canal==="aqui" ? "Comer aquí" : (canal==="recoger" ? "Pasar a recoger" : "Domicilio");
+  const zona  = (document.getElementById("zona")?.value || "").trim();
+  const calle = (document.getElementById("calle")?.value || "").trim();
+  const numExt= (document.getElementById("numExt")?.value || "").trim();
+  const refs  = (document.getElementById("refs")?.value || "").trim();
 
-  let lines = [];
-  lines.push(`*${TAQUERIA_NOMBRE}*`);
-  lines.push(`*NUEVO PEDIDO*`);
-  lines.push(`Canal: *${canalTxt}*`);
-  if(nombre) lines.push(`Cliente: ${nombre}`);
-  if(tel) lines.push(`Tel: ${tel}`);
-  if(hora) lines.push(`Hora: ${hora}`);
-  if(canal==="domicilio" && dir) lines.push(`Dirección: ${dir}`);
-  lines.push(`--------------------------`);
+  const formaTxt = (formaPago==="efectivo" ? "Efectivo" : (formaPago==="transferencia" ? "Transferencia" : "Tarjeta"));
+  const pagaConNum = pagaConRaw ? Number(pagaConRaw.replace(/,/g,"")) : null;
+  const pagaConTxt = pagaConNum ? `${money(pagaConNum)} en ${formaTxt}` : formaTxt;
+
+  let msg = [];
+  msg.push(`Hola 👋 Soy *${nombre}* , este es mi pedido:`);
+  msg.push(``);
+  msg.push(`Número de pedido: ${orderNo}`);
+  msg.push(``);
+
+  // líneas estilo plick: "- 1 x ..."
   cart.forEach(x=>{
-    lines.push(`• ${x.qty} x ${x.name} — ${money(x.basePrice + x.extraPrice)}`);
+    msg.push(`  - ${x.qty} x ${x.name} (${money(x.qty*(x.basePrice + x.extraPrice))})`);
     const mt = modsToText(x.mods);
-    if(mt) lines.push(`   ${mt}`);
-    if(x.note) lines.push(`   Nota: ${x.note}`);
+    if(mt) msg.push(`    - ${mt}`);
+    if(x.note) msg.push(`    - Nota: ${x.note}`);
+    msg.push(``);
   });
-  lines.push(`--------------------------`);
-  lines.push(`Total: *${money(cartTotal())}*`);
-  if(notasG) lines.push(`Notas: ${notasG}`);
-  lines.push(``);
-  lines.push(`(Generado desde Menú Web)`);
 
-  return lines.join("\n");
+  msg.push(`SubTotal: ${money(cartTotal())}`);
+  msg.push(`Envío: $0.00`);
+  msg.push(`Total: ${money(cartTotal())}`);
+  msg.push(``);
+  msg.push(`Pagaré con: ${pagaConTxt}`);
+  msg.push(``);
+
+  if(notasG) msg.push(`Indicaciones: ${notasG}`);
+  msg.push(``);
+
+  if(tel) msg.push(`Número de contacto: ${tel}`);
+
+  if(canal==="domicilio"){
+    msg.push(`Domicilio para la entrega:`);
+    if(zona)  msg.push(`  Zona, col. o SMZ: ${zona}`);
+    if(calle) msg.push(`  Calle o mz: ${calle}`);
+    if(numExt)msg.push(`  Numero exterior: ${numExt}`);
+    if(refs)  msg.push(`  Referencias: ${refs}`);
+    msg.push(``);
+  }
+
+  msg.push(``);
+  msg.push(`${nombre} , tu pedido se está preparando con amor. 🧡👨‍🍳 #plick`);
+  msg.push(``);
+  msg.push(`Muchas Gracias !`);
+
+  return msg.join("\n");
 }
 
+/** =========================
+ *  BOTONES
+ *  ========================= */
 document.getElementById("btnWA").onclick = ()=>{
   if(cart.length===0){ alert("Agrega algo al carrito primero 😄"); return; }
+
+  // Validación domicilio mínimo
   if(canalEl.value==="domicilio"){
-    const dir = (document.getElementById("direccion").value||"").trim();
-    if(!dir){ alert("Para domicilio, agrega la dirección."); return; }
+    const zona  = (document.getElementById("zona").value||"").trim();
+    const calle = (document.getElementById("calle").value||"").trim();
+    const numExt= (document.getElementById("numExt").value||"").trim();
+    if(!zona || !calle || !numExt){
+      alert("Para domicilio llena mínimo: Zona/Colonia, Calle y Número exterior.");
+      return;
+    }
   }
-  const text = buildWhatsAppText();
+
+  // Validación paga con: solo si forma es efectivo, para que tenga sentido
+  const forma = document.getElementById("formaPago").value;
+  const pagaCon = (document.getElementById("pagaCon").value||"").trim();
+  if(forma==="efectivo" && !pagaCon){
+    alert("Ingresa el monto en 'Pagaré con (monto)'.");
+    return;
+  }
+
+  const orderNo = getNextOrderNumber();
+  const text = buildWhatsAppText_V3(orderNo);
   const url = `https://wa.me/${WHATSAPP_TAQ}?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank");
 };
