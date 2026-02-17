@@ -1220,14 +1220,19 @@ function stepValidate(){
 
   return null;
 }
+function cleanWA(text){
+  return (text || "")
+    .replace(/\uFFFD/g, "")     // quita �
+    .replace(/\r\n/g, "\n")     // normaliza saltos
+    .replace(/\n{3,}/g, "\n\n") // evita muchos saltos
+    .trim();
+}
 
 function buildWhatsAppText(){
   const canal = canalEl.value;
   const canalTxt = canal==="aqui" ? "Comer aquí" : (canal==="recoger" ? "Pasar a recoger" : "Domicilio");
 
   const total = cartTotal();
-
-  // Número de pedido simple (timestamp)
   const orderNo = String(Date.now()).slice(-6);
 
   const lines = [];
@@ -1236,9 +1241,10 @@ function buildWhatsAppText(){
   lines.push(``);
   lines.push(`Número de pedido: *${orderNo}*`);
   lines.push(`Canal: *${canalTxt}*`);
-  lines.push(`Número de contacto: *+52${form.tel.replace(/\\D/g,"")}*`);
+  lines.push(`Número de contacto: *+52${form.tel.replace(/\D/g,"")}*`);
 
   if(canal==="domicilio"){
+    // ✅ aquí antes tenías "\\n" — ahora son "\n"
     const dir = [
       `Calle: ${form.calle} ${form.noext}${form.noint?(" Int. "+form.noint):""}`,
       `Colonia: ${form.col}`,
@@ -1246,7 +1252,8 @@ function buildWhatsAppText(){
       `CP: ${form.cp}`,
       `Estado: ${form.estado}`,
       `Referencias: ${form.refs}`
-    ].join("\\n");
+    ].join("\n");
+
     lines.push(``);
     lines.push(`Domicilio para la entrega:`);
     lines.push(dir);
@@ -1254,23 +1261,24 @@ function buildWhatsAppText(){
 
   lines.push(``);
   lines.push(`--------------------------`);
+
   cart.forEach(x=>{
     lines.push(`- ${x.qty} x ${x.name} (${money(x.basePrice)})`);
     const mt = modsToText(x.mods);
     if(mt) lines.push(`  • ${mt}`);
     if(x.note) lines.push(`  • Nota: ${x.note}`);
   });
+
   lines.push(`--------------------------`);
   lines.push(`SubTotal: ${money(total)}`);
   lines.push(`Envío: $0.00`);
   lines.push(`Total: *${money(total)}*`);
 
   if(form.metodo==="efectivo"){
+    lines.push(``);
     if(form.pagareCon.trim()){
-      lines.push(``);
       lines.push(`Pagaré con: *$${Number(form.pagareCon).toFixed(2)}* en Efectivo`);
     }else{
-      lines.push(``);
       lines.push(`Método de pago: *Efectivo*`);
     }
   }
@@ -1284,8 +1292,9 @@ function buildWhatsAppText(){
   lines.push(`${form.nombre}, tu pedido se está preparando con amor. 🧡👨‍🍳`);
   lines.push(`#plick`);
 
-  return lines.join("\\n");
+  return lines.join("\n"); // ✅ salto real
 }
+
 
 document.getElementById("btnCheckout").onclick = ()=>{
   if(cart.length===0){ alert("Agrega algo al carrito primero 😄"); return; }
@@ -1316,7 +1325,7 @@ btnNext.onclick = ()=>{
   }
 
   // step 3: enviar
-  const text = buildWhatsAppText();
+  const text = cleanWA(buildWhatsAppText());
   const url = `https://wa.me/${WHATSAPP_TAQ}?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank");
   closeSteps();
