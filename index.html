@@ -3,105 +3,213 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Tacos Paisa Chema — Pedido por WhatsApp</title>
+  <title>Tacos Paisa Chema — Menú</title>
   <style>
     :root{
-      --brand:#0a7a3b;
-      --brand2:#0f9a52;
-      --bg:#f6f7f8;
+      --bg:#f3f6f8;
       --card:#ffffff;
       --ink:#0f172a;
       --muted:#64748b;
       --line:#e5e7eb;
-      --shadow:0 18px 50px rgba(2,6,23,.10);
-      --r:18px;
+      --brand:#16a34a;        /* verde “abierto” */
+      --bar:#1f3442;          /* barra oscura tipo Plick */
+      --tab:#f7fafc;
+      --shadow:0 12px 36px rgba(2,6,23,.10);
+      --r:14px;
+      --max:1180px;
       --danger:#b91c1c;
+      --accent:#0ea5e9;       /* azul precios */
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1200px 500px at 18% -10%, rgba(15,154,82,.18), transparent 60%),
-                  radial-gradient(1200px 500px at 90% 0%, rgba(10,122,59,.12), transparent 55%),
-                  var(--bg);
+      background: var(--bg);
       color:var(--ink);
     }
-    header{
-      position:sticky; top:0; z-index:20;
-      background: linear-gradient(135deg, var(--brand), var(--brand2));
-      color:#fff;
-      padding:14px 16px;
-      box-shadow:0 10px 24px rgba(2,6,23,.16);
+
+    /* ---------- TOP ---------- */
+    .top{ background:#eaf3f6; border-bottom:1px solid var(--line); }
+    .top .wrap{
+      max-width:var(--max); margin:0 auto; padding:10px 14px;
+      display:flex; gap:12px; align-items:center;
     }
-    header .row{display:flex; gap:12px; align-items:center; justify-content:space-between}
-    header h1{font-size:16px; margin:0}
-    header .sub{font-size:12px; opacity:.9}
-    .wrap{max-width:1150px; margin:0 auto; padding:16px; display:grid; gap:14px}
-    .grid{display:grid; grid-template-columns: 1.4fr .9fr; gap:14px}
-    @media (max-width: 980px){ .grid{grid-template-columns: 1fr} }
-    .card{
-      background:var(--card);
-      border:1px solid rgba(229,231,235,.9);
-      border-radius:var(--r);
-      box-shadow:var(--shadow);
-      overflow:hidden;
+    .logo{
+      width:44px;height:44px;border-radius:10px;
+      background: linear-gradient(135deg,#ff6a00,#ff2d55);
+      box-shadow:0 10px 20px rgba(2,6,23,.12);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:1000;color:#fff; flex:0 0 auto;
     }
-    .card h2{
-      margin:0;
-      padding:14px 14px 10px;
-      font-size:15px;
-      border-bottom:1px solid var(--line);
+    .brandBlock{min-width:0}
+    .brandBlock h1{margin:0;font-size:22px;line-height:1.05}
+    .brandBlock .sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+    /* ---------- STATUS BAR ---------- */
+    .bar{ max-width:var(--max); margin:0 auto; padding:10px 14px 12px; }
+    .barRow{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:10px;
+      font-weight:1000; font-size:13px; color:#fff;
+      background: var(--brand);
+      box-shadow:0 10px 18px rgba(22,163,74,.18);
+      user-select:none;
     }
-    .content{padding:14px}
-    .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px}
-    .chip{
+    .badge .dot{
+      width:10px;height:10px;border-radius:999px;
+      background:#bbf7d0;
+      box-shadow:0 0 0 4px rgba(187,247,208,.25);
+    }
+    .pillBar{
+      flex:1; min-width:240px;
+      background: var(--bar); color:#fff;
+      border-radius:10px; padding:10px 12px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .pillBar .left{ display:flex;align-items:center;gap:10px; font-weight:1000;font-size:13px; }
+    .caret{
+      width:18px;height:18px;opacity:.9;
+      display:inline-grid;place-items:center;
+      border-radius:6px;
+      background: rgba(255,255,255,.10);
+    }
+
+    /* ---------- SEARCH ---------- */
+    .search{ max-width:var(--max); margin:0 auto; padding:0 14px 10px; }
+    .searchBox{
+      background:#fff; border:1px solid var(--line);
+      border-radius:10px; box-shadow:0 8px 22px rgba(2,6,23,.06);
+      display:flex; gap:10px; align-items:center; padding:10px 12px;
+    }
+    .searchBox input{ border:none;outline:none;width:100%; font-size:14px; }
+    .searchIcon{ width:18px;height:18px;opacity:.55; }
+
+    /* ---------- TABS ---------- */
+    .tabs{
+      max-width:var(--max); margin:0 auto; padding:0 14px 14px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .tab{
+      background: var(--tab);
       border:1px solid var(--line);
-      background:#fff;
-      padding:8px 10px;
-      border-radius:999px;
+      border-radius:10px;
+      padding:10px 14px;
+      font-weight:1000;
       font-size:13px;
       cursor:pointer;
       user-select:none;
     }
-    .chip.active{
-      border-color: rgba(10,122,59,.45);
-      box-shadow:0 0 0 3px rgba(10,122,59,.12);
-      font-weight:700;
+    .tab.active{
+      background:#fff;
+      box-shadow:0 10px 20px rgba(2,6,23,.08);
+      border-color:#cbd5e1;
     }
-    .items{display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px}
-    @media (max-width: 520px){ .items{grid-template-columns: 1fr} }
+
+    /* ---------- LAYOUT ---------- */
+    main{ max-width:var(--max); margin:0 auto; padding:8px 14px 44px; }
+    .layout{
+      display:grid; grid-template-columns: 1.4fr .85fr; gap:14px;
+      align-items:start;
+    }
+    @media (max-width:980px){ .layout{grid-template-columns:1fr} }
+
+    /* ---------- HERO ---------- */
+    .hero{ border-radius:16px; overflow:hidden; border:1px solid var(--line); box-shadow:var(--shadow); background:#0b1220; }
+    .hero img{ width:100%; height:240px; object-fit:cover; display:block; }
+    @media (max-width:700px){ .hero img{height:200px} }
+
+    /* ---------- SECTIONS ---------- */
+    .section{ margin-top:18px; border-top:4px solid #c9d7df; padding-top:14px; }
+    .section h2{ margin:0 0 12px; font-size:34px; letter-spacing:.5px; }
+    @media (max-width:700px){ .section h2{font-size:28px} }
+
+    /* ---------- ITEMS GRID ---------- */
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+    @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+
     .item{
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
-      display:flex;
-      gap:10px;
-      justify-content:space-between;
-      align-items:flex-start;
       background:#fff;
-    }
-    .item .name{font-weight:800; font-size:14px}
-    .item .desc{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.25}
-    .btn{
-      border:none;
-      background:linear-gradient(135deg, var(--brand), var(--brand2));
-      color:#fff;
-      padding:10px 12px;
-      border-radius:12px;
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 1fr 160px;
+      min-height:120px;
       cursor:pointer;
-      font-weight:900;
-      box-shadow:0 10px 18px rgba(2,6,23,.12);
     }
-    .btn:active{transform: translateY(1px)}
-    .btn.secondary{
-      background:#fff;
-      color:var(--ink);
+    .item:hover{ transform: translateY(-1px); transition: .12s ease; }
+    .item .info{ padding:14px 16px; min-width:0; }
+    .item .name{ font-size:20px; font-weight:1000; margin:0; }
+    .item .desc{ margin-top:6px; color:var(--muted); font-size:14px; line-height:1.3; }
+    .item .price{ margin-top:10px; font-weight:1000; color:var(--accent); font-size:26px; }
+    .thumb{
+      border-left:1px solid var(--line);
+      background:#0b1220;
+      padding:10px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .thumb .ph{
+      width:100%; height:100%;
+      border-radius:12px;
+      background-image: url("menu.png");
+      background-size: 1200px auto;
+      background-repeat:no-repeat;
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
+    }
+    /* “recortes” distintos */
+    .ph.tacos   { background-position: 85% 45%; }
+    .ph.gringas { background-position: 95% 76%; }
+    .ph.volcanes{ background-position: 90% 70%; }
+    .ph.tortas  { background-position: 92% 90%; }
+    .ph.bebidas { background-position: 97% 95%; }
+    .ph.promos  { background-position: 80% 20%; }
+    .ph.extras  { background-position: 88% 60%; }
+
+    /* ---------- CART CARD ---------- */
+    .card{
+      background:var(--card);
       border:1px solid var(--line);
-      box-shadow:none;
-      font-weight:800;
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position: sticky;
+      top: 12px;
     }
-    .btn.danger{ background: linear-gradient(135deg, #dc2626, #b91c1c); }
-    .muted{color:var(--muted)}
+    @media (max-width:980px){ .card{position:relative; top:auto;} }
+    .cardHead{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      background:linear-gradient(135deg, rgba(15,23,42,.02), rgba(2,6,23,.00));
+    }
+    .cardHead h3{margin:0;font-size:16px;font-weight:1000}
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(22,163,74,.10);
+      border:1px solid rgba(22,163,74,.22);
+      font-size:12px;
+      font-weight:1000;
+      color: var(--brand);
+    }
+    .cardBody{ padding:14px 16px; }
+    label{display:block; font-size:12px; font-weight:1000; margin:10px 0 6px}
+    input, textarea, select{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      font-size:14px;
+      outline:none;
+      background:#fff;
+    }
+    textarea{min-height:74px; resize:vertical}
+    .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width:520px){ .row2{grid-template-columns:1fr} }
+
     .cartLine{
       display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
       border-bottom:1px dashed var(--line);
@@ -115,54 +223,48 @@
       border:1px solid var(--line);
       background:#fff;
       cursor:pointer;
-      font-weight:900;
+      font-weight:1000;
     }
-    .pill{
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:999px;
-      background: rgba(10,122,59,.10);
-      border:1px solid rgba(10,122,59,.20);
-      font-size:12px;
-      font-weight:800;
-      color:var(--brand);
-    }
-    .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    @media (max-width:520px){ .row2{grid-template-columns:1fr} }
-    label{display:block; font-size:12px; font-weight:800; margin:10px 0 6px}
-    input, textarea, select{
-      width:100%;
+    .btn{
+      border:none;
+      background: var(--bar);
+      color:#fff;
       padding:10px 12px;
-      border:1px solid var(--line);
       border-radius:12px;
-      font-size:14px;
-      outline:none;
-      background:#fff;
+      cursor:pointer;
+      font-weight:1000;
+      box-shadow:0 10px 18px rgba(2,6,23,.10);
+      width:100%;
     }
-    textarea{min-height:84px; resize:vertical}
+    .btn.secondary{
+      background:#fff;
+      color:var(--ink);
+      border:1px solid var(--line);
+      box-shadow:none;
+    }
+    .btn.danger{
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
     .totalRow{
       display:flex; justify-content:space-between; align-items:center;
       padding-top:12px; margin-top:12px; border-top:1px solid var(--line);
       font-size:14px;
     }
     .totalRow strong{font-size:16px}
-    .stickyBottom{
-      position: sticky; bottom: 12px; z-index:5;
-      margin-top:12px;
-    }
     .note{
       font-size:12px; color:var(--muted); line-height:1.35;
       background: rgba(2,6,23,.03);
       padding:10px 12px; border-radius:12px; border:1px solid var(--line);
+      margin-top:12px;
     }
 
-    /* Modal */
+    /* ---------- MODAL ---------- */
     .backdrop{
       position:fixed; inset:0; background:rgba(2,6,23,.55);
       display:none; align-items:center; justify-content:center; padding:16px; z-index:50;
     }
     .modal{
-      width:min(760px, 100%);
+      width:min(780px, 100%);
       background:#fff;
       border-radius:18px;
       overflow:hidden;
@@ -171,15 +273,16 @@
     }
     .modalHead{
       padding:14px 16px;
-      background:linear-gradient(135deg, rgba(10,122,59,.12), rgba(15,154,82,.08));
+      background:linear-gradient(135deg, rgba(31,52,66,.12), rgba(31,52,66,.06));
       border-bottom:1px solid var(--line);
       display:flex; justify-content:space-between; align-items:center; gap:10px;
     }
-    .modalHead h3{margin:0; font-size:15px}
+    .modalHead h3{margin:0; font-size:15px; font-weight:1000}
     .closeX{
       border:none; background:#fff; border:1px solid var(--line);
-      border-radius:12px; width:38px; height:38px; cursor:pointer; font-weight:900;
+      border-radius:12px; width:38px; height:38px; cursor:pointer; font-weight:1000;
     }
+    .mBody{ padding:14px 16px; }
     .optGroup{border:1px solid var(--line); border-radius:14px; padding:10px 12px; margin-top:10px}
     .optTitle{display:flex; align-items:center; justify-content:space-between; gap:10px}
     .optTitle b{font-size:13px}
@@ -195,156 +298,209 @@
       user-select:none;
     }
     .opt.active{
-      border-color: rgba(10,122,59,.55);
-      box-shadow:0 0 0 3px rgba(10,122,59,.12);
-      font-weight:900;
+      border-color: rgba(22,163,74,.55);
+      box-shadow:0 0 0 3px rgba(22,163,74,.12);
+      font-weight:1000;
     }
     .footerBtns{display:flex; gap:10px; padding:14px 16px; border-top:1px solid var(--line)}
     .footerBtns .btn{flex:1}
   </style>
 </head>
-<body>
-<header>
-  <div class="row">
-    <div>
-      <h1>🌮 Tacos Paisa Chema — Pedidos por WhatsApp</h1>
-      <div class="sub">Modo MVP • 1 sucursal • domicilio incluido • estilo #plick</div>
-    </div>
-    <div class="pill" id="cartPill">Carrito: 0</div>
-  </div>
-</header>
 
-<div class="wrap">
-  <div class="grid">
-    <!-- MENÚ -->
-    <section class="card">
-      <h2>Menú</h2>
-      <div class="content">
-        <div class="chips" id="catChips"></div>
-        <div class="items" id="items"></div>
-        <div class="note" style="margin-top:12px">
-          Tip: en taquería, la magia está en <b>carne + tortilla + con/sin + salsas + extras</b>.
+<body>
+  <!-- TOP -->
+  <div class="top">
+    <div class="wrap">
+      <div class="logo">TPC</div>
+      <div class="brandBlock">
+        <h1>Tacos Paisa Chema</h1>
+        <div class="sub">Menú digital • pedidos por WhatsApp</div>
+      </div>
+    </div>
+
+    <div class="bar">
+      <div class="barRow">
+        <div class="badge"><span class="dot"></span> Abierto</div>
+        <div class="pillBar">
+          <div class="left">🚚 Enviar a domicilio</div>
+          <div class="caret">▾</div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- CARRITO -->
-    <aside class="card">
-      <h2>Tu pedido</h2>
-      <div class="content">
+    <div class="search">
+      <div class="searchBox">
+        <svg class="searchIcon" viewBox="0 0 24 24" fill="none">
+          <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input id="q" placeholder="Buscar un producto (ej. taco, gringa, coca)"/>
+      </div>
+    </div>
 
-        <div class="row2">
-          <div>
-            <label>Canal</label>
-            <select id="canal">
-              <option value="aqui">Comer aquí</option>
-              <option value="recoger">Pasar a recoger</option>
-              <option value="domicilio">Envío a domicilio</option>
-            </select>
-          </div>
-          <div>
-            <label>Nombre</label>
-            <input id="nombre" placeholder="Ej. Marciano Pérez"/>
-          </div>
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-cat="PROMOS">PROMOS</div>
+      <div class="tab" data-cat="TACOS">TACOS</div>
+      <div class="tab" data-cat="GRINGAS">GRINGAS</div>
+      <div class="tab" data-cat="VOLCANES">VOLCANES</div>
+      <div class="tab" data-cat="TORTAS">TORTAS</div>
+      <div class="tab" data-cat="BEBIDAS">BEBIDAS</div>
+      <div class="tab" data-cat="EXTRAS">EXTRAS</div>
+    </div>
+  </div>
+
+  <main>
+    <div class="layout">
+
+      <!-- IZQUIERDA: MENÚ -->
+      <div>
+        <div class="hero">
+          <img src="menu.png" alt="Menú Tacos Paisa Chema">
         </div>
 
-        <div class="row2">
-          <div>
-            <label>Teléfono (cliente)</label>
-            <input id="tel" placeholder="Ej. 4621234567"/>
-          </div>
-          <div>
-            <label>Hora deseada (opcional)</label>
-            <input id="hora" placeholder="Ej. 9:30 pm"/>
-          </div>
+        <!-- SECCIONES -->
+        <section class="section" data-sec="PROMOS">
+          <h2>PROMOS</h2>
+          <div class="grid" id="sec_PROMOS"></div>
+        </section>
+
+        <section class="section" data-sec="TACOS">
+          <h2>TACOS</h2>
+          <div class="grid" id="sec_TACOS"></div>
+        </section>
+
+        <section class="section" data-sec="GRINGAS">
+          <h2>GRINGAS</h2>
+          <div class="grid" id="sec_GRINGAS"></div>
+        </section>
+
+        <section class="section" data-sec="VOLCANES">
+          <h2>VOLCANES</h2>
+          <div class="grid" id="sec_VOLCANES"></div>
+        </section>
+
+        <section class="section" data-sec="TORTAS">
+          <h2>TORTAS</h2>
+          <div class="grid" id="sec_TORTAS"></div>
+        </section>
+
+        <section class="section" data-sec="BEBIDAS">
+          <h2>BEBIDAS</h2>
+          <div class="grid" id="sec_BEBIDAS"></div>
+        </section>
+
+        <section class="section" data-sec="EXTRAS">
+          <h2>EXTRAS</h2>
+          <div class="grid" id="sec_EXTRAS"></div>
+        </section>
+      </div>
+
+      <!-- DERECHA: CARRITO -->
+      <aside class="card">
+        <div class="cardHead">
+          <h3>Tu pedido</h3>
+          <div class="pill" id="cartPill">Carrito: 0</div>
         </div>
 
-        <!-- PAGO -->
-        <div class="row2">
-          <div>
-            <label>Pagaré con (monto)</label>
-            <input id="pagaCon" inputmode="decimal" placeholder="Ej. 1000"/>
+        <div class="cardBody">
+          <div class="row2">
+            <div>
+              <label>Canal</label>
+              <select id="canal">
+                <option value="aqui">Comer aquí</option>
+                <option value="recoger">Pasar a recoger</option>
+                <option value="domicilio">Envío a domicilio</option>
+              </select>
+            </div>
+            <div>
+              <label>Nombre</label>
+              <input id="nombre" placeholder="Ej. Marciano Pérez"/>
+            </div>
           </div>
-          <div>
-            <label>Forma de pago</label>
-            <select id="formaPago">
-              <option value="efectivo">Efectivo</option>
-              <option value="transferencia">Transferencia</option>
-              <option value="tarjeta">Tarjeta</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- DOMICILIO DETALLADO -->
-        <div id="domicilioBox" style="display:none">
-          <label>Domicilio para la entrega</label>
 
           <div class="row2">
             <div>
-              <input id="zona" placeholder="Zona / Colonia / SMZ (Ej. Las Plazas)"/>
+              <label>Teléfono (cliente)</label>
+              <input id="tel" placeholder="Ej. 4621234567"/>
             </div>
             <div>
-              <input id="calle" placeholder="Calle o mz (Ej. Plaza del Convento)"/>
+              <label>Hora deseada (opcional)</label>
+              <input id="hora" placeholder="Ej. 9:30 pm"/>
             </div>
           </div>
 
-          <div class="row2" style="margin-top:10px">
+          <div class="row2">
             <div>
-              <input id="numExt" placeholder="Número exterior (Ej. 135)"/>
+              <label>Pagaré con (monto)</label>
+              <input id="pagaCon" inputmode="decimal" placeholder="Ej. 1000"/>
             </div>
             <div>
-              <input id="refs" placeholder="Referencias (Ej. Portón casa dorada)"/>
+              <label>Forma de pago</label>
+              <select id="formaPago">
+                <option value="efectivo">Efectivo</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="tarjeta">Tarjeta</option>
+              </select>
             </div>
           </div>
-        </div>
 
-        <label>Indicaciones</label>
-        <textarea id="notas" placeholder="Ej. 'Por favor que no llegue fría la comida', 'sin cebolla para el niño', etc."></textarea>
+          <div id="domicilioBox" style="display:none">
+            <label>Domicilio para la entrega</label>
+            <div class="row2">
+              <div><input id="zona" placeholder="Zona / Colonia / SMZ (Ej. Las Plazas)"/></div>
+              <div><input id="calle" placeholder="Calle o mz (Ej. Plaza del Convento)"/></div>
+            </div>
+            <div class="row2" style="margin-top:10px">
+              <div><input id="numExt" placeholder="Número exterior (Ej. 135)"/></div>
+              <div><input id="refs" placeholder="Referencias (Ej. Portón casa dorada)"/></div>
+            </div>
+          </div>
 
-        <div style="margin-top:12px" id="cart"></div>
+          <label>Indicaciones</label>
+          <textarea id="notas" placeholder="Ej. 'Por favor que no llegue fría la comida'"></textarea>
 
-        <div class="totalRow">
-          <span>Total</span>
-          <strong id="total">$0</strong>
-        </div>
+          <div style="margin-top:12px" id="cart"></div>
 
-        <div class="stickyBottom">
-          <button class="btn" id="btnWA">Enviar pedido por WhatsApp</button>
+          <div class="totalRow">
+            <span>Total</span>
+            <strong id="total">$0</strong>
+          </div>
+
+          <button class="btn" id="btnWA" style="margin-top:12px">Enviar pedido por WhatsApp</button>
           <button class="btn secondary" id="btnClear" style="margin-top:10px">Vaciar carrito</button>
+
+          <div class="note">
+            Esto abre WhatsApp con el mensaje estilo #plick. Luego tú solo le das <b>Enviar</b>.
+          </div>
         </div>
+      </aside>
+    </div>
+  </main>
 
-        <div class="note" style="margin-top:12px">
-          Esto abre WhatsApp con el mensaje listo. Luego tú solo le das <b>Enviar</b>.
+  <!-- MODAL -->
+  <div class="backdrop" id="backdrop">
+    <div class="modal">
+      <div class="modalHead">
+        <div>
+          <h3 id="mTitle">Producto</h3>
+          <div class="muted" id="mSub" style="font-size:12px">Configura como lo quieres</div>
         </div>
+        <button class="closeX" id="mClose">✕</button>
       </div>
-    </aside>
-  </div>
-</div>
 
-<!-- MODAL MODIFICADORES -->
-<div class="backdrop" id="backdrop">
-  <div class="modal">
-    <div class="modalHead">
-      <div>
-        <h3 id="mTitle">Producto</h3>
-        <div class="muted" id="mSub" style="font-size:12px">Configura como lo quieres</div>
+      <div class="mBody" id="mBody"></div>
+
+      <div class="footerBtns">
+        <button class="btn secondary" id="mCancel">Cancelar</button>
+        <button class="btn" id="mAdd">Agregar al carrito</button>
       </div>
-      <button class="closeX" id="mClose">✕</button>
-    </div>
-
-    <div class="content" id="mBody"></div>
-
-    <div class="footerBtns">
-      <button class="btn secondary" id="mCancel">Cancelar</button>
-      <button class="btn" id="mAdd">Agregar al carrito</button>
     </div>
   </div>
-</div>
 
 <script>
 /** =========================
- *  CONFIG
- *  ========================= */
+ * CONFIG
+ * ========================= */
 const TAQUERIA_NOMBRE = "Tacos Paisa Chema";
 const WHATSAPP_TAQ = "524621872594"; // 52 + número sin +
 
@@ -361,85 +517,121 @@ function getNextOrderNumber(){
 function money(n){ return "$" + (Math.round(n*100)/100).toFixed(2); }
 
 /** =========================
- *  CATÁLOGO
- *  ========================= */
+ * DATA (edita precios si quieres)
+ * thumbClass: usa recortes del menu.png
+ * mods: si abre modal
+ * ========================= */
 const catalogo = [
-  {id:"taco", cat:"Tacos", name:"Taco", price:18, desc:"1 pieza • elige carne y tortilla", mods: true},
-  {id:"taco_doble", cat:"Tacos", name:"Taco doble", price:28, desc:"doble tortilla • más macizo", mods:true},
-  {id:"orden5", cat:"Tacos", name:"Orden 5 tacos", price:85, desc:"ideal para no batallar", mods:true},
+  {id:"promo_1", cat:"PROMOS", name:"Promo Taco + Refresco", price:55, desc:"Arma tu combo rápido", mods:true, thumbClass:"promos"},
+  {id:"promo_2", cat:"PROMOS", name:"2 Gringas (pareja)", price:120, desc:"Para compartir", mods:true, thumbClass:"promos"},
 
-  {id:"quesadilla", cat:"Queso", name:"Quesadilla", price:35, desc:"con queso • elige carne", mods:true},
-  {id:"gringa", cat:"Queso", name:"Gringa", price:70, desc:"harina + queso + carne", mods:true},
-  {id:"volcan", cat:"Queso", name:"Volcán", price:45, desc:"tostada + queso + carne", mods:true},
+  {id:"taco", cat:"TACOS", name:"Taco", price:18, desc:"1 pieza • elige carne y tortilla", mods:true, thumbClass:"tacos"},
+  {id:"taco_doble", cat:"TACOS", name:"Taco doble", price:28, desc:"Doble tortilla • más macizo", mods:true, thumbClass:"tacos"},
+  {id:"orden5", cat:"TACOS", name:"Orden 5 tacos", price:85, desc:"Ideal para no batallar", mods:true, thumbClass:"tacos"},
 
-  {id:"torta", cat:"Tortas", name:"Torta", price:75, desc:"bolillo • elige carne", mods:true},
+  {id:"gringa", cat:"GRINGAS", name:"Gringa", price:70, desc:"Harina + queso + carne", mods:true, thumbClass:"gringas"},
+  {id:"gringa_doble", cat:"GRINGAS", name:"Gringa doble", price:95, desc:"Más queso, más carne", mods:true, thumbClass:"gringas"},
 
-  {id:"coca", cat:"Bebidas", name:"Coca", price:25, desc:"600 ml", mods:false},
-  {id:"agua", cat:"Bebidas", name:"Agua fresca", price:30, desc:"1/2 litro", mods:false},
+  {id:"volcan", cat:"VOLCANES", name:"Volcán", price:45, desc:"Tostada + queso + carne", mods:true, thumbClass:"volcanes"},
+  {id:"volcan_doble", cat:"VOLCANES", name:"Volcán doble", price:65, desc:"Tostada + doble queso", mods:true, thumbClass:"volcanes"},
+
+  {id:"torta", cat:"TORTAS", name:"Torta", price:75, desc:"Bolillo • elige carne", mods:true, thumbClass:"tortas"},
+  {id:"torta_especial", cat:"TORTAS", name:"Torta especial", price:89, desc:"Con queso y extras", mods:true, thumbClass:"tortas"},
+
+  {id:"coca", cat:"BEBIDAS", name:"Coca 600ml", price:25, desc:"Bien fría", mods:false, thumbClass:"bebidas"},
+  {id:"agua", cat:"BEBIDAS", name:"Agua fresca 1/2L", price:30, desc:"Del día", mods:false, thumbClass:"bebidas"},
+
+  {id:"queso_extra", cat:"EXTRAS", name:"Queso extra", price:10, desc:"Agrégalo a tu pedido", mods:false, thumbClass:"extras"},
+  {id:"aguacate_extra", cat:"EXTRAS", name:"Aguacate extra", price:10, desc:"Para que quede fino", mods:false, thumbClass:"extras"},
+  {id:"cebollitas", cat:"EXTRAS", name:"Cebollitas", price:10, desc:"Doraditas", mods:false, thumbClass:"extras"},
 ];
-const cats = [...new Set(catalogo.map(x=>x.cat))];
 
 /** =========================
- *  MODIFICADORES
- *  ========================= */
+ * MODIFICADORES
+ * ========================= */
 const MODS = {
-  carne: { title:"Carne", type:"single", required:true, options:["Pastor","Suadero","Bistec","Chorizo","Tripa","Campechano","Cabeza","Lengua"] },
+  carne: { title:"Carne", type:"single", required:true,
+    options:["Pastor","Suadero","Bistec","Chorizo","Tripa","Campechano","Cabeza","Lengua"] },
   tortilla:{ title:"Tortilla", type:"single", required:true, options:["Maíz","Harina"] },
-  conSin:{ title:"Con todo / Sin…", type:"multi", required:false, options:["Con todo","Sin cebolla","Sin cilantro","Sin piña","Sin salsa"] },
-  salsas:{ title:"Salsas", type:"multi", required:false, options:["Verde","Roja","Habanero","Guacamole","Tatemada"] },
-  extras:{ title:"Extras", type:"multi", required:false, options:["Queso +$10","Aguacate +$10","Piña extra +$5","Cebollitas +$10"] }
+  conSin:{ title:"Con todo / Sin…", type:"multi", required:false,
+    options:["Con todo","Sin cebolla","Sin cilantro","Sin piña","Sin salsa"] },
+  salsas:{ title:"Salsas", type:"multi", required:false,
+    options:["Verde","Roja","Habanero","Guacamole","Tatemada"] },
+  extras:{ title:"Extras", type:"multi", required:false,
+    options:["Queso +$10","Aguacate +$10","Piña extra +$5","Cebollitas +$10"] }
 };
 
 function modsPara(item){
+  // bebidas y extras sin mods
   if(!item.mods) return [];
-  if(item.id==="gringa") return ["carne","conSin","salsas","extras"];
+  // gringas siempre harina (opcional: sin tortilla)
+  if(item.cat==="GRINGAS") return ["carne","conSin","salsas","extras"];
+  // volcanes (sin tortilla)
+  if(item.cat==="VOLCANES") return ["carne","conSin","salsas","extras"];
+  // promos: deja elegir carne + salsas
+  if(item.cat==="PROMOS") return ["carne","tortilla","conSin","salsas","extras"];
+  // tacos/tortas
   return ["carne","tortilla","conSin","salsas","extras"];
 }
 
 /** =========================
- *  UI: categorías y lista
- *  ========================= */
-const catChips = document.getElementById("catChips");
-const itemsBox = document.getElementById("items");
-let activeCat = cats[0];
+ * RENDER SECCIONES
+ * ========================= */
+function el(id){ return document.getElementById(id); }
 
-function renderCats(){
-  catChips.innerHTML = "";
+function renderSections(list){
+  const cats = ["PROMOS","TACOS","GRINGAS","VOLCANES","TORTAS","BEBIDAS","EXTRAS"];
   cats.forEach(c=>{
-    const el = document.createElement("div");
-    el.className = "chip" + (c===activeCat ? " active":"");
-    el.textContent = c;
-    el.onclick = ()=>{ activeCat=c; renderCats(); renderItems(); };
-    catChips.appendChild(el);
-  });
-}
-function renderItems(){
-  itemsBox.innerHTML = "";
-  catalogo.filter(x=>x.cat===activeCat).forEach(it=>{
-    const card = document.createElement("div");
-    card.className = "item";
-    card.innerHTML = `
-      <div style="min-width:0">
-        <div class="name">${it.name}</div>
-        <div class="desc">${it.desc}</div>
-        <div class="muted" style="margin-top:8px;font-size:12px">${money(it.price)}</div>
-      </div>
-      <div>
-        <button class="btn" style="padding:9px 10px" data-id="${it.id}">Agregar</button>
-      </div>
-    `;
-    card.querySelector("button").onclick = ()=> onAddClicked(it);
-    itemsBox.appendChild(card);
+    const box = el("sec_"+c);
+    box.innerHTML = "";
+    list.filter(x=>x.cat===c).forEach(it=>{
+      const card = document.createElement("article");
+      card.className = "item";
+      card.dataset.id = it.id;
+      card.dataset.name = it.name.toLowerCase();
+      card.innerHTML = `
+        <div class="info">
+          <h3 class="name">${it.name}</h3>
+          <div class="desc">${it.desc || ""}</div>
+          <div class="price">MXN ${money(it.price)}</div>
+        </div>
+        <div class="thumb"><div class="ph ${it.thumbClass||"tacos"}"></div></div>
+      `;
+      card.onclick = ()=> onAddClicked(it);
+      box.appendChild(card);
+    });
   });
 }
 
 /** =========================
- *  CARRITO
- *  ========================= */
-let cart = [];
-const cartBox = document.getElementById("cart");
-const totalEl = document.getElementById("total");
-const cartPill = document.getElementById("cartPill");
+ * BUSCADOR
+ * ========================= */
+const q = el("q");
+q.addEventListener("input", ()=>{
+  const v = (q.value||"").trim().toLowerCase();
+  const filtered = !v ? catalogo : catalogo.filter(x=> (x.name+" "+(x.desc||"")).toLowerCase().includes(v));
+  renderSections(filtered);
+});
+
+/** =========================
+ * TABS scroll
+ * ========================= */
+el("tabs").addEventListener("click", (e)=>{
+  const t = e.target.closest(".tab");
+  if(!t) return;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  const sec = document.querySelector(`[data-sec="${t.dataset.cat}"]`);
+  if(sec) sec.scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+/** =========================
+ * CARRITO
+ * ========================= */
+let cart = []; // {key,id,name,basePrice,extraPrice,qty,mods,note}
+const cartBox = el("cart");
+const totalEl = el("total");
+const cartPill = el("cartPill");
 
 function cartCount(){ return cart.reduce((a,x)=>a + x.qty, 0); }
 function cartTotal(){ return cart.reduce((a,x)=> a + x.qty*(x.basePrice + x.extraPrice), 0); }
@@ -456,7 +648,18 @@ function modsToText(mods){
 function escapeHtml(s){
   return (s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
-
+function buildKey(item, mods, note){
+  return item.id + "|" + JSON.stringify(mods) + "|" + (note||"");
+}
+function extraPriceFrom(mods){
+  let add = 0;
+  const extras = mods.extras || [];
+  extras.forEach(x=>{
+    const m = x.match(/\+\$(\d+(\.\d+)?)/);
+    if(m) add += Number(m[1]);
+  });
+  return add;
+}
 function renderCart(){
   cartPill.textContent = `Carrito: ${cartCount()}`;
   totalEl.textContent = money(cartTotal());
@@ -471,39 +674,27 @@ function renderCart(){
     const lineTotal = line.qty*(line.basePrice+line.extraPrice);
     wrap.innerHTML = `
       <div style="min-width:0">
-        <div style="font-weight:900">${line.name} <span class="muted" style="font-weight:800">(${money(line.basePrice+line.extraPrice)})</span></div>
+        <div style="font-weight:1000">${line.name}
+          <span class="muted" style="font-weight:900">(${money(line.basePrice+line.extraPrice)})</span>
+        </div>
         <div class="muted" style="font-size:12px; margin-top:4px; line-height:1.25">${modsToText(line.mods) || ""}</div>
         ${line.note ? `<div class="muted" style="font-size:12px; margin-top:4px">Nota: ${escapeHtml(line.note)}</div>` : ``}
       </div>
       <div style="text-align:right">
         <div class="qtyRow">
           <button class="mini" data-act="dec">−</button>
-          <div style="min-width:24px; text-align:center; font-weight:900">${line.qty}</div>
+          <div style="min-width:24px; text-align:center; font-weight:1000">${line.qty}</div>
           <button class="mini" data-act="inc">+</button>
         </div>
-        <div style="margin-top:6px; font-weight:900">${money(lineTotal)}</div>
-        <button class="btn danger" style="margin-top:8px; padding:8px 10px; width:100%">Quitar</button>
+        <div style="margin-top:6px; font-weight:1000">${money(lineTotal)}</div>
+        <button class="btn danger" style="margin-top:8px; padding:8px 10px" data-act="rm">Quitar</button>
       </div>
     `;
     wrap.querySelector('[data-act="dec"]').onclick = ()=>{ line.qty=Math.max(1,line.qty-1); renderCart(); };
     wrap.querySelector('[data-act="inc"]').onclick = ()=>{ line.qty+=1; renderCart(); };
-    wrap.querySelector('.btn.danger').onclick = ()=>{ cart.splice(idx,1); renderCart(); };
+    wrap.querySelector('[data-act="rm"]').onclick  = ()=>{ cart.splice(idx,1); renderCart(); };
     cartBox.appendChild(wrap);
   });
-}
-
-function buildKey(item, mods, note){
-  return item.id + "|" + JSON.stringify(mods) + "|" + (note||"");
-}
-
-function extraPriceFrom(mods){
-  let add = 0;
-  const extras = mods.extras || [];
-  extras.forEach(x=>{
-    const m = x.match(/\+\$(\d+(\.\d+)?)/);
-    if(m) add += Number(m[1]);
-  });
-  return add;
 }
 
 function addLine(item, mods, note){
@@ -512,27 +703,23 @@ function addLine(item, mods, note){
   const existing = cart.find(x=>x.key===key);
   if(existing){ existing.qty += 1; }
   else{
-    cart.push({
-      key, id:item.id, name:item.name,
-      basePrice:item.price, extraPrice: extra,
-      qty:1, mods: mods, note: note || ""
-    });
+    cart.push({ key, id:item.id, name:item.name, basePrice:item.price, extraPrice:extra, qty:1, mods, note: note||"" });
   }
   renderCart();
 }
 
 /** =========================
- *  MODAL
- *  ========================= */
-const backdrop = document.getElementById("backdrop");
-const mTitle = document.getElementById("mTitle");
-const mBody  = document.getElementById("mBody");
-const mClose = document.getElementById("mClose");
-const mCancel= document.getElementById("mCancel");
-const mAdd   = document.getElementById("mAdd");
+ * MODAL
+ * ========================= */
+const backdrop = el("backdrop");
+const mTitle = el("mTitle");
+const mBody  = el("mBody");
+const mClose = el("mClose");
+const mCancel= el("mCancel");
+const mAdd   = el("mAdd");
 
 let currentItem = null;
-let draft = null;
+let draft = null; // {mods:{}, note:""}
 
 function validateRequired(item, mods){
   const keys = modsPara(item);
@@ -545,26 +732,25 @@ function validateRequired(item, mods){
   }
   return null;
 }
-
-function toggleOpt(k, opt, el){
+function toggleOpt(k, opt, elOpt){
   const g = MODS[k];
   if(g.type==="single"){
     draft.mods[k] = opt;
-    el.parentElement.querySelectorAll(".opt").forEach(x=>x.classList.remove("active"));
-    el.classList.add("active");
+    elOpt.parentElement.querySelectorAll(".opt").forEach(x=>x.classList.remove("active"));
+    elOpt.classList.add("active");
   }else{
     draft.mods[k] = draft.mods[k] || [];
     const arr = draft.mods[k];
     const i = arr.indexOf(opt);
-    if(i>=0){ arr.splice(i,1); el.classList.remove("active"); }
-    else{ arr.push(opt); el.classList.add("active"); }
+    if(i>=0){ arr.splice(i,1); elOpt.classList.remove("active"); }
+    else{ arr.push(opt); elOpt.classList.add("active"); }
   }
 }
 
 function openModal(item){
   currentItem = item;
   draft = {mods:{}, note:""};
-  mTitle.textContent = `${item.name} — ${money(item.price)}`;
+  mTitle.textContent = `${item.name} — MXN ${money(item.price)}`;
   mBody.innerHTML = "";
 
   const keys = modsPara(item);
@@ -609,7 +795,6 @@ function openModal(item){
     if(inp) inp.oninput = ()=> draft.note = inp.value;
   }, 0);
 }
-
 function closeModal(){
   backdrop.style.display = "none";
   currentItem = null;
@@ -634,45 +819,43 @@ mAdd.onclick = ()=>{
 };
 
 /** =========================
- *  CANAL / DOMICILIO
- *  ========================= */
-const canalEl = document.getElementById("canal");
-const domicilioBox = document.getElementById("domicilioBox");
-canalEl.onchange = ()=>{
-  domicilioBox.style.display = canalEl.value==="domicilio" ? "block" : "none";
-};
+ * CANAL DOMICILIO
+ * ========================= */
+const canalEl = el("canal");
+const domicilioBox = el("domicilioBox");
+canalEl.onchange = ()=>{ domicilioBox.style.display = canalEl.value==="domicilio" ? "block" : "none"; };
 canalEl.onchange();
 
 /** =========================
- *  MENSAJE WHATSAPP (VERSIÓN 3 estilo Plick)
- *  ========================= */
-function buildWhatsAppText_V3(orderNo){
-  const nombre = (document.getElementById("nombre").value || "").trim() || "Cliente";
-  const tel    = (document.getElementById("tel").value || "").trim();
+ * WHATSAPP (estilo Plick)
+ * ========================= */
+function buildWhatsAppText(orderNo){
+  const nombre = (el("nombre").value || "").trim() || "Cliente";
+  const tel    = (el("tel").value || "").trim();
 
   const canal  = canalEl.value;
+  const hora   = (el("hora").value || "").trim();
 
-  const formaPago = (document.getElementById("formaPago").value || "efectivo");
-  const pagaConRaw = (document.getElementById("pagaCon").value || "").trim();
+  const formaPago = (el("formaPago").value || "efectivo");
+  const pagaConRaw = (el("pagaCon").value || "").trim();
 
-  const notasG = (document.getElementById("notas").value || "").trim();
+  const notasG = (el("notas").value || "").trim();
 
-  const zona  = (document.getElementById("zona")?.value || "").trim();
-  const calle = (document.getElementById("calle")?.value || "").trim();
-  const numExt= (document.getElementById("numExt")?.value || "").trim();
-  const refs  = (document.getElementById("refs")?.value || "").trim();
+  const zona  = (el("zona")?.value || "").trim();
+  const calle = (el("calle")?.value || "").trim();
+  const numExt= (el("numExt")?.value || "").trim();
+  const refs  = (el("refs")?.value || "").trim();
 
   const formaTxt = (formaPago==="efectivo" ? "Efectivo" : (formaPago==="transferencia" ? "Transferencia" : "Tarjeta"));
   const pagaConNum = pagaConRaw ? Number(pagaConRaw.replace(/,/g,"")) : null;
   const pagaConTxt = pagaConNum ? `${money(pagaConNum)} en ${formaTxt}` : formaTxt;
 
   let msg = [];
-  msg.push(`Hola 👋 Soy *${nombre}* , este es mi pedido:`);
+  msg.push(`Hola, mi nombre es ${nombre} , este es mi pedido:`);
   msg.push(``);
   msg.push(`Número de pedido: ${orderNo}`);
-  msg.push(``);
+  msg.push(`  `);
 
-  // líneas estilo plick: "- 1 x ..."
   cart.forEach(x=>{
     msg.push(`  - ${x.qty} x ${x.name} (${money(x.qty*(x.basePrice + x.extraPrice))})`);
     const mt = modsToText(x.mods);
@@ -686,12 +869,13 @@ function buildWhatsAppText_V3(orderNo){
   msg.push(`Total: ${money(cartTotal())}`);
   msg.push(``);
   msg.push(`Pagaré con: ${pagaConTxt}`);
+  if(hora) msg.push(`Hora deseada: ${hora}`);
   msg.push(``);
 
   if(notasG) msg.push(`Indicaciones: ${notasG}`);
   msg.push(``);
 
-  if(tel) msg.push(`Número de contacto: ${tel}`);
+  if(tel) msg.push(`Número de contacto: +52${tel.replace(/^52/,"")}`);
 
   if(canal==="domicilio"){
     msg.push(`Domicilio para la entrega:`);
@@ -699,7 +883,6 @@ function buildWhatsAppText_V3(orderNo){
     if(calle) msg.push(`  Calle o mz: ${calle}`);
     if(numExt)msg.push(`  Numero exterior: ${numExt}`);
     if(refs)  msg.push(`  Referencias: ${refs}`);
-    msg.push(``);
   }
 
   msg.push(``);
@@ -711,37 +894,37 @@ function buildWhatsAppText_V3(orderNo){
 }
 
 /** =========================
- *  BOTONES
- *  ========================= */
-document.getElementById("btnWA").onclick = ()=>{
+ * BOTONES
+ * ========================= */
+el("btnWA").onclick = ()=>{
   if(cart.length===0){ alert("Agrega algo al carrito primero 😄"); return; }
 
-  // Validación domicilio mínimo
+  // Validación domicilio
   if(canalEl.value==="domicilio"){
-    const zona  = (document.getElementById("zona").value||"").trim();
-    const calle = (document.getElementById("calle").value||"").trim();
-    const numExt= (document.getElementById("numExt").value||"").trim();
+    const zona  = (el("zona").value||"").trim();
+    const calle = (el("calle").value||"").trim();
+    const numExt= (el("numExt").value||"").trim();
     if(!zona || !calle || !numExt){
       alert("Para domicilio llena mínimo: Zona/Colonia, Calle y Número exterior.");
       return;
     }
   }
 
-  // Validación paga con: solo si forma es efectivo, para que tenga sentido
-  const forma = document.getElementById("formaPago").value;
-  const pagaCon = (document.getElementById("pagaCon").value||"").trim();
+  // Validación paga con
+  const forma = el("formaPago").value;
+  const pagaCon = (el("pagaCon").value||"").trim();
   if(forma==="efectivo" && !pagaCon){
     alert("Ingresa el monto en 'Pagaré con (monto)'.");
     return;
   }
 
   const orderNo = getNextOrderNumber();
-  const text = buildWhatsAppText_V3(orderNo);
+  const text = buildWhatsAppText(orderNo);
   const url = `https://wa.me/${WHATSAPP_TAQ}?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank");
 };
 
-document.getElementById("btnClear").onclick = ()=>{
+el("btnClear").onclick = ()=>{
   if(confirm("¿Vaciar carrito?")){
     cart = [];
     renderCart();
@@ -749,10 +932,9 @@ document.getElementById("btnClear").onclick = ()=>{
 };
 
 /** =========================
- *  INIT
- *  ========================= */
-renderCats();
-renderItems();
+ * INIT
+ * ========================= */
+renderSections(catalogo);
 renderCart();
 </script>
 </body>
