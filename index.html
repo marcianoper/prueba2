@@ -3,106 +3,485 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>VDC — Escáner QR (compatible)</title>
+  <title>VDC 360° — Hoja de Viaje</title>
+
+  <!-- Supabase v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
   <style>
-    body{font-family:system-ui;margin:0;background:#f6f7f8;color:#0f172a}
-    header{background:#0a7a3b;color:#fff;padding:14px 16px}
-    main{max-width:900px;margin:0 auto;padding:14px;display:grid;gap:12px}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:12px}
-    button{border:0;background:#0a7a3b;color:#fff;padding:12px 14px;border-radius:14px;font-weight:800}
-    button.ghost{background:#111827}
-    video{width:100%;border-radius:14px;border:1px solid #e5e7eb;background:#000}
-    pre{background:#0b1220;color:#e5e7eb;padding:12px;border-radius:14px;overflow:auto}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .pill{border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;font-size:12px;color:#64748b}
+    :root{
+      --brand:#0a7a3b;
+      --brand2:#0f9a52;
+      --bg:#f6f7f8;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --danger:#b91c1c;
+      --shadow:0 18px 50px rgba(2,6,23,.10);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 500px at 18% -10%, rgba(15,154,82,.18), transparent 60%),
+                  radial-gradient(1200px 500px at 80% 110%, rgba(10,122,59,.16), transparent 60%),
+                  var(--bg);
+      color:var(--ink);
+    }
+    header{
+      background: linear-gradient(90deg, var(--brand), var(--brand2));
+      color:#fff;
+      padding:14px 18px;
+      position:sticky; top:0; z-index:9;
+      box-shadow:0 10px 24px rgba(2,6,23,.10);
+    }
+    header .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    header h1{margin:0; font-size:16px; letter-spacing:.3px}
+    header .pill{
+      background: rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.22);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    main{max-width:1220px; margin:0 auto; padding:16px; display:grid; gap:16px}
+    .grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:16px}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      box-shadow: var(--shadow);
+      padding:14px;
+    }
+    .card h2{margin:0 0 10px; font-size:14px}
+    label{display:block; font-size:12px; color:var(--muted); margin:10px 0 6px}
+    input, select, textarea{
+      width:100%;
+      padding:10px 10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      outline:none;
+      background:#fff;
+      font-size:14px;
+    }
+    textarea{min-height:82px; resize:vertical}
+    .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .row3{display:grid; grid-template-columns:1.1fr .9fr .9fr; gap:10px}
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:10px 12px;
+      font-weight:800;
+      cursor:pointer;
+      width:100%;
+    }
+    .btn-primary{background:var(--brand); color:#fff}
+    .btn-ghost{background:#fff; color:var(--brand); border:1px solid rgba(10,122,59,.25)}
+    .btn-danger{background:var(--danger); color:#fff}
+    .btn:disabled{opacity:.55; cursor:not-allowed}
+
+    table{width:100%; border-collapse:collapse; font-size:13px}
+    th, td{border-bottom:1px solid var(--line); padding:8px 6px; text-align:left}
+    th{color:var(--muted); font-size:12px; font-weight:800}
+    .right{text-align:right}
+    .muted{color:var(--muted); font-size:12px}
+    .toast{
+      position:fixed; right:14px; bottom:14px;
+      background:#0b1220; color:#fff;
+      padding:10px 12px;
+      border-radius:12px;
+      box-shadow:0 16px 40px rgba(0,0,0,.25);
+      max-width:420px;
+      display:none;
+      z-index:99;
+    }
   </style>
 </head>
 <body>
 <header>
-  <b>VDC — Escáner QR</b>
-  <div style="opacity:.9;font-size:13px">Requiere HTTPS y permiso de cámara</div>
+  <div class="row">
+    <h1>VDC 360° — Hoja de Viaje</h1>
+    <div class="pill" id="pillStatus">Listo</div>
+  </div>
 </header>
 
 <main>
-  <div class="card">
-    <div class="row">
-      <button id="btnStart">📷 Iniciar</button>
-      <button id="btnStop" class="ghost" disabled>⛔ Detener</button>
-      <span id="st" class="pill">Estado: listo</span>
-    </div>
-    <div style="margin-top:10px">
-      <video id="video" playsinline></video>
-    </div>
+  <div class="grid">
+    <!-- Encabezado -->
+    <section class="card">
+      <h2>Encabezado</h2>
+
+      <div class="row2">
+        <div>
+          <label>Fecha</label>
+          <input type="date" id="fecha"/>
+        </div>
+        <div>
+          <label>Origen</label>
+          <select id="origen">
+            <option value="rastro">rastro</option>
+            <option value="viaje">viaje</option>
+            <option value="congelado">congelado</option>
+            <option value="otro">otro</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Proveedor</label>
+      <select id="proveedor"></select>
+      <div class="muted">Tip: aquí solo aparecen “terceros” tipo proveedor.</div>
+
+      <div class="row2">
+        <div>
+          <label>Ganadero (por hoja)</label>
+          <input id="ganadero" placeholder="Ej. Bravo / Jaramillo / Mireles..."/>
+        </div>
+        <div>
+          <label>Marca</label>
+          <input id="marca" placeholder="Ej. National / Excel / Canadian..."/>
+        </div>
+      </div>
+
+      <label>Notas</label>
+      <textarea id="notas" placeholder="Observaciones del viaje..."></textarea>
+
+      <div class="row2" style="margin-top:12px">
+        <button class="btn btn-primary" id="btnCrear">Crear Hoja (Borrador)</button>
+        <button class="btn btn-danger" id="btnPostear" disabled>Postear (impacta inventario)</button>
+      </div>
+
+      <div class="muted" style="margin-top:10px">
+        Folio: <b id="folio">—</b> · Estado: <b id="estado">—</b> · Destino: <b>Bodega</b>
+      </div>
+    </section>
+
+    <!-- Agregar tandas -->
+    <section class="card">
+      <h2>Agregar pesada (tanda)</h2>
+
+      <label>Producto</label>
+      <select id="producto"></select>
+
+      <div class="row3">
+        <div>
+          <label>Kilos</label>
+          <input type="number" id="kg" step="0.001" min="0" placeholder="0.000"/>
+        </div>
+        <div>
+          <label>Piezas</label>
+          <input type="number" id="pzas" step="1" min="0" placeholder="0"/>
+        </div>
+        <div>
+          <label>Cajas</label>
+          <input type="number" id="cajas" step="1" min="0" placeholder="0"/>
+        </div>
+      </div>
+
+      <label>Nota (tanda)</label>
+      <input id="notaItem" placeholder="Ej. Tanda 1 / carretilla 2..."/>
+
+      <button class="btn btn-primary" id="btnAgregar" disabled style="margin-top:12px">Agregar tanda</button>
+
+      <div class="muted" style="margin-top:10px">
+        * La ubicación destino siempre será Bodega (bloqueado por sistema).
+      </div>
+    </section>
   </div>
 
-  <div class="card">
-    <div class="row" style="justify-content:space-between">
-      <b>Payload</b><span id="js" class="pill">JSON: —</span>
+  <!-- Items -->
+  <section class="card">
+    <h2>Partidas capturadas</h2>
+    <div class="muted" id="infoItems">Aún no hay hoja creada.</div>
+
+    <div style="overflow:auto; margin-top:8px">
+      <table id="tablaItems">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th class="right">Kg</th>
+            <th class="right">Pzas</th>
+            <th class="right">Cajas</th>
+            <th>Nota</th>
+            <th class="right">Acción</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
-    <pre id="out">(aquí sale el texto del QR)</pre>
-  </div>
+  </section>
+
+  <!-- Resumen -->
+  <section class="card">
+    <h2>Resumen por producto (auto-suma)</h2>
+    <div style="overflow:auto">
+      <table id="tablaResumen">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th class="right">Kg</th>
+            <th class="right">Pzas</th>
+            <th class="right">Cajas</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 </main>
 
-<script type="module">
-  import QrScanner from "https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.min.js";
-  QrScanner.WORKER_PATH = "https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner-worker.min.js";
+<div class="toast" id="toast"></div>
 
-  const video = document.getElementById("video");
-  const out = document.getElementById("out");
-  const st = document.getElementById("st");
-  const js = document.getElementById("js");
-  const btnStart = document.getElementById("btnStart");
-  const btnStop = document.getElementById("btnStop");
+<script>
+  // =================== CONFIG ===================
+  const SUPABASE_URL = "PON_AQUI_TU_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "PON_AQUI_TU_SUPABASE_ANON_KEY";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let scanner = null;
-  let last = "";
-  const lockMs = 1200;
+  // =================== UI ===================
+  const $ = (id)=>document.getElementById(id);
+  const toast = (msg)=>{
+    const t = $("toast");
+    t.textContent = msg;
+    t.style.display="block";
+    clearTimeout(window.__t);
+    window.__t = setTimeout(()=>t.style.display="none", 2600);
+  };
+  const setPill = (txt)=>{ $("pillStatus").textContent = txt; };
 
-  function setStatus(t){ st.textContent = "Estado: " + t; }
-  function setJson(ok){
-    js.textContent = "JSON: " + (ok ? "OK" : "—");
-    js.style.color = ok ? "#16a34a" : "#64748b";
-    js.style.fontWeight = ok ? "900" : "600";
+  // Estado actual
+  let hoja = null;        // {id, folio, status...}
+  let items = [];         // items actuales
+  let productos = [];     // catálogo
+  let proveedores = [];   // terceros tipo proveedor
+
+  // =================== LOADERS ===================
+  async function cargarProveedores(){
+    const { data, error } = await sb
+      .from("terceros")
+      .select("id,nombre")
+      .eq("tipo","proveedor")
+      .eq("activo", true)
+      .order("nombre", {ascending:true});
+    if(error){ console.error(error); toast("Error cargando proveedores"); return; }
+    proveedores = data || [];
+    const sel = $("proveedor");
+    sel.innerHTML = proveedores.map(p=>`<option value="${p.id}">${p.nombre}</option>`).join("");
   }
 
-  function process(text){
-    out.textContent = text || "";
-    try{
-      const data = JSON.parse(text);
-      setJson(Array.isArray(data));
-    }catch(_){
-      setJson(false);
-    }
+  async function cargarProductos(){
+    const { data, error } = await sb
+      .from("productos")
+      .select("id,sku,nombre,permite_pzas,unidad_base,tipo")
+      .eq("activo", true)
+      .order("nombre", {ascending:true});
+    if(error){ console.error(error); toast("Error cargando productos"); return; }
+    productos = data || [];
+    const sel = $("producto");
+    sel.innerHTML = productos.map(p=>`<option value="${p.id}">${p.nombre}</option>`).join("");
   }
 
-  btnStart.onclick = async () => {
-    setStatus("pidiendo permiso...");
-    try{
-      scanner = new QrScanner(video, result => {
-        const text = result?.data || "";
-        if(!text || text === last) return;
-        last = text;
-        process(text);
-        scanner.stop();
-        setTimeout(()=>scanner && scanner.start(), lockMs);
-      }, { preferredCamera: "environment" });
+  function setDefaults(){
+    const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth()+1).padStart(2,'0');
+    const dd = String(hoy.getDate()).padStart(2,'0');
+    $("fecha").value = `${yyyy}-${mm}-${dd}`;
+  }
 
-      await scanner.start();
-      setStatus("escaneando...");
-      btnStart.disabled = true;
-      btnStop.disabled = false;
-    }catch(e){
-      setStatus("ERROR: " + (e?.message || e));
-      scanner = null;
+  // =================== RENDER ===================
+  function renderHeader(){
+    $("folio").textContent = hoja?.folio || "—";
+    $("estado").textContent = hoja?.status || "—";
+    $("btnAgregar").disabled = !hoja || hoja.status !== "BORRADOR";
+    $("btnPostear").disabled = !hoja || hoja.status !== "BORRADOR";
+    $("btnCrear").disabled = !!hoja; // una hoja por sesión (puedes agregar botón "Nueva" después)
+    $("infoItems").textContent = hoja ? `Hoja ${hoja.folio} (${hoja.status})` : "Aún no hay hoja creada.";
+    setPill(hoja ? `Hoja: ${hoja.status}` : "Listo");
+  }
+
+  function renderItems(){
+    const tb = $("tablaItems").querySelector("tbody");
+    tb.innerHTML = (items||[]).map(i=>{
+      const prod = productos.find(p=>p.id===i.producto_id)?.nombre || "—";
+      const kg = Number(i.kg||0).toFixed(3);
+      const pzas = (i.pzas==null? "" : Number(i.pzas||0).toFixed(0));
+      const cajas = (i.cajas==null? "" : Number(i.cajas||0).toFixed(0));
+      const nota = i.nota || "";
+      const delBtn = (hoja?.status==="BORRADOR")
+        ? `<button class="btn btn-ghost" style="padding:6px 10px; border-radius:10px; width:auto" onclick="borrarItem('${i.id}')">Borrar</button>`
+        : `<span class="muted">—</span>`;
+      return `
+        <tr>
+          <td>${prod}</td>
+          <td class="right">${kg}</td>
+          <td class="right">${pzas}</td>
+          <td class="right">${cajas}</td>
+          <td>${nota}</td>
+          <td class="right">${delBtn}</td>
+        </tr>
+      `;
+    }).join("");
+    renderResumen();
+  }
+
+  function renderResumen(){
+    const map = new Map();
+    for(const i of (items||[])){
+      const key = i.producto_id;
+      const cur = map.get(key) || {kg:0, pzas:0, cajas:0};
+      cur.kg += Number(i.kg||0);
+      cur.pzas += Number(i.pzas||0);
+      cur.cajas += Number(i.cajas||0);
+      map.set(key, cur);
     }
+    const rows = Array.from(map.entries()).map(([pid,tot])=>{
+      const prod = productos.find(p=>p.id===pid)?.nombre || "—";
+      return {
+        prod,
+        kg: tot.kg,
+        pzas: tot.pzas,
+        cajas: tot.cajas
+      };
+    }).sort((a,b)=>a.prod.localeCompare(b.prod));
+
+    const tb = $("tablaResumen").querySelector("tbody");
+    tb.innerHTML = rows.map(r=>`
+      <tr>
+        <td>${r.prod}</td>
+        <td class="right">${r.kg.toFixed(3)}</td>
+        <td class="right">${r.pzas ? r.pzas.toFixed(0) : ""}</td>
+        <td class="right">${r.cajas ? r.cajas.toFixed(0) : ""}</td>
+      </tr>
+    `).join("");
+  }
+
+  // =================== ACTIONS ===================
+  async function crearHoja(){
+    const payload = {
+      fecha: $("fecha").value,
+      proveedor_id: $("proveedor").value || null,
+      origen: $("origen").value,
+      ganadero: $("ganadero").value || null, // por hoja
+      marca: $("marca").value || null,
+      notas: $("notas").value || null,
+      // folio lo genera el trigger si viene null/empty
+      folio: null
+    };
+
+    const { data, error } = await sb
+      .from("hoja_viaje")
+      .insert(payload)
+      .select("id, folio, status")
+      .single();
+
+    if(error){ console.error(error); toast("Error creando hoja"); return; }
+
+    hoja = data;
+    items = [];
+    renderHeader();
+    renderItems();
+    toast(`Hoja creada: ${hoja.folio}`);
+  }
+
+  async function cargarItems(){
+    if(!hoja) return;
+    const { data, error } = await sb
+      .from("hoja_viaje_items")
+      .select("id, producto_id, ubicacion_destino_id, kg, pzas, cajas, nota")
+      .eq("hoja_viaje_id", hoja.id)
+      .order("created_at", {ascending:true});
+
+    if(error){ console.error(error); toast("Error cargando partidas"); return; }
+    items = data || [];
+    renderItems();
+  }
+
+  async function agregarItem(){
+    if(!hoja || hoja.status!=="BORRADOR") return;
+
+    const kg = Number($("kg").value || 0);
+    const pzas = $("pzas").value === "" ? null : Number($("pzas").value || 0);
+    const cajas = $("cajas").value === "" ? null : Number($("cajas").value || 0);
+
+    if(!(kg > 0) && !(pzas>0) && !(cajas>0)){
+      toast("Captura al menos kg o pzas o cajas");
+      return;
+    }
+
+    // ubicacion_destino_id la fuerza el trigger a Bodega,
+    // pero igual la mandamos (si tu UI luego trae el id de bodega)
+    const { data: bodega, error: eB } = await sb
+      .from("ubicaciones").select("id").eq("nombre","Bodega").limit(1).single();
+    if(eB){ console.error(eB); toast("No existe ubicación Bodega"); return; }
+
+    const payload = {
+      hoja_viaje_id: hoja.id,
+      producto_id: $("producto").value,
+      ubicacion_destino_id: bodega.id,
+      kg: kg,
+      pzas: pzas,
+      cajas: cajas,
+      nota: $("notaItem").value || null
+    };
+
+    const { error } = await sb.from("hoja_viaje_items").insert(payload);
+    if(error){ console.error(error); toast("Error agregando partida"); return; }
+
+    // limpiar inputs
+    $("kg").value = "";
+    $("pzas").value = "";
+    $("cajas").value = "";
+    $("notaItem").value = "";
+
+    await cargarItems();
+    toast("Tanda agregada");
+  }
+
+  window.borrarItem = async (itemId)=>{
+    if(!hoja || hoja.status!=="BORRADOR") return;
+    const { error } = await sb.from("hoja_viaje_items").delete().eq("id", itemId);
+    if(error){ console.error(error); toast("Error borrando"); return; }
+    await cargarItems();
+    toast("Partida borrada");
   };
 
-  btnStop.onclick = () => {
-    if(scanner){ scanner.stop(); scanner.destroy(); scanner = null; }
-    setStatus("listo");
-    btnStart.disabled = false;
-    btnStop.disabled = true;
-  };
+  async function postear(){
+    if(!hoja || hoja.status!=="BORRADOR") return;
+
+    // RPC a la función en SQL: postear_hoja_viaje(uuid)
+    const { error } = await sb.rpc("postear_hoja_viaje", { p_hoja_viaje_id: hoja.id });
+    if(error){ console.error(error); toast("Error al postear (revisa consola)"); return; }
+
+    // refrescar header
+    const { data, error: e2 } = await sb
+      .from("hoja_viaje")
+      .select("id, folio, status")
+      .eq("id", hoja.id)
+      .single();
+    if(e2){ console.error(e2); }
+
+    hoja = data || hoja;
+    renderHeader();
+    toast("✅ Posteado. Inventario actualizado.");
+  }
+
+  // =================== INIT ===================
+  $("btnCrear").addEventListener("click", crearHoja);
+  $("btnAgregar").addEventListener("click", agregarItem);
+  $("btnPostear").addEventListener("click", postear);
+
+  (async function init(){
+    setDefaults();
+    await cargarProveedores();
+    await cargarProductos();
+    renderHeader();
+    renderItems();
+  })();
 </script>
 </body>
 </html>
