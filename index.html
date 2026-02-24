@@ -2,8 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Menú — Tacos Paisa Chema</title>
+
+  <!-- Leaflet (mapa gratis) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
     :root{
@@ -14,7 +17,7 @@
       --muted:#6e5646;          /* café suave */
       --line:rgba(59,42,31,.15);
 
-      --brand:#3b2a1f;          /* café oscuro (barra/botones oscuros) */
+      --brand:#3b2a1f;          /* café oscuro */
       --gold1:#c98a1e;          /* dorado */
       --gold2:#b77712;          /* dorado oscuro */
       --green:#1f6b2a;          /* verde precio */
@@ -24,6 +27,7 @@
     }
 
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
@@ -32,6 +36,8 @@
         radial-gradient(1200px 520px at 90% 0%, rgba(59,42,31,.12), transparent 55%),
         var(--bg);
       color:var(--ink);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
     /* Top bar */
@@ -47,13 +53,12 @@
       display:flex; gap:12px; align-items:center; justify-content:space-between;
       max-width:1200px; margin:0 auto;
     }
-    header .brand{
-      display:flex; flex-direction:column; line-height:1.05;
-    }
+    header .brand{display:flex; flex-direction:column; line-height:1.05; min-width:0;}
     header h1{
       margin:0;
       font-size:16px;
       letter-spacing:.2px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     header .sub{
       font-size:12px; opacity:.92; margin-top:3px;
@@ -103,6 +108,7 @@
       font-size:15px;
       border-bottom:1px solid var(--line);
       background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,0));
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
     .content{padding:14px}
 
@@ -114,23 +120,11 @@
       box-shadow: 0 25px 70px rgba(32,24,16,.18);
       background:#0b1220;
     }
-    .hero img{
-      width:100%;
-      height: 230px;
-      object-fit: cover;
-      display:block;
-    }
-    @media (max-width: 520px){
-      .hero img{height:170px}
-    }
+    .hero img{width:100%; height: 230px; object-fit: cover; display:block;}
+    @media (max-width: 520px){ .hero img{height:170px} }
 
     /* Search + tabs */
-    .searchRow{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      margin-top:12px;
-    }
+    .searchRow{display:flex; gap:10px; align-items:center; margin-top:12px;}
     .searchRow input{
       flex:1;
       padding:12px 12px;
@@ -139,13 +133,9 @@
       background: rgba(255,255,255,.65);
       outline:none;
       font-size:14px;
+      color: var(--ink);
     }
-    .tabs{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin: 12px 0 10px;
-    }
+    .tabs{display:flex; flex-wrap:wrap; gap:10px; margin: 12px 0 10px;}
     .tab{
       border:1px solid rgba(59,42,31,.22);
       background: rgba(255,255,255,.55);
@@ -157,6 +147,8 @@
       user-select:none;
       letter-spacing:.2px;
       box-shadow: 0 10px 22px rgba(32,24,16,.10);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .tab.active{
       background: rgba(255,255,255,.80);
@@ -171,6 +163,7 @@
       letter-spacing: .8px;
       font-weight: 1000;
       color: rgba(59,42,31,.96);
+      line-height:1;
     }
     .divider{
       height: 4px;
@@ -178,19 +171,13 @@
       background: rgba(59,42,31,.20);
       margin: 8px 0 18px;
     }
+    @media (max-width: 620px){ .sectionTitle{font-size:34px} }
 
     /* Product grid */
-    .items{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap:14px;
-    }
-    @media (max-width: 620px){
-      .items{grid-template-columns:1fr}
-      .sectionTitle{font-size:34px}
-    }
+    .items{display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:14px;}
+    @media (max-width: 620px){ .items{grid-template-columns:1fr} }
 
-    /* Product card (como tu foto: texto izquierda, imagen derecha) */
+    /* Product card */
     .prod{
       background: rgba(255,255,255,.35);
       border:1px solid rgba(59,42,31,.18);
@@ -203,43 +190,20 @@
     }
     .prodLeft{
       padding:14px 14px 12px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
+      display:flex; flex-direction:column; gap:8px;
       background: rgba(255,255,255,.35);
+      min-width:0;
     }
-    .prodName{
-      font-weight:1000;
-      font-size: 22px;
-      margin:0;
-    }
-    .prodDesc{
-      margin:0;
-      color: var(--muted);
-      font-weight:700;
-      line-height:1.25;
-    }
-    .price{
-      margin-top:auto;
-      font-weight:1000;
-      color: var(--green);
-      font-size: 18px;
-    }
-    .price b{
-      display:block;
-      font-size: 34px;
-      letter-spacing:.3px;
-    }
+    .prodName{font-weight:1000; font-size: 22px; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+    .prodDesc{margin:0; color: var(--muted); font-weight:700; line-height:1.25; font-size:13px;}
+    .price{margin-top:auto; font-weight:1000; color: var(--green); font-size: 16px;}
+    .price b{display:block; font-size: 34px; letter-spacing:.3px;}
 
     .prodRight{
       position:relative;
       padding:14px;
       background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.30));
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      gap:10px;
+      display:flex; flex-direction:column; justify-content:center; align-items:center; gap:10px;
     }
     .prodImg{
       width: 100%;
@@ -250,17 +214,11 @@
       box-shadow: 0 18px 40px rgba(0,0,0,.22);
       border: 1px solid rgba(255,255,255,.10);
     }
-    .prodImg img{
-      width:100%;
-      height:100%;
-      object-fit: cover;
-      display:block;
-    }
+    .prodImg img{width:100%; height:100%; object-fit: cover; display:block;}
 
-    /* Botón AGREGAR dorado (como referencia) */
-    .btnAdd{
-      border:none;
-      cursor:pointer;
+    /* Botones */
+    .btnAdd, .stickyBtn{
+      border:none; cursor:pointer;
       padding: 10px 26px;
       border-radius: 999px;
       font-weight: 1000;
@@ -268,9 +226,23 @@
       background: linear-gradient(180deg, var(--gold1), var(--gold2));
       box-shadow: 0 12px 26px rgba(201,138,30,.38);
       font-size: 16px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-    .btnAdd:active{transform: translateY(1px)}
-    .btnAdd:focus{outline: 3px solid rgba(201,138,30,.28)}
+    .btnAdd:active,.stickyBtn:active{transform: translateY(1px)}
+    .btnAdd:focus,.stickyBtn:focus{outline: 3px solid rgba(201,138,30,.28)}
+
+    .btnGhost{
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      color:#fff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 1000;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
 
     /* Cart */
     .cartLine{
@@ -289,6 +261,8 @@
       cursor:pointer;
       font-weight:1000;
       color: var(--ink);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     /* Right panel form */
@@ -314,7 +288,7 @@
     }
     .totalRow strong{font-size:18px}
 
-    /* Sticky bottom like Plick */
+    /* Sticky bottom */
     .stickyBar{
       position: sticky;
       bottom: 12px;
@@ -331,27 +305,10 @@
       gap:10px;
       padding: 10px 10px 10px 12px;
     }
-    .stickyBar .left{
-      display:flex; align-items:center; gap:10px;
-      font-weight:1000;
-    }
-    .stickyBar .amount{
-      font-size:18px;
-      letter-spacing:.2px;
-    }
-    .stickyBtn{
-      border:none;
-      cursor:pointer;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-weight: 1000;
-      color:#fff;
-      background: linear-gradient(180deg, var(--gold1), var(--gold2));
-      box-shadow: 0 12px 26px rgba(201,138,30,.35);
-      min-width: 160px;
-    }
-
-    .btnGhost{
+    .stickyBar .left{display:flex; align-items:center; gap:10px; font-weight:1000;}
+    .stickyBar .amount{font-size:18px; letter-spacing:.2px;}
+    .stickyBtn{min-width: 160px;}
+    .btnClear{
       border:1px solid rgba(255,255,255,.18);
       background: rgba(255,255,255,.10);
       color:#fff;
@@ -359,10 +316,12 @@
       border-radius: 12px;
       font-weight: 1000;
       cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     /* Modal (modificadores) */
-    .backdrop{
+    .backdrop, .stepsBackdrop{
       position:fixed; inset:0;
       background:rgba(0,0,0,.58);
       display:none;
@@ -370,16 +329,18 @@
       justify-content:center;
       padding:16px;
       z-index:60;
+      touch-action:none;
     }
-    .modal{
+    .modal, .steps{
       width:min(820px, 100%);
       background: var(--paper);
       border-radius:18px;
       overflow:hidden;
       border:1px solid rgba(59,42,31,.18);
       box-shadow: 0 40px 100px rgba(0,0,0,.35);
+      pointer-events:auto;
     }
-    .modalHead{
+    .modalHead, .stepsHead{
       padding:14px 16px;
       background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,0));
       border-bottom:1px solid rgba(59,42,31,.16);
@@ -394,7 +355,10 @@
       cursor:pointer;
       font-weight:1000;
       color: var(--ink);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
+
     .optGroup{
       border:1px solid rgba(59,42,31,.16);
       border-radius:16px;
@@ -402,13 +366,11 @@
       margin-top:10px;
       background: rgba(255,255,255,.35);
     }
-    .optTitle{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
+    .optTitle{display:flex; align-items:center; justify-content:space-between; gap:10px;}
     .optTitle b{font-size:13px}
     .optTitle span{font-size:12px; color:var(--muted); font-weight:800}
     .optList{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
-    .opt{
+    .optBtn{
       border:1px solid rgba(59,42,31,.18);
       background: rgba(255,255,255,.65);
       padding:8px 10px;
@@ -418,11 +380,14 @@
       user-select:none;
       font-weight:900;
       color: var(--ink);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-    .opt.active{
+    .optBtn.active{
       border-color: rgba(201,138,30,.60);
       box-shadow:0 0 0 3px rgba(201,138,30,.18);
     }
+
     .footerBtns{
       display:flex;
       gap:10px;
@@ -432,55 +397,16 @@
     }
     .footerBtns button{flex:1}
 
-    /* Steps modal */
-    .stepsBackdrop{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.58);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-      z-index:70;
-    }
-    .steps{
-      width:min(760px, 100%);
-      background: var(--paper);
-      border-radius: 18px;
-      overflow:hidden;
-      border:1px solid rgba(59,42,31,.18);
-      box-shadow: 0 40px 100px rgba(0,0,0,.35);
-    }
-    .stepsHead{
-      padding:14px 16px;
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      border-bottom:1px solid rgba(59,42,31,.16);
-      background: linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,255,255,0));
-    }
-    .stepsHead .t{
-      display:flex; flex-direction:column; gap:4px;
-    }
-    .stepsHead .t b{font-size:16px}
-    .stepsHead .t span{font-size:12px; color:var(--muted); font-weight:900}
-    .stepsBody{padding:14px 16px}
-    .stepRow{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    @media (max-width:520px){ .stepRow{grid-template-columns:1fr} }
-
-    .stepsFoot{
-      display:flex; gap:10px;
-      padding:14px 16px;
-      border-top:1px solid rgba(59,42,31,.16);
-      background: rgba(255,255,255,.25);
-    }
-
     .btnDark{
-      border:none;
-      cursor:pointer;
+      border:none; cursor:pointer;
       padding:12px 14px;
       border-radius: 12px;
       font-weight:1000;
       color:#fff;
       background: linear-gradient(180deg, rgba(59,42,31,.92), rgba(59,42,31,.86));
       box-shadow: 0 14px 30px rgba(0,0,0,.25);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .btnLight{
       border:1px solid rgba(59,42,31,.18);
@@ -490,6 +416,8 @@
       border-radius: 12px;
       font-weight:1000;
       cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .note{
@@ -503,6 +431,80 @@
       border:1px solid rgba(59,42,31,.16);
       margin-top:12px;
     }
+
+    /* ✅ STEPS: compacto + scroll interno + footer visible en smartphone */
+    .steps{
+      width:min(760px, 100%);
+      max-height: 86vh;
+      display:flex;
+      flex-direction:column;
+    }
+    .stepsHead .t{display:flex; flex-direction:column; gap:4px;}
+    .stepsHead .t b{font-size:16px}
+    .stepsHead .t span{font-size:12px; color:var(--muted); font-weight:900}
+    .stepsBody{
+      padding:14px 16px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      flex: 1 1 auto;
+    }
+    .stepsFoot{
+      display:flex; gap:10px;
+      padding:14px 16px;
+      border-top:1px solid rgba(59,42,31,.16);
+      background: rgba(255,255,255,.25);
+      flex: 0 0 auto;
+      position: sticky;
+      bottom: 0;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      z-index:2;
+    }
+    .stepsFoot button{flex:1}
+
+    .stepRow{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width:520px){ .stepRow{grid-template-columns:1fr} }
+
+    /* ✅ Mapa compacto */
+    .mapWrap{
+      border:1px solid rgba(59,42,31,.18);
+      border-radius:16px;
+      overflow:hidden;
+      background:#fff;
+      box-shadow: 0 10px 26px rgba(0,0,0,.10);
+      margin-top:10px;
+    }
+    #miniMap{width:100%; height:150px; background:#eee; touch-action: pan-x pan-y;}
+
+    .mapBar{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+    .mapBar .btnLight{flex:1; min-width: 170px;}
+
+    .kpiRow{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
+    .kpi{
+      border:1px solid rgba(59,42,31,.16);
+      border-radius:16px;
+      background: rgba(255,255,255,.45);
+      padding:10px 12px;
+    }
+    .kpi b{display:block; font-size:12px}
+    .kpi span{display:block; margin-top:4px; font-weight:1000}
+
+    /* ✅ Toggle flechas dirección */
+    .detailsToggle{
+      width:100%;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      border:1px solid rgba(59,42,31,.18);
+      background: rgba(255,255,255,.55);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:1000;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      margin-top:10px;
+    }
+    .detailsToggle .arrow{font-size:18px; line-height:1}
+    .detailsWrap{display:none}
+    .detailsWrap.show{display:block}
   </style>
 </head>
 
@@ -518,20 +520,15 @@
 </header>
 
 <div class="wrap">
-
-  <!-- HERO con tu imagen del menú -->
   <div class="hero">
-    <!-- Tu archivo: menu.png -->
     <img src="menu.png" alt="Menú Tacos Paisa Chema">
   </div>
 
   <div class="grid">
-
     <!-- MENÚ -->
     <section class="card">
       <h2>Menú</h2>
       <div class="content">
-
         <div class="searchRow">
           <input id="q" placeholder="Buscar un producto (ej. taco, gringa, coca)..."/>
         </div>
@@ -546,19 +543,21 @@
         <div class="items" id="items"></div>
 
         <div class="note">
-          Tip: en taquería la magia está en <b>carne + tortilla + con/sin + salsas + extras</b>.
+          Tip: arma tu pedido rápido y pon notas si lo quieres <b>bien doradito</b>.
         </div>
-
       </div>
     </section>
 
     <!-- CARRITO -->
     <aside class="card">
-      <h2>Tu pedido</h2>
-      <div class="content">
+      <h2>
+        Tu pedido
+        <button class="btnGhost" id="btnCambioServicio" title="Cambiar servicio">Servicio: <span id="servTxt">—</span> ✎</button>
+      </h2>
 
-        <label>Canal</label>
-        <select id="canal">
+      <div class="content">
+        <!-- (Se mantiene oculto: lo controlamos por el paso 0) -->
+        <select id="canal" style="display:none">
           <option value="aqui">Comer aquí</option>
           <option value="recoger">Pasar a recoger</option>
           <option value="domicilio">Envío a domicilio</option>
@@ -572,7 +571,7 @@
         </div>
 
         <div class="note">
-          Cuando le des <b>CONTINUAR</b> te saldrá el checkout por pasos (como Plick).
+          Al dar <b>CONTINUAR</b> te sale el checkout por pasos y al final se abre WhatsApp listo para enviar.
         </div>
 
         <div class="stickyBar">
@@ -581,57 +580,56 @@
             <span class="amount" id="barTotal">$0.00</span>
           </div>
           <div style="display:flex; gap:8px; align-items:center">
-            <button class="btnGhost" id="btnClear">Vaciar</button>
+            <button class="btnClear" id="btnClear">Vaciar</button>
             <button class="stickyBtn" id="btnCheckout">CONTINUAR</button>
           </div>
         </div>
-
       </div>
     </aside>
-
   </div>
 </div>
 
 <!-- MODAL MODIFICADORES -->
-<div class="backdrop" id="backdrop">
-  <div class="modal">
+<div class="backdrop" id="backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
     <div class="modalHead">
       <div>
         <h3 id="mTitle">Producto</h3>
         <div class="muted" id="mSub" style="font-size:12px;font-weight:900">Configura como lo quieres</div>
       </div>
-      <button class="closeX" id="mClose">✕</button>
+      <button class="closeX" id="mClose" type="button">✕</button>
     </div>
 
     <div class="content" id="mBody"></div>
 
     <div class="footerBtns">
-      <button class="btnLight" id="mCancel">Cancelar</button>
-      <button class="btnDark" id="mAdd">Agregar al carrito</button>
+      <button class="btnLight" id="mCancel" type="button">Cancelar</button>
+      <button class="btnDark" id="mAdd" type="button">Agregar al carrito</button>
     </div>
   </div>
 </div>
 
 <!-- CHECKOUT POR PASOS -->
-<div class="stepsBackdrop" id="stepsBackdrop">
-  <div class="steps">
+<div class="stepsBackdrop" id="stepsBackdrop" aria-hidden="true">
+  <div class="steps" role="dialog" aria-modal="true">
     <div class="stepsHead">
       <div class="t">
-        <b id="stepTitle">Paso 1 de 3</b>
-        <span id="stepSub">Datos personales</span>
+        <b id="stepTitle">Paso</b>
+        <span id="stepSub">—</span>
       </div>
-      <button class="closeX" id="stepsClose">✕</button>
+      <button class="closeX" id="stepsClose" type="button">✕</button>
     </div>
 
     <div class="stepsBody" id="stepsBody"></div>
 
     <div class="stepsFoot">
-      <button class="btnLight" id="btnBack">Regresar</button>
-      <button class="btnDark" id="btnNext">Continuar</button>
+      <button class="btnLight" id="btnBack" type="button">Regresar</button>
+      <button class="btnDark" id="btnNext" type="button">Continuar</button>
     </div>
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /** =========================
  *  CONFIG
@@ -639,107 +637,113 @@
 const TAQUERIA_NOMBRE = "Tacos Paisa Chema";
 const WHATSAPP_TAQ = "524621872594"; // 52 + número sin +
 
-/** Si tus imágenes están en carpeta /assets, pon:
- *  const IMG_BASE = "assets/";
- *  y deja los nombres iguales.
- */
+/** Coordenadas taquería (ajusta si quieres más exacto) */
+const TQ_LAT = 20.6767;
+const TQ_LNG = -101.3563;
+
+/** Base de imágenes */
 const IMG_BASE = "";
 
 /** =========================
- *  CATALOGO (con tus nombres exactos)
+ *  TARIFAS DOMICILIO (como en la otra página)
+ *  ✅ sin “con lluvia” en UI
+ *  ✅ sin “distancia estimada” en UI
+ *  ========================= */
+const TARIFAS = [
+  {from:0, to:3, normal:50, lluvia:65},
+  {from:3, to:4, normal:55, lluvia:75},
+  {from:4, to:5, normal:60, lluvia:85},
+  {from:5, to:6, normal:65, lluvia:95},
+  {from:6, to:7, normal:70, lluvia:105},
+  {from:7, to:8, normal:75, lluvia:115},
+  {from:8, to:9, normal:80, lluvia:125},
+  {from:9, to:10, normal:85, lluvia:135},
+];
+function getTarifa(km, lluvia=false){
+  const k = Number(km);
+  const row = TARIFAS.find(r => k >= r.from && k < r.to) || null;
+  if(!row) return {ok:false, precio:0, limiteKm: 10};
+  return {ok:true, precio: lluvia ? row.lluvia : row.normal};
+}
+let lluvia = false; // fijo
+
+/** =========================
+ *  CATALOGO
  *  ========================= */
 const catalogo = [
   // PROMOS
   {id:"promo_taco_refresco", cat:"PROMOS", name:"Miércoles de TACOMANÍA", price:18, desc:"Cada miércoles hay promo en tacos. Solo por hoy, pasa a echar unos.", mods:true, img:"promo_taco_refresco.png"},
   {id:"promo_2gringas", cat:"PROMOS", name:"Promo 2 Gringas", price:120, desc:"Para compartir bien a gusto.", mods:true, img:"promo_2gringas.png"},
-  {id:"combo_bebidas", cat:"PROMOS", name:"Combo bebidas", price:0, desc:"(Opcional) arma tu combo con bebida.", mods:false, img:"combo_bebidas.png"},
 
   // TACOS
-  {id:"taco_1", cat:"TACOS", name:"Taco", price:18, desc:"Tortilla de maíz o harina, elige la carne", mods:true, img:"taco_1.png"},
-  {id:"taco_doble", cat:"TACOS", name:"Taco doble", price:28, desc:"Doble tortilla para más tacos — elige la carne", mods:true, img:"taco_doble.png"},
-  {id:"orden_5_tacos", cat:"TACOS", name:"Orden 5 tacos", price:85, desc:"Ideal para no batallar", mods:true, img:"orden_5_tacos.png"},
-  // extras de imagen que tienes (opcionales para “galería”)
-  {id:"tacos_1", cat:"TACOS", name:"Tacos (foto 1)", price:0, desc:"(Solo referencia visual)", mods:false, img:"tacos_1.png"},
-  {id:"tacos_2", cat:"TACOS", name:"Tacos (foto 2)", price:0, desc:"(Solo referencia visual)", mods:false, img:"tacos_2.png"},
+  {id:"taco_1", cat:"TACOS", name:"Taco", price:18, desc:"Elige la carne.", mods:true, img:"taco_1.png"},
+  {id:"taco_doble", cat:"TACOS", name:"Taco doble", price:28, desc:"Doble tortilla (ya va incluido) — elige la carne.", mods:true, img:"taco_doble.png"},
+  {id:"orden_5_tacos", cat:"TACOS", name:"Orden 5 tacos", price:85, desc:"Ideal para no batallar.", mods:true, img:"orden_5_tacos.png"},
 
-  // GRINGAS (en tu ejemplo iban en “Quesos”, aquí va separado como me pediste)
-  {id:"quesadilla", cat:"GRINGAS", name:"Quesadilla", price:35, desc:"Tortilla de maíz, queso y carne a elegir", mods:true, img:"quesadilla.png"},
-  {id:"gringa", cat:"GRINGAS", name:"Gringa", price:70, desc:"Tortilla de harina, queso y carne a elegir", mods:true, img:"gringa.png"},
+  // GRINGAS
+  {id:"quesadilla", cat:"GRINGAS", name:"Quesadilla", price:35, desc:"Queso + carne a elegir.", mods:true, img:"quesadilla.png"},
+  {id:"gringa", cat:"GRINGAS", name:"Gringa", price:70, desc:"Harina + queso + carne a elegir.", mods:true, img:"gringa.png"},
 
   // VOLCANES
-  {id:"volcan", cat:"VOLCANES", name:"Volcán", price:45, desc:"Tostada + queso + carne a elegir", mods:true, img:"volcan.png"},
-  {id:"volcan_doble", cat:"VOLCANES", name:"Volcán doble", price:65, desc:"Tostada + doble queso", mods:true, img:"volcan_doble.png"},
+  {id:"volcan", cat:"VOLCANES", name:"Volcán", price:45, desc:"Tostada + queso + carne a elegir.", mods:true, img:"volcan.png"},
+  {id:"volcan_doble", cat:"VOLCANES", name:"Volcán doble", price:65, desc:"Tostada + doble queso + carne.", mods:true, img:"volcan_doble.png"},
 
   // TORTAS
-  {id:"torta", cat:"TORTAS", name:"Torta", price:75, desc:"Bolillo relleno con la carne de tu elección", mods:true, img:"torta.png"},
-  {id:"torta_especial", cat:"TORTAS", name:"Torta especial", price:89, desc:"Con queso y extras", mods:true, img:"torta_especial.png"},
+  {id:"torta", cat:"TORTAS", name:"Torta", price:75, desc:"Bolillo relleno con la carne de tu elección.", mods:true, img:"torta.png"},
+  {id:"torta_especial", cat:"TORTAS", name:"Torta especial", price:89, desc:"Con queso y extras.", mods:true, img:"torta_especial.png"},
 
   // BEBIDAS
-  {id:"coca_600ml", cat:"BEBIDAS", name:"Coca 600ml", price:25, desc:"Bien fría", mods:false, img:"coca_600ml.png"},
-  {id:"agua_fresca", cat:"BEBIDAS", name:"Agua fresca 1/2L", price:30, desc:"Del día", mods:false, img:"agua_fresca.png"},
+  {id:"coca_600ml", cat:"BEBIDAS", name:"Coca 600ml", price:25, desc:"Bien fría.", mods:false, img:"coca_600ml.png"},
+  {id:"agua_fresca", cat:"BEBIDAS", name:"Agua fresca 1/2L", price:30, desc:"Del día.", mods:false, img:"agua_fresca.png"},
 
   // EXTRAS
-  {id:"queso_extra", cat:"EXTRAS", name:"Queso extra", price:10, desc:"Agrégalo a tu pedido", mods:false, img:"queso_extra.png"},
-  {id:"aguacate_extra", cat:"EXTRAS", name:"Aguacate extra", price:10, desc:"Para que quede fino", mods:false, img:"aguacate_extra.png"},
-  {id:"cebollitas", cat:"EXTRAS", name:"Cebollitas", price:10, desc:"Doraditas", mods:false, img:"cebollitas.png"},
+  {id:"queso_extra", cat:"EXTRAS", name:"Queso extra", price:10, desc:"Agrégalo a tu pedido.", mods:false, img:"queso_extra.png"},
+  {id:"aguacate_extra", cat:"EXTRAS", name:"Aguacate extra", price:10, desc:"Para que quede fino.", mods:false, img:"aguacate_extra.png"},
+  {id:"cebollitas", cat:"EXTRAS", name:"Cebollitas", price:10, desc:"Doraditas.", mods:false, img:"cebollitas.png"},
 ];
-
 const CATS = ["PROMOS","TACOS","GRINGAS","VOLCANES","TORTAS","BEBIDAS","EXTRAS"];
 
 /** =========================
  *  MODIFICADORES
+ *  ✅ Quitamos: tipo de tortilla / bebida / salsa
  *  ========================= */
 const MODS = {
   carne: { title:"Carne", type:"single", required:true,
     options:["Pastor","Suadero","Bistec","Chorizo","Tripa","Campechano","Cabeza","Lengua"]
   },
-  tortilla: { title:"Tortilla", type:"single", required:true,
-    options:["Maíz","Harina"]
-  },
   conSin: { title:"Con todo / Sin…", type:"multi", required:false,
     options:["Con todo","Sin cebolla","Sin cilantro","Sin piña","Sin salsa"]
-  },
-  salsas: { title:"Salsas", type:"multi", required:false,
-    options:["Verde","Roja","Habanero","Guacamole","Tatemada"]
   }
 };
-
 function modsPara(item){
   if(!item.mods) return [];
-  // Bebidas/extras sin mods
   if(item.cat==="BEBIDAS" || item.cat==="EXTRAS") return [];
-  // Quesadilla/gringa/volcán/torta: carne + con/sin + salsas (tortilla solo en taco)
-  if(item.id==="taco_1" || item.id==="taco_doble" || item.id==="orden_5_tacos") return ["carne","tortilla","conSin","salsas"];
-  return ["carne","conSin","salsas"];
+  // Para todos los sólidos: carne + con/sin
+  return ["carne","conSin"];
 }
 
 /** =========================
  *  HELPERS
  *  ========================= */
-function money(n){
-  const v = Number(n || 0);
-  return "$" + v.toFixed(2);
-}
-function escapeHtml(s){
-  return (s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-}
+function money(n){ return "$" + Number(n||0).toFixed(2); }
+function escapeHtml(s){ return (s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
 function modsToText(mods){
   const parts = [];
   for(const k of Object.keys(mods||{})){
+    const g = MODS[k];
+    if(!g) continue;
     const val = mods[k];
-    if(Array.isArray(val) && val.length) parts.push(`${MODS[k].title}: ${val.join(", ")}`);
-    if(typeof val==="string" && val) parts.push(`${MODS[k].title}: ${val}`);
+    if(Array.isArray(val) && val.length) parts.push(`${g.title}: ${val.join(", ")}`);
+    if(typeof val==="string" && val) parts.push(`${g.title}: ${val}`);
   }
   return parts.join(" • ");
 }
-function buildKey(item, mods, note){
-  return item.id + "|" + JSON.stringify(mods) + "|" + (note||"");
-}
+function buildKey(item, mods, note){ return item.id + "|" + JSON.stringify(mods) + "|" + (note||""); }
 function validateRequired(item, mods){
   const keys = modsPara(item);
   for(const k of keys){
     const g = MODS[k];
-    if(!g.required) continue;
+    if(!g || !g.required) continue;
     const v = mods[k];
     if(g.type==="single" && !v) return `${g.title} es obligatorio.`;
     if(g.type==="multi" && (!v || !v.length)) return `${g.title} es obligatorio.`;
@@ -754,7 +758,6 @@ const tabs = document.getElementById("tabs");
 const itemsBox = document.getElementById("items");
 const sectionTitle = document.getElementById("sectionTitle");
 const q = document.getElementById("q");
-
 let activeCat = CATS[0];
 
 function renderTabs(){
@@ -763,22 +766,17 @@ function renderTabs(){
     const el = document.createElement("div");
     el.className = "tab" + (c===activeCat ? " active":"");
     el.textContent = c;
-    el.onclick = ()=>{ activeCat=c; renderTabs(); renderItems(); };
+    el.addEventListener("click", ()=>{ activeCat=c; renderTabs(); renderItems(); }, {passive:true});
     tabs.appendChild(el);
   });
 }
-
 function renderItems(){
   sectionTitle.textContent = activeCat;
-
   const term = (q.value||"").trim().toLowerCase();
   const list = catalogo.filter(x=>{
     const inCat = x.cat===activeCat;
     const inSearch = !term || (x.name.toLowerCase().includes(term) || (x.desc||"").toLowerCase().includes(term));
-    // Oculta items con price 0 si no quieres que aparezcan (como "tacos_1/tacos_2/ combo_bebidas")
-    // Si quieres verlos, comenta la siguiente línea:
-    const priceOk = x.price > 0;
-    return inCat && inSearch && priceOk;
+    return inCat && inSearch && x.price>0;
   });
 
   itemsBox.innerHTML = "";
@@ -792,13 +790,11 @@ function renderItems(){
         <div class="price">MXN <b>${money(it.price)}</b></div>
       </div>
       <div class="prodRight">
-        <div class="prodImg">
-          <img src="${IMG_BASE + it.img}" alt="${escapeHtml(it.name)}">
-        </div>
-        <button class="btnAdd" data-id="${it.id}">Agregar</button>
+        <div class="prodImg"><img src="${IMG_BASE + it.img}" alt="${escapeHtml(it.name)}"></div>
+        <button class="btnAdd" type="button">Agregar</button>
       </div>
     `;
-    card.querySelector("button").onclick = ()=> onAddClicked(it);
+    card.querySelector("button").addEventListener("click", ()=> onAddClicked(it), {passive:true});
     itemsBox.appendChild(card);
   });
 
@@ -806,22 +802,39 @@ function renderItems(){
     itemsBox.innerHTML = `<div class="muted" style="font-weight:900">No hay resultados.</div>`;
   }
 }
-
 q.addEventListener("input", renderItems);
 
 /** =========================
- *  CARRITO
+ *  CARRITO + SERVICIO
  *  ========================= */
 let cart = []; // {key, id, name, basePrice, qty, mods, note}
-
 const cartBox = document.getElementById("cart");
 const totalEl = document.getElementById("total");
 const cartPill = document.getElementById("cartPill");
 const pillTotal = document.getElementById("pillTotal");
 const barTotal = document.getElementById("barTotal");
+const canalEl = document.getElementById("canal");
+const servTxt = document.getElementById("servTxt");
+const btnCambioServicio = document.getElementById("btnCambioServicio");
 
 function cartCount(){ return cart.reduce((a,x)=>a + x.qty, 0); }
-function cartTotal(){ return cart.reduce((a,x)=>a + x.qty*(x.basePrice), 0); }
+function cartSubTotal(){ return cart.reduce((a,x)=>a + x.qty*(x.basePrice), 0); }
+
+let envioPrecio = 0;
+let envioKm = 0;
+
+function getCanal(){ return canalEl.value; }
+function cartTotal(){ return cartSubTotal() + (getCanal()==="domicilio" ? envioPrecio : 0); }
+
+function setCanal(v){
+  canalEl.value = v;
+  servTxt.textContent = (v==="domicilio") ? "Domicilio" : (v==="recoger" ? "Recoger" : "Comer aquí");
+  if(v!=="domicilio"){
+    envioPrecio = 0; envioKm = 0;
+    form.lat = null; form.lng = null;
+  }
+  renderCart();
+}
 
 function renderCart(){
   const count = cartCount();
@@ -834,6 +847,7 @@ function renderCart(){
     cartBox.innerHTML = `<div class="muted" style="font-weight:900">Aún no agregas nada 😄</div>`;
     return;
   }
+
   cartBox.innerHTML = "";
   cart.forEach((line, idx)=>{
     const wrap = document.createElement("div");
@@ -851,23 +865,23 @@ function renderCart(){
       </div>
       <div style="text-align:right">
         <div class="qtyRow">
-          <button class="mini" data-act="dec">−</button>
+          <button class="mini" type="button" data-act="dec">−</button>
           <div style="min-width:24px; text-align:center; font-weight:1000">${line.qty}</div>
-          <button class="mini" data-act="inc">+</button>
+          <button class="mini" type="button" data-act="inc">+</button>
         </div>
         <div style="margin-top:6px; font-weight:1000">${money(lineTotal)}</div>
-        <button class="mini" style="margin-top:8px;width:100%;height:34px;border-radius:12px;font-weight:1000">✕</button>
+        <button class="mini" type="button" style="margin-top:8px;width:100%;height:34px;border-radius:12px;font-weight:1000">✕</button>
       </div>
     `;
-    wrap.querySelector('[data-act="dec"]').onclick = ()=>{ line.qty=Math.max(1,line.qty-1); renderCart(); };
-    wrap.querySelector('[data-act="inc"]').onclick = ()=>{ line.qty+=1; renderCart(); };
-    wrap.querySelector('.mini:last-child').onclick = ()=>{ cart.splice(idx,1); renderCart(); };
+    wrap.querySelector('[data-act="dec"]').addEventListener("click", ()=>{ line.qty=Math.max(1,line.qty-1); renderCart(); }, {passive:true});
+    wrap.querySelector('[data-act="inc"]').addEventListener("click", ()=>{ line.qty+=1; renderCart(); }, {passive:true});
+    wrap.querySelector('.mini:last-child').addEventListener("click", ()=>{ cart.splice(idx,1); renderCart(); }, {passive:true});
     cartBox.appendChild(wrap);
   });
 }
 
 /** =========================
- *  MODAL MODS
+ *  MODAL MODS (compacto)
  *  ========================= */
 const backdrop = document.getElementById("backdrop");
 const mTitle = document.getElementById("mTitle");
@@ -898,13 +912,21 @@ function openModal(item){
       <div class="optList" data-k="${k}"></div>
     `;
     const list = box.querySelector(".optList");
+
     g.options.forEach(opt=>{
-      const o = document.createElement("div");
-      o.className = "opt";
-      o.textContent = opt;
-      o.onclick = ()=> toggleOpt(k, opt, o);
-      list.appendChild(o);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "optBtn";
+      btn.textContent = opt;
+
+      btn.addEventListener("pointerdown", (e)=>{
+        e.preventDefault(); e.stopPropagation();
+        toggleOpt(k, opt, btn);
+      }, {passive:false});
+
+      list.appendChild(btn);
     });
+
     mBody.appendChild(box);
   });
 
@@ -913,7 +935,7 @@ function openModal(item){
   n.innerHTML = `
     <div class="optTitle">
       <b>Nota (opcional)</b>
-      <span>ej. “bien doradito”, “sin grasa”, etc.</span>
+      <span>ej. “bien doradito”</span>
     </div>
     <div style="margin-top:10px">
       <input id="noteProd" placeholder="Escribe una nota para este producto..."/>
@@ -922,23 +944,26 @@ function openModal(item){
   mBody.appendChild(n);
 
   backdrop.style.display = "flex";
+  backdrop.setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
+
   setTimeout(()=> {
     const inp = document.getElementById("noteProd");
     if(inp) inp.oninput = ()=> draft.note = inp.value;
   }, 0);
 }
-
 function closeModal(){
   backdrop.style.display = "none";
+  backdrop.setAttribute("aria-hidden","true");
   currentItem = null;
   draft = null;
+  document.body.style.overflow = "";
 }
-
 function toggleOpt(k, opt, el){
   const g = MODS[k];
   if(g.type==="single"){
     draft.mods[k] = opt;
-    el.parentElement.querySelectorAll(".opt").forEach(x=>x.classList.remove("active"));
+    el.parentElement.querySelectorAll(".optBtn").forEach(x=>x.classList.remove("active"));
     el.classList.add("active");
   }else{
     draft.mods[k] = draft.mods[k] || [];
@@ -948,50 +973,35 @@ function toggleOpt(k, opt, el){
     else{ arr.push(opt); el.classList.add("active"); }
   }
 }
-
 function addLine(item, mods, note){
   const key = buildKey(item, mods, note);
   const existing = cart.find(x=>x.key===key);
   if(existing){ existing.qty += 1; }
-  else{
-    cart.push({
-      key,
-      id:item.id,
-      name:item.name,
-      basePrice:item.price,
-      qty:1,
-      mods: mods,
-      note: note || ""
-    });
-  }
+  else cart.push({ key, id:item.id, name:item.name, basePrice:item.price, qty:1, mods, note: note || "" });
   renderCart();
 }
-
 function onAddClicked(item){
-  if(item.mods && modsPara(item).length){
-    openModal(item);
-  }else{
-    addLine(item, {}, "");
-  }
+  if(item.mods && modsPara(item).length) openModal(item);
+  else addLine(item, {}, "");
 }
 
-mClose.onclick = closeModal;
-mCancel.onclick = closeModal;
-backdrop.addEventListener("click", (e)=>{ if(e.target===backdrop) closeModal(); });
-
-mAdd.onclick = ()=>{
+mClose.addEventListener("click", closeModal, {passive:true});
+mCancel.addEventListener("click", closeModal, {passive:true});
+backdrop.addEventListener("pointerdown", (e)=>{ if(e.target===backdrop){ e.preventDefault(); closeModal(); } }, {passive:false});
+mAdd.addEventListener("click", ()=>{
   if(!currentItem || !draft) return;
   const err = validateRequired(currentItem, draft.mods);
   if(err){ alert(err); return; }
   addLine(currentItem, draft.mods, draft.note);
   closeModal();
-};
+}, {passive:true});
 
 /** =========================
- *  CHECKOUT POR PASOS (Plick style)
+ *  CHECKOUT POR PASOS + MAPA (Leaflet)
+ *  ✅ paso 0 servicio
+ *  ✅ paso 2 mapa + toggle flechas detalles
+ *  ✅ fix “mapa en blanco” recreando mapa al reabrir
  *  ========================= */
-const canalEl = document.getElementById("canal");
-
 const stepsBackdrop = document.getElementById("stepsBackdrop");
 const stepsClose = document.getElementById("stepsClose");
 const stepsBody = document.getElementById("stepsBody");
@@ -1000,59 +1010,221 @@ const stepSub = document.getElementById("stepSub");
 const btnBack = document.getElementById("btnBack");
 const btnNext = document.getElementById("btnNext");
 
-let step = 1;
+let step = 0;
+let serviceChosen = false;
 
 const form = {
   nombre: "",
-  pais: "mx",
   tel: "",
-  // domicilio
   calle: "",
   noext: "",
-  noint: "",
   col: "",
   ciudad: "Irapuato",
   cp: "",
   estado: "Guanajuato",
-  paisTxt: "México",
   refs: "",
-  // pago
+  lat: null,
+  lng: null,
   metodo: "efectivo",
   pagareCon: "",
   notas: ""
 };
 
-function openSteps(){
-  step = 1;
+let showAddrDetails = true;
+let map = null, marker = null, mapReady = false;
+
+function openSteps(startAt){
+  step = (typeof startAt==="number") ? startAt : 1;
   stepsBackdrop.style.display = "flex";
+  stepsBackdrop.setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
   renderStep();
 }
-
 function closeSteps(){
   stepsBackdrop.style.display = "none";
+  stepsBackdrop.setAttribute("aria-hidden","true");
+  document.body.style.overflow = "";
+  destroyMap();
+}
+stepsClose.addEventListener("click", closeSteps, {passive:true});
+stepsBackdrop.addEventListener("pointerdown", (e)=>{ if(e.target===stepsBackdrop){ e.preventDefault(); closeSteps(); } }, {passive:false});
+
+btnCambioServicio.addEventListener("click", ()=> openSteps(0), {passive:true});
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+async function reverseGeocode(lat,lng){
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`;
+  const res = await fetch(url, { headers: { "Accept":"application/json" } });
+  if(!res.ok) throw new Error("No se pudo obtener dirección");
+  return res.json();
+}
+function pickAddrParts(addr){
+  const road = addr.road || addr.pedestrian || addr.footway || addr.path || "";
+  const house = addr.house_number || "";
+  const suburb = addr.suburb || addr.neighbourhood || addr.quarter || addr.residential || "";
+  const city = addr.city || addr.town || addr.village || addr.municipality || "";
+  const state = addr.state || "";
+  const postcode = addr.postcode || "";
+  return {road, house, suburb, city, state, postcode};
+}
+
+function destroyMap(){
+  try{
+    if(map){ map.off(); map.remove(); }
+  }catch(e){}
+  map = null; marker = null; mapReady = false;
+}
+function ensureMapInit(){
+  const el = document.getElementById("miniMap");
+  if(!el) return;
+
+  // ✅ Si ya existe, solo recalcula tamaño
+  if(mapReady){
+    setTimeout(()=> map && map.invalidateSize(true), 80);
+    return;
+  }
+
+  // ✅ IMPORTANTE: cuando rehacemos stepsBody, el div del mapa es nuevo -> recrear mapa
+  el.innerHTML = "";
+
+  const centerLat = (form.lat ?? TQ_LAT);
+  const centerLng = (form.lng ?? TQ_LNG);
+
+  map = L.map('miniMap', { zoomControl:true, attributionControl:false }).setView([centerLat, centerLng], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
+
+  marker = L.marker([centerLat, centerLng], { draggable:true }).addTo(map);
+
+  marker.on('dragend', async ()=>{
+    const p = marker.getLatLng();
+    await setDomFromLatLng(p.lat, p.lng, true);
+  });
+
+  map.on('click', async (e)=>{
+    marker.setLatLng(e.latlng);
+    await setDomFromLatLng(e.latlng.lat, e.latlng.lng, true);
+  });
+
+  setTimeout(()=> map.invalidateSize(true), 140);
+  mapReady = true;
+}
+async function setDomFromLatLng(lat,lng, recompute=true){
+  form.lat = lat; form.lng = lng;
+
+  try{
+    const data = await reverseGeocode(lat,lng);
+    const addr = data.address || {};
+    const parts = pickAddrParts(addr);
+
+    form.calle = (parts.road || form.calle || "");
+    if(parts.house) form.noext = parts.house;
+    form.col = (parts.suburb || form.col || "");
+    form.ciudad = (parts.city || form.ciudad || "Irapuato");
+    form.estado = (parts.state || form.estado || "Guanajuato");
+    form.cp = (parts.postcode || form.cp || "");
+
+    const f = (id,val)=>{ const el=document.getElementById(id); if(el) el.value = val || ""; };
+    f("s_calle", form.calle);
+    f("s_noext", form.noext);
+    f("s_col", form.col);
+    f("s_ciudad", form.ciudad);
+    f("s_estado", form.estado);
+    f("s_cp", form.cp);
+  }catch(err){}
+
+  if(recompute) await recomputeEnvio();
+}
+async function recomputeEnvio(){
+  if(getCanal()!=="domicilio"){
+    envioPrecio = 0; envioKm = 0;
+    renderCart();
+    const envioTxt = document.getElementById("envioTxt");
+    if(envioTxt) envioTxt.textContent = money(0);
+    return;
+  }
+  if(form.lat==null || form.lng==null){
+    envioPrecio = 0; envioKm = 0;
+    renderCart();
+    return;
+  }
+  envioKm = haversineKm(TQ_LAT, TQ_LNG, Number(form.lat), Number(form.lng));
+  envioKm = Math.round(envioKm*10)/10;
+
+  const r = getTarifa(envioKm, lluvia);
+  envioPrecio = r.ok ? r.precio : 0;
+
+  const envioTxt = document.getElementById("envioTxt");
+  if(envioTxt) envioTxt.textContent = r.ok ? money(envioPrecio) : `Fuera de rango (0–${r.limiteKm} km)`;
+
+  renderCart();
 }
 
 function renderStep(){
-  const canal = canalEl.value;
+  const canal = getCanal();
+  const subTotal = cartSubTotal();
   const total = cartTotal();
 
-  // Ajusta total label bar
+  // Paso 0: servicio (como la otra página)
+  if(step===0){
+    stepTitle.textContent = "Antes de empezar…";
+    stepSub.textContent = "¿Tu pedido es para domicilio, recoger o comer aquí?";
+    btnBack.style.display = "none";
+    btnNext.textContent = "LISTO";
+
+    stepsBody.innerHTML = `
+      <div class="note" style="margin-top:0">Selecciona una opción para continuar.</div>
+      <div class="optGroup" style="margin-top:12px">
+        <div class="optTitle"><b>Servicio</b><span>elige 1</span></div>
+        <div class="optList" id="canalOpts"></div>
+      </div>
+      <div class="note">
+        Si eliges <b>Domicilio</b>, te pediremos tu ubicación para calcular el envío.
+      </div>
+    `;
+
+    const opts = document.getElementById("canalOpts");
+    const opciones = [
+      {val:"aqui", label:"🍽️ Comer aquí"},
+      {val:"recoger", label:"🚶‍♂️ Pasar a recoger"},
+      {val:"domicilio", label:"🏠 Envío a domicilio"}
+    ];
+    opts.innerHTML = "";
+    opciones.forEach(o=>{
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "optBtn" + (canalEl.value===o.val ? " active":"");
+      b.textContent = o.label;
+
+      b.addEventListener("pointerdown", (e)=>{
+        e.preventDefault(); e.stopPropagation();
+        opts.querySelectorAll(".optBtn").forEach(x=>x.classList.remove("active"));
+        b.classList.add("active");
+        setCanal(o.val);
+      }, {passive:false});
+
+      opts.appendChild(b);
+    });
+    return;
+  }
+
+  // Paso 1: datos
   if(step===1){
     stepTitle.textContent = "Paso 1 de 3";
     stepSub.textContent = "Datos personales";
-  } else if(step===2){
-    stepTitle.textContent = "Paso 2 de 3";
-    stepSub.textContent = (canal==="domicilio") ? "Agregar dirección de entrega" : "Confirmación rápida";
-  } else {
-    stepTitle.textContent = "Paso 3 de 3";
-    stepSub.textContent = "Pago y enviar pedido";
-  }
+    btnBack.style.display = "none";
+    btnNext.textContent = "CONTINUAR";
 
-  btnBack.style.display = (step===1) ? "none" : "inline-block";
-  btnNext.textContent = (step===3) ? "ENVIAR PEDIDO" : "CONTINUAR";
-
-  // Body
-  if(step===1){
     stepsBody.innerHTML = `
       <div class="stepRow">
         <div>
@@ -1064,103 +1236,177 @@ function renderStep(){
           <input id="s_tel" value="${escapeHtml(form.tel)}" placeholder="Ej. 4621234567">
         </div>
       </div>
-
       <div class="note">
-        Canal: <b>${canal==="aqui"?"Comer aquí":(canal==="recoger"?"Pasar a recoger":"Envío a domicilio")}</b><br>
-        Total actual: <b>${money(total)}</b>
+        Servicio: <b>${canal==="domicilio"?"Domicilio":(canal==="recoger"?"Recoger":"Comer aquí")}</b><br>
+        Subtotal: <b>${money(subTotal)}</b>
       </div>
     `;
     setTimeout(()=>{
-      document.getElementById("s_nombre").oninput = e=> form.nombre = e.target.value;
-      document.getElementById("s_tel").oninput = e=> form.tel = e.target.value;
+      const a = document.getElementById("s_nombre");
+      const b = document.getElementById("s_tel");
+      if(a) a.oninput = e=> form.nombre = e.target.value;
+      if(b) b.oninput = e=> form.tel = e.target.value;
     },0);
     return;
   }
 
+  // Paso 2: mapa (solo domicilio)
   if(step===2){
+    btnBack.style.display = "inline-block";
+    btnNext.textContent = "CONTINUAR";
+    stepTitle.textContent = "Paso 2 de 3";
+
     if(canal!=="domicilio"){
+      stepSub.textContent = "Confirmación rápida";
       stepsBody.innerHTML = `
-        <div class="note">
-          Como tu canal no es domicilio, este paso solo confirma y brinca al pago.
+        <div class="note" style="margin-top:0">
+          Como tu servicio no es domicilio, este paso se omite. Continuamos al pago.
+        </div>
+        <div class="kpiRow">
+          <div class="kpi"><b>Subtotal</b><span>${money(subTotal)}</span></div>
+          <div class="kpi"><b>Total</b><span>${money(total)}</span></div>
         </div>
       `;
       return;
     }
 
+    stepSub.textContent = "Elige tu ubicación";
     stepsBody.innerHTML = `
-      <div class="stepRow">
-        <div>
-          <label>* Calle</label>
-          <input id="s_calle" value="${escapeHtml(form.calle)}" placeholder="Ej. Calle Unión">
-        </div>
-        <div class="stepRow" style="grid-template-columns:1fr 1fr; gap:10px">
-          <div>
-            <label>* No. Exterior</label>
-            <input id="s_noext" value="${escapeHtml(form.noext)}" placeholder="Ej. 678">
+      <div class="note" style="margin-top:0">Toca el mapa para poner tu pin o arrástralo. Con eso calculamos el envío.</div>
+
+      <div class="mapWrap"><div id="miniMap"></div></div>
+
+      <div class="mapBar">
+        <button class="btnLight" type="button" id="btnMiUbicacion">📍 Usar mi ubicación</button>
+        <button class="btnLight" type="button" id="btnCentrarTq">🏁 Centrar en taquería</button>
+      </div>
+
+      <div class="kpiRow">
+        <div class="kpi"><b>Envío</b><span id="envioTxt">${money(envioPrecio)}</span></div>
+        <div class="kpi"><b>Total (estimado)</b><span>${money(total)}</span></div>
+      </div>
+
+      <button class="detailsToggle" id="btnAddrToggle" type="button" aria-expanded="${showAddrDetails ? "true":"false"}">
+        <span>Detalles de la dirección</span>
+        <span class="arrow" id="addrArrow">${showAddrDetails ? "▲" : "▼"}</span>
+      </button>
+
+      <div class="detailsWrap ${showAddrDetails ? "show":""}" id="addrDetails">
+        <div class="optGroup" style="margin-top:10px">
+          <div class="optTitle"><b>Domicilio</b><span>puedes corregirlo</span></div>
+
+          <div class="stepRow" style="margin-top:10px">
+            <div><label>* Calle</label><input id="s_calle" value="${escapeHtml(form.calle)}" placeholder="Ej. Calle Unión"></div>
+            <div><label>* No. Exterior</label><input id="s_noext" value="${escapeHtml(form.noext)}" placeholder="Ej. 678"></div>
           </div>
-          <div>
-            <label>No. Interior</label>
-            <input id="s_noint" value="${escapeHtml(form.noint)}" placeholder="Departamento, casa...">
+
+          <div class="stepRow">
+            <div><label>* Colonia</label><input id="s_col" value="${escapeHtml(form.col)}" placeholder="Ej. Barrio de la Calzada"></div>
+            <div><label>* CP</label><input id="s_cp" value="${escapeHtml(form.cp)}" placeholder="Ej. 36580"></div>
           </div>
-        </div>
-      </div>
 
-      <div class="stepRow">
-        <div>
-          <label>* Colonia</label>
-          <input id="s_col" value="${escapeHtml(form.col)}" placeholder="Ej. Barrio de la Calzada de Guadalupe">
-        </div>
-        <div>
-          <label>* CP</label>
-          <input id="s_cp" value="${escapeHtml(form.cp)}" placeholder="Ej. 36580">
-        </div>
-      </div>
+          <div class="stepRow">
+            <div><label>* Ciudad</label><input id="s_ciudad" value="${escapeHtml(form.ciudad)}"></div>
+            <div><label>* Estado</label><input id="s_estado" value="${escapeHtml(form.estado)}"></div>
+          </div>
 
-      <div class="stepRow">
-        <div>
-          <label>* Ciudad</label>
-          <input id="s_ciudad" value="${escapeHtml(form.ciudad)}">
+          <label>* Referencias</label>
+          <textarea id="s_refs" placeholder="Entre calles, color de la casa, etc.">${escapeHtml(form.refs)}</textarea>
         </div>
-        <div>
-          <label>* Estado</label>
-          <input id="s_estado" value="${escapeHtml(form.estado)}">
-        </div>
-      </div>
-
-      <label>* Referencias</label>
-      <textarea id="s_refs" placeholder="Entre calles, color de la casa, etc.">${escapeHtml(form.refs)}</textarea>
-
-      <div class="note">
-        (Mapa tipo Plick lo podemos agregar después con Google Maps/Leaflet, pero este paso ya queda igual en flujo.)
       </div>
     `;
 
-    setTimeout(()=>{
-      document.getElementById("s_calle").oninput  = e=> form.calle = e.target.value;
-      document.getElementById("s_noext").oninput  = e=> form.noext = e.target.value;
-      document.getElementById("s_noint").oninput  = e=> form.noint = e.target.value;
-      document.getElementById("s_col").oninput    = e=> form.col = e.target.value;
-      document.getElementById("s_cp").oninput     = e=> form.cp = e.target.value;
-      document.getElementById("s_ciudad").oninput = e=> form.ciudad = e.target.value;
-      document.getElementById("s_estado").oninput = e=> form.estado = e.target.value;
-      document.getElementById("s_refs").oninput   = e=> form.refs = e.target.value;
-    },0);
+    setTimeout(async ()=>{
+      // ✅ FIX mapa blanco: destruir + recrear cada vez que se renderiza este paso
+      destroyMap();
+      ensureMapInit();
+
+      const link = (id, key)=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener("input", ()=> form[key] = el.value);
+      };
+      link("s_calle","calle");
+      link("s_noext","noext");
+      link("s_col","col");
+      link("s_cp","cp");
+      link("s_ciudad","ciudad");
+      link("s_estado","estado");
+      link("s_refs","refs");
+
+      const btnToggle = document.getElementById("btnAddrToggle");
+      const wrap = document.getElementById("addrDetails");
+      const arrow = document.getElementById("addrArrow");
+      if(btnToggle && wrap && arrow){
+        btnToggle.addEventListener("click", ()=>{
+          showAddrDetails = !showAddrDetails;
+          wrap.classList.toggle("show", showAddrDetails);
+          arrow.textContent = showAddrDetails ? "▲" : "▼";
+          btnToggle.setAttribute("aria-expanded", showAddrDetails ? "true":"false");
+          setTimeout(()=> map && map.invalidateSize(true), 120);
+        }, {passive:true});
+      }
+
+      const btnMi = document.getElementById("btnMiUbicacion");
+      if(btnMi){
+        btnMi.addEventListener("click", ()=>{
+          if(!navigator.geolocation){ alert("Tu navegador no soporta ubicación."); return; }
+          navigator.geolocation.getCurrentPosition(async (pos)=>{
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            marker.setLatLng([lat,lng]);
+            map.setView([lat,lng], 16, {animate:true});
+            await setDomFromLatLng(lat,lng,true);
+          }, ()=> alert("No se pudo obtener tu ubicación. Revisa permisos."),
+          { enableHighAccuracy:true, timeout:12000, maximumAge:0 });
+        }, {passive:true});
+      }
+
+      const btnC = document.getElementById("btnCentrarTq");
+      if(btnC){
+        btnC.addEventListener("click", ()=>{
+          marker.setLatLng([TQ_LAT,TQ_LNG]);
+          map.setView([TQ_LAT,TQ_LNG], 14, {animate:true});
+        }, {passive:true});
+      }
+
+      if(form.lat==null || form.lng==null){
+        marker.setLatLng([TQ_LAT,TQ_LNG]);
+        map.setView([TQ_LAT,TQ_LNG], 14);
+        await recomputeEnvio();
+      }else{
+        marker.setLatLng([form.lat, form.lng]);
+        map.setView([form.lat, form.lng], 16);
+        await recomputeEnvio();
+      }
+
+      setTimeout(()=> map && map.invalidateSize(true), 160);
+    }, 0);
+
     return;
   }
 
-  // step 3
-  stepsBody.innerHTML = `
-    <div class="stepRow">
-      <div>
-        <label>Propina (opcional)</label>
-        <div style="display:flex; flex-wrap:wrap; gap:8px">
-          ${[0,5,10,15,20,30,40,50].map(p=>`
-            <button class="btnLight" style="padding:10px 12px; border-radius:12px; font-weight:1000" data-tip="${p}">${p}%</button>
-          `).join("")}
-        </div>
-        <div class="muted" style="margin-top:8px;font-weight:900">*Solo visual por ahora (si quieres, la calculamos y sumamos).</div>
-      </div>
+  // Paso 3: pago + enviar
+  btnBack.style.display = "inline-block";
+  btnNext.textContent = "ENVIAR PEDIDO";
+  stepTitle.textContent = "Paso 3 de 3";
+  stepSub.textContent = "Pago y enviar pedido";
 
+  const envioLine = (canal==="domicilio") ? `
+    <div class="kpiRow">
+      <div class="kpi"><b>Subtotal</b><span>${money(subTotal)}</span></div>
+      <div class="kpi"><b>Envío</b><span>${money(envioPrecio)}</span></div>
+    </div>
+  ` : `
+    <div class="kpiRow">
+      <div class="kpi"><b>Subtotal</b><span>${money(subTotal)}</span></div>
+      <div class="kpi"><b>Total</b><span>${money(total)}</span></div>
+    </div>
+  `;
+
+  stepsBody.innerHTML = `
+    ${envioLine}
+    <div class="stepRow" style="margin-top:10px">
       <div>
         <label>Método de pago</label>
         <select id="s_metodo">
@@ -1168,70 +1414,69 @@ function renderStep(){
         </select>
 
         <label>Si pagas en efectivo: ¿Pagarás con cuánto?</label>
-        <input id="s_pagare" value="${escapeHtml(form.pagareCon)}" placeholder="Ej. 1000">
+        <input id="s_pagare" value="${escapeHtml(form.pagareCon)}" placeholder="Ej. 500">
+      </div>
+      <div>
+        <div class="note">
+          Total a pagar: <b>${money(total)}</b><br>
+          Al enviar, se abrirá WhatsApp con el mensaje listo.
+        </div>
       </div>
     </div>
 
     <label>Notas / Indicaciones</label>
-    <textarea id="s_notas" placeholder="Ej. Por favor que no llegue fría la comida">${escapeHtml(form.notas)}</textarea>
-
-    <div class="note">
-      Total a pagar: <b>${money(total)}</b><br>
-      Al enviar, se abrirá WhatsApp con el mensaje listo para mandar.
-    </div>
+    <textarea id="s_notas" placeholder="Ej. bien dorado / para llevar">${escapeHtml(form.notas)}</textarea>
   `;
 
   setTimeout(()=>{
-    document.getElementById("s_metodo").onchange = e=> form.metodo = e.target.value;
-    document.getElementById("s_pagare").oninput  = e=> form.pagareCon = e.target.value;
-    document.getElementById("s_notas").oninput   = e=> form.notas = e.target.value;
-
-    // tip buttons (solo UI)
-    stepsBody.querySelectorAll("[data-tip]").forEach(btn=>{
-      btn.onclick = ()=>{
-        stepsBody.querySelectorAll("[data-tip]").forEach(b=>b.style.boxShadow="none");
-        btn.style.boxShadow = "0 0 0 3px rgba(201,138,30,.22)";
-      };
-    });
+    const m = document.getElementById("s_metodo");
+    const p = document.getElementById("s_pagare");
+    const n = document.getElementById("s_notas");
+    if(m) m.onchange = e=> form.metodo = e.target.value;
+    if(p) p.oninput  = e=> form.pagareCon = e.target.value;
+    if(n) n.oninput  = e=> form.notas = e.target.value;
   },0);
 }
 
 function stepValidate(){
-  const canal = canalEl.value;
+  const canal = getCanal();
 
+  if(step===0){
+    if(!["aqui","recoger","domicilio"].includes(canal)) return "Elige el servicio.";
+  }
   if(step===1){
     if(!form.nombre.trim()) return "Pon tu nombre.";
     if(!form.tel.trim()) return "Pon tu celular.";
   }
-
   if(step===2 && canal==="domicilio"){
+    if(form.lat==null || form.lng==null) return "Elige tu ubicación en el mapa (o usa “mi ubicación”).";
     if(!form.calle.trim()) return "Falta la calle.";
     if(!form.noext.trim()) return "Falta el número exterior.";
     if(!form.col.trim()) return "Falta la colonia.";
     if(!form.cp.trim()) return "Falta el CP.";
     if(!form.refs.trim()) return "Faltan referencias.";
+    const r = getTarifa(envioKm, lluvia);
+    if(!r.ok) return "Tu domicilio está fuera del rango de envío (0–10 km).";
   }
-
   if(step===3){
-    // si efectivo y puso pagaré con, ok. Si lo deja vacío no pasa nada.
     const p = form.pagareCon.trim();
-    if(p && isNaN(Number(p))) return "En 'Pagaré con' pon solo número (ej. 1000).";
+    if(p && isNaN(Number(p))) return "En 'Pagaré con' pon solo número (ej. 500).";
   }
-
   return null;
 }
+
 function cleanWA(text){
   return (text || "")
-    .replace(/\uFFFD/g, "")     // quita �
-    .replace(/\r\n/g, "\n")     // normaliza saltos
-    .replace(/\n{3,}/g, "\n\n") // evita muchos saltos
+    .replace(/\uFFFD/g, "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
 function buildWhatsAppText(){
-  const canal = canalEl.value;
+  const canal = getCanal();
   const canalTxt = canal==="aqui" ? "Comer aquí" : (canal==="recoger" ? "Pasar a recoger" : "Domicilio");
-
+  const sub = cartSubTotal();
   const total = cartTotal();
   const orderNo = String(Date.now()).slice(-6);
 
@@ -1240,44 +1485,44 @@ function buildWhatsAppText(){
   lines.push(`Hola, mi nombre es *${form.nombre}*, este es mi pedido:`);
   lines.push(``);
   lines.push(`Número de pedido: *${orderNo}*`);
-  lines.push(`Canal: *${canalTxt}*`);
-  lines.push(`Número de contacto: *+52${form.tel.replace(/\D/g,"")}*`);
+  lines.push(`Servicio: *${canalTxt}*`);
+  lines.push(`Contacto: *+52${form.tel.replace(/\D/g,"")}*`);
 
   if(canal==="domicilio"){
-    // ✅ aquí antes tenías "\\n" — ahora son "\n"
     const dir = [
-      `Calle: ${form.calle} ${form.noext}${form.noint?(" Int. "+form.noint):""}`,
+      `Calle: ${form.calle} ${form.noext}`,
       `Colonia: ${form.col}`,
       `Ciudad: ${form.ciudad}`,
       `CP: ${form.cp}`,
       `Estado: ${form.estado}`,
-      `Referencias: ${form.refs}`
+      `Referencias: ${form.refs}`,
+      `Ubicación: ${Number(form.lat).toFixed(5)}, ${Number(form.lng).toFixed(5)}`
     ].join("\n");
 
     lines.push(``);
     lines.push(`Domicilio para la entrega:`);
     lines.push(dir);
+    lines.push(``);
+    lines.push(`Envío: *${money(envioPrecio)}*`);
   }
 
   lines.push(``);
   lines.push(`--------------------------`);
-
   cart.forEach(x=>{
     lines.push(`- ${x.qty} x ${x.name} (${money(x.basePrice)})`);
     const mt = modsToText(x.mods);
     if(mt) lines.push(`  • ${mt}`);
     if(x.note) lines.push(`  • Nota: ${x.note}`);
   });
-
   lines.push(`--------------------------`);
-  lines.push(`SubTotal: ${money(total)}`);
-  lines.push(`Envío: $0.00`);
+  lines.push(`Subtotal: ${money(sub)}`);
+  if(canal==="domicilio") lines.push(`Envío: ${money(envioPrecio)}`);
   lines.push(`Total: *${money(total)}*`);
 
   if(form.metodo==="efectivo"){
     lines.push(``);
     if(form.pagareCon.trim()){
-      lines.push(`Pagaré con: *$${Number(form.pagareCon).toFixed(2)}* en Efectivo`);
+      lines.push(`Pagaré con: *$${Number(form.pagareCon).toFixed(2)}* en efectivo`);
     }else{
       lines.push(`Método de pago: *Efectivo*`);
     }
@@ -1289,27 +1534,37 @@ function buildWhatsAppText(){
   }
 
   lines.push(``);
-  lines.push(`${form.nombre}, tu pedido se está preparando con amor. 🧡👨‍🍳`);
-  lines.push(`#plick`);
-
-  return lines.join("\n"); // ✅ salto real
+  lines.push(`${form.nombre}, tu pedido queda listo 🌮`);
+  return lines.join("\n");
 }
 
-
-document.getElementById("btnCheckout").onclick = ()=>{
+/** =========================
+ *  BOTONES PRINCIPALES
+ *  ========================= */
+document.getElementById("btnCheckout").addEventListener("click", ()=>{
   if(cart.length===0){ alert("Agrega algo al carrito primero 😄"); return; }
-  openSteps();
-};
+  if(!serviceChosen){ openSteps(0); return; }
+  openSteps(1);
+}, {passive:true});
 
-btnBack.onclick = ()=>{
-  if(step>1){ step--; renderStep(); }
-};
+document.getElementById("btnClear").addEventListener("click", ()=>{
+  if(confirm("¿Vaciar carrito?")){ cart = []; renderCart(); }
+}, {passive:true});
 
-btnNext.onclick = ()=>{
+document.getElementById("btnBack").addEventListener("click", ()=>{
+  if(step>0){ step--; renderStep(); }
+}, {passive:true});
+
+document.getElementById("btnNext").addEventListener("click", async ()=>{
   const err = stepValidate();
   if(err){ alert(err); return; }
 
-  const canal = canalEl.value;
+  if(step===0){
+    serviceChosen = true;
+    closeSteps();
+    renderCart();
+    return;
+  }
 
   if(step===1){
     step = 2;
@@ -1318,31 +1573,21 @@ btnNext.onclick = ()=>{
   }
 
   if(step===2){
-    // si no es domicilio, brinca al pago
+    if(getCanal()==="domicilio"){
+      await recomputeEnvio();
+      const r = getTarifa(envioKm, lluvia);
+      if(!r.ok){ alert("Tu domicilio está fuera del rango de envío (0–10 km)."); return; }
+    }
     step = 3;
     renderStep();
     return;
   }
 
-  // step 3: enviar
   const text = cleanWA(buildWhatsAppText());
   const url = `https://wa.me/${WHATSAPP_TAQ}?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank");
   closeSteps();
-};
-
-stepsClose.onclick = closeSteps;
-stepsBackdrop.addEventListener("click", (e)=>{ if(e.target===stepsBackdrop) closeSteps(); });
-
-/** =========================
- *  Vaciar
- *  ========================= */
-document.getElementById("btnClear").onclick = ()=>{
-  if(confirm("¿Vaciar carrito?")){
-    cart = [];
-    renderCart();
-  }
-};
+}, {passive:true});
 
 /** =========================
  *  INIT
@@ -1350,6 +1595,12 @@ document.getElementById("btnClear").onclick = ()=>{
 renderTabs();
 renderItems();
 renderCart();
+
+window.addEventListener("load", ()=>{
+  setCanal("recoger");     // default
+  serviceChosen = false;   // obliga elegir la primera vez
+  openSteps(0);            // abre selector servicio
+}, {passive:true});
 </script>
 
 </body>
