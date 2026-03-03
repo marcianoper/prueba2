@@ -187,7 +187,19 @@
       background: rgba(255,255,255,.35);
       min-width:0;
     }
-    .prodName{font-weight:1000; font-size: 22px; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+    /* ✅ CAMBIO: ahora el nombre NO se corta con "..." */
+    .prodName{
+      font-weight:1000;
+      font-size: 22px;
+      margin:0;
+      white-space: normal;     /* permite varias líneas */
+      overflow: visible;       /* no recorta */
+      text-overflow: clip;     /* quita los ... */
+      line-height:1.15;
+      word-break: break-word;  /* parte palabras largas */
+    }
+
     .prodDesc{margin:0; color: var(--muted); font-weight:700; line-height:1.25; font-size:13px;}
     .price{margin-top:auto; font-weight:1000; color: var(--green); font-size: 16px;}
     .price b{display:block; font-size: 34px; letter-spacing:.3px;}
@@ -673,7 +685,6 @@ const CATS = ["TACOS","QUESADILLAS","CHAROLAS"];
 
 /** =========================
  *  MODIFICADORES
- *  (los usamos solo como “con/sin” + nota para combinados)
  *  ========================= */
 const MODS = {
   conSin: { title:"Con todo / Sin…", type:"multi", required:false,
