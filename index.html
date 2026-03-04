@@ -188,21 +188,25 @@
       min-width:0;
     }
 
-    /* ✅ CAMBIO: ahora el nombre NO se corta con "..." */
     .prodName{
       font-weight:1000;
       font-size: 22px;
       margin:0;
-      white-space: normal;     /* permite varias líneas */
-      overflow: visible;       /* no recorta */
-      text-overflow: clip;     /* quita los ... */
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
       line-height:1.15;
-      word-break: break-word;  /* parte palabras largas */
+      word-break: break-word;
     }
 
     .prodDesc{margin:0; color: var(--muted); font-weight:700; line-height:1.25; font-size:13px;}
+
     .price{margin-top:auto; font-weight:1000; color: var(--green); font-size: 16px;}
     .price b{display:block; font-size: 34px; letter-spacing:.3px;}
+
+    /* 👇 cuando no hay precio */
+    .price.na{ color: rgba(110,86,70,.95); }
+    .price.na b{ font-size: 20px; letter-spacing: 0; }
 
     .prodRight{
       position:relative;
@@ -235,6 +239,15 @@
     }
     .btnAdd:active,.stickyBtn:active{transform: translateY(1px)}
     .btnAdd:focus,.stickyBtn:focus{outline: 3px solid rgba(201,138,30,.28)}
+
+    /* 👇 deshabilitado cuando no hay precio */
+    .btnAdd:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      filter: grayscale(.2);
+      transform:none !important;
+      box-shadow:none;
+    }
 
     .btnGhost{
       border:1px solid rgba(255,255,255,.18);
@@ -680,8 +693,33 @@ const catalogo = [
   // CHAROLAS
   {id:"charola_combinada", cat:"CHAROLAS", name:"Charola Combinada", price:100, desc:"Pon en nota qué combinación quieres.", mods:true, img:"charolagdp.png"},
   {id:"charola_alambre",   cat:"CHAROLAS", name:"Charola de Alambre", price:90,  desc:"Alambre para compartir.", mods:false, img:"charolagdp.png"},
+
+  // ✅ VOLCANES
+  {id:"volcan_tripa",   cat:"VOLCANES", name:"Volcán de Tripa",   price:90, desc:"Volcán bien servido.", mods:true,  img:"volcan_gdp.png"},
+  {id:"volcan_pastor",  cat:"VOLCANES", name:"Volcán de Pastor",  price:85, desc:"Volcán de pastor.",    mods:true,  img:"volcan_gdp.png"},
+  {id:"volcan_bistec",  cat:"VOLCANES", name:"Volcán de Bistec",  price:85, desc:"Volcán de bistec.",    mods:true,  img:"volcan_gdp.png"},
+  {id:"volcan_chorizo", cat:"VOLCANES", name:"Volcán de Chorizo", price:85, desc:"Volcán de chorizo.",   mods:true,  img:"volcan_gdp.png"},
+  {id:"volcan_higado",  cat:"VOLCANES", name:"Volcán de Hígado",  price:85, desc:"Volcán de hígado.",    mods:true,  img:"volcan_gdp.png"},
+
+  // ✅ BEBIDAS
+  {id:"beb_coca_light",  cat:"BEBIDAS", name:"Coca Light",        price:35,  desc:"", mods:false, img:"bebidas_gdp.png"},
+  {id:"beb_coca",        cat:"BEBIDAS", name:"Coca",              price:null,desc:"Precio pendiente", mods:false, img:"bebidas_gdp.png"},
+  {id:"beb_fresca",      cat:"BEBIDAS", name:"Fresca",            price:null,desc:"Precio pendiente", mods:false, img:"bebidas_gdp.png"},
+  {id:"beb_sprite",      cat:"BEBIDAS", name:"Sprite",            price:null,desc:"Precio pendiente", mods:false, img:"bebidas_gdp.png"},
+  {id:"beb_agua_fresca", cat:"BEBIDAS", name:"Agua fresca",       price:30,  desc:"Vaso", mods:false, img:"bebidas_gdp.png"},
+  {id:"beb_agua_lt",     cat:"BEBIDAS", name:"Agua fresca 1 Lt",  price:60,  desc:"1 litro", mods:false, img:"bebidas_gdp.png"},
+
+  // ✅ POSTRES
+  {id:"pos_pay_queso",   cat:"POSTRES", name:"Pay de queso",                 price:60,  desc:"", mods:false, img:"postres_gdp.png"},
+  {id:"pos_gel_rompope", cat:"POSTRES", name:"Gelatina de vainilla con rompope", price:null, desc:"Precio pendiente", mods:false, img:"postres_gdp.png"},
+  {id:"pos_arroz",       cat:"POSTRES", name:"Arroz con leche",              price:null, desc:"Precio pendiente", mods:false, img:"postres_gdp.png"},
+  {id:"pos_flan",        cat:"POSTRES", name:"Flan",                         price:null, desc:"Precio pendiente", mods:false, img:"postres_gdp.png"},
+  {id:"pos_gel_fresa",   cat:"POSTRES", name:"Gelatina de fresa con yoghurt",price:null, desc:"Precio pendiente", mods:false, img:"postres_gdp.png"},
+  {id:"pos_napolitano",  cat:"POSTRES", name:"Napolitano",                   price:null, desc:"Precio pendiente", mods:false, img:"postres_gdp.png"},
 ];
-const CATS = ["TACOS","QUESADILLAS","CHAROLAS"];
+
+/* ✅ CATEGORÍAS */
+const CATS = ["TACOS","QUESADILLAS","CHAROLAS","VOLCANES","BEBIDAS","POSTRES"];
 
 /** =========================
  *  MODIFICADORES
@@ -724,6 +762,9 @@ function validateRequired(item, mods){
   }
   return null;
 }
+function hasPrecio(it){
+  return Number.isFinite(it.price) && it.price > 0;
+}
 
 /** =========================
  *  UI MENU
@@ -750,25 +791,34 @@ function renderItems(){
   const list = catalogo.filter(x=>{
     const inCat = x.cat===activeCat;
     const inSearch = !term || (x.name.toLowerCase().includes(term) || (x.desc||"").toLowerCase().includes(term));
-    return inCat && inSearch && x.price>0;
+    return inCat && inSearch; // ✅ ya no filtramos por precio>0 (para mostrar “pendientes”)
   });
 
   itemsBox.innerHTML = "";
   list.forEach(it=>{
+    const ok = hasPrecio(it);
+
+    const priceHtml = ok
+      ? `<div class="price">MXN <b>${money(it.price)}</b></div>`
+      : `<div class="price na">Precio <b>—</b></div>`;
+
     const card = document.createElement("div");
     card.className = "prod";
     card.innerHTML = `
       <div class="prodLeft">
         <h3 class="prodName">${escapeHtml(it.name)}</h3>
         <p class="prodDesc">${escapeHtml(it.desc || "")}</p>
-        <div class="price">MXN <b>${money(it.price)}</b></div>
+        ${priceHtml}
       </div>
       <div class="prodRight">
         <div class="prodImg"><img src="${IMG_BASE + it.img}" alt="${escapeHtml(it.name)}"></div>
-        <button class="btnAdd" type="button">Agregar</button>
+        <button class="btnAdd" type="button" ${ok ? "" : "disabled"}>${ok ? "Agregar" : "Sin precio"}</button>
       </div>
     `;
-    card.querySelector("button").addEventListener("click", ()=> onAddClicked(it), {passive:true});
+    card.querySelector("button").addEventListener("click", ()=>{
+      if(!ok){ alert("Este producto aún no tiene precio cargado."); return; }
+      onAddClicked(it);
+    }, {passive:true});
     itemsBox.appendChild(card);
   });
 
@@ -955,6 +1005,7 @@ function addLine(item, mods, note){
   renderCart();
 }
 function onAddClicked(item){
+  if(!hasPrecio(item)){ alert("Este producto aún no tiene precio cargado."); return; }
   if(item.mods && modsPara(item).length) openModal(item);
   else addLine(item, {}, "");
 }
