@@ -72,13 +72,24 @@
       flex-wrap:wrap;
     }
     .logoBadge{
-      width:44px;height:44px;border-radius:14px;
-      background:linear-gradient(180deg, var(--brand), var(--brand2));
-      display:grid;place-items:center;
-      font-weight:1000;font-size:20px;
-      box-shadow:0 10px 24px rgba(255,0,0,.35);
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      background:#fff;
+      display:grid;
+      place-items:center;
+      box-shadow:0 10px 24px rgba(255,0,0,.25);
       flex:0 0 auto;
+      overflow:hidden;
+      padding:4px;
     }
+    .logoBadge img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+    }
+
     header h1{
       margin:0;
       font-size:18px;
@@ -197,7 +208,14 @@
       display:grid;
       place-items:center;
       box-shadow:0 20px 50px rgba(255,0,0,.18);
-      font-size:70px;
+      overflow:hidden;
+      padding:18px;
+    }
+    .heroCircle img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
     }
 
     .grid{
@@ -706,7 +724,9 @@
   <div class="row">
     <div class="brandWrap">
       <div class="brandTop">
-        <div class="logoBadge">🍣</div>
+        <div class="logoBadge">
+          <img src="umi.png" alt="Logo Umi Sushi">
+        </div>
         <h1>Umi Sushi Irapuato</h1>
       </div>
       <div class="sub">Menú digital • Negro / rojo • Pedido rápido por WhatsApp</div>
@@ -732,7 +752,9 @@
         </div>
       </div>
       <div class="heroArt">
-        <div class="heroCircle">🍣</div>
+        <div class="heroCircle">
+          <img src="umi.png" alt="Logo Umi Sushi grande">
+        </div>
       </div>
     </div>
   </section>
@@ -838,18 +860,12 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-/** =========================
- * CONFIG
- * ========================= */
 const TAQUERIA_NOMBRE = "Umi Sushi Irapuato";
 const WHATSAPP_TAQ = "5214622527782";
 const TQ_LAT = 20.6752891;
 const TQ_LNG = -101.3569277;
 const IMG_BASE = "";
 
-/** =========================
- * TARIFAS DOMICILIO
- * ========================= */
 const TARIFAS = [
   {from:0, to:3, normal:50, lluvia:65},
   {from:3, to:4, normal:55, lluvia:75},
@@ -868,11 +884,7 @@ function getTarifa(km, lluvia=false){
 }
 let lluvia = false;
 
-/** =========================
- * CATALOGO
- * ========================= */
 const catalogo = [
-  // ENTRADAS
   {id:"ent_kappa_maki", cat:"ENTRADAS", name:"Kappa Maki", price:50, desc:"Rollo pequeño relleno solamente de pepino fresco envuelto en arroz de sushi sazonado y alga nori.", mods:false, img:"", emoji:"🥒"},
   {id:"ent_onigiris", cat:"ENTRADAS", name:"Onigiris", price:60, desc:"2 triángulos de arroz tradicionales, rellenos de nuestra combinación especial estilo california, pueden ir fritos o empanizados.", mods:true, img:"", emoji:"🍙"},
   {id:"ent_sushi_pop", cat:"ENTRADAS", name:"Sushi Pop", price:70, desc:"6 bolitas pequeñas empanizadas rellenas de nuestra combinación especial estilo california.", mods:false, img:"", emoji:"🟠"},
@@ -880,7 +892,6 @@ const catalogo = [
   {id:"ent_tempura_verduras", cat:"ENTRADAS", name:"Tempura de Verduras", price:100, desc:"Verduras en tiras capeadas con tempura tradicional japonés.", mods:false, img:"", emoji:"🥕"},
   {id:"ent_kushiagues", cat:"ENTRADAS", name:"Kushiagues", price:75, desc:"Orden de 3 banderillas empanizadas. Queso manchego, surimi y camarón.", mods:false, img:"", emoji:"🍢"},
 
-  // ROLLOS FRIOS
   {id:"rf_california", cat:"ROLLOS FRÍOS", name:"California Roll", price:80, desc:"Rollo cubierto de queso philadelphia y ajonjolí negro, relleno de queso philadelphia, aguacate, pepino, surimi o camarón.", mods:true, img:"", emoji:"🍣"},
   {id:"rf_tropical", cat:"ROLLOS FRÍOS", name:"Tropical Roll", price:110, desc:"Rollo de philadelphia y fruta de temporada, relleno de queso philadelphia, camarón y fruta de temporada.", mods:false, img:"", emoji:"🍓"},
   {id:"rf_veg", cat:"ROLLOS FRÍOS", name:"California Vegetariano", price:80, desc:"Rollo frío cubierto con queso philadelphia y ajonjolí, relleno con queso philadelphia, aguacate, pepino y zanahoria.", mods:false, img:"", emoji:"🥬"},
@@ -888,7 +899,6 @@ const catalogo = [
   {id:"rf_fruit", cat:"ROLLOS FRÍOS", name:"Fruit Roll", price:100, desc:"Rollo cubierto de queso philadelphia y láminas de fruta de temporada, relleno de fruta de temporada y queso philadelphia.", mods:false, img:"", emoji:"🍍"},
   {id:"rf_irapuato", cat:"ROLLOS FRÍOS", name:"Irapuato Roll", price:100, desc:"Rollo cubierto con láminas de fresa con mermelada y philadelphia, relleno de fresa y philadelphia.", mods:false, img:"", emoji:"🍓"},
 
-  // ROLLOS EMPANIZADOS
   {id:"re_california", cat:"ROLLOS EMPANIZADOS", name:"California Empanizado", price:90, desc:"Rollo empanizado, relleno de queso philadelphia, aguacate, pepino, surimi o camarón.", mods:true, img:"", emoji:"🔥"},
   {id:"re_tropical", cat:"ROLLOS EMPANIZADOS", name:"Tropical Roll Empanizado", price:100, desc:"Rollo empanizado relleno de queso philadelphia, fruta de temporada y camarón.", mods:false, img:"", emoji:"🍤"},
   {id:"re_veg", cat:"ROLLOS EMPANIZADOS", name:"California Vegetariano Empanizado", price:90, desc:"Rollo empanizado relleno de queso philadelphia, aguacate, pepino y zanahoria.", mods:false, img:"", emoji:"🥦"},
@@ -897,45 +907,37 @@ const catalogo = [
   {id:"re_tokyo", cat:"ROLLOS EMPANIZADOS", name:"Tokyo Roll", price:100, desc:"Rollo empanizado relleno de aguacate, pepino, queso philadelphia y camarones en tempura.", mods:false, img:"", emoji:"🍤"},
   {id:"re_pollo", cat:"ROLLOS EMPANIZADOS", name:"Pollo Roll", price:100, desc:"Rollo empanizado relleno de pollo cocinado con salsa teriyaki, cebolla caramelizada y zanahoria rallada.", mods:false, img:"", emoji:"🍗"},
 
-  // ROLLOS PREMIUM
   {id:"rp_wings", cat:"ROLLOS PREMIUM", name:"Wings Roll", price:120, desc:"Rollo empanizado relleno de carne de nuestras alitas adobadas y queso manchego acompañado de 2 alitas.", mods:false, img:"", emoji:"🍗"},
   {id:"rp_dragon", cat:"ROLLOS PREMIUM", name:"Dragon Roll", price:120, desc:"Rollo cubierto con philadelphia, láminas de aguacate y ajonjolí, relleno de queso philadelphia, aguacate, pepino, surimi y camarón.", mods:true, img:"", emoji:"🐉"},
   {id:"rp_mar_tierra", cat:"ROLLOS PREMIUM", name:"Mar y Tierra", price:120, desc:"Rollo empanizado relleno de arrachera, camarón, philadelphia y aguacate.", mods:false, img:"", emoji:"🌊"},
   {id:"rp_all_blue", cat:"ROLLOS PREMIUM", name:"All Blue Roll", price:145, desc:"Rollo empanizado relleno de camarón, philadelphia, con aderezo chipotle y camarones en tempura.", mods:false, img:"", emoji:"💙"},
 
-  // SUSHI FUSION
   {id:"sf_burros", cat:"SUSHI FUSIÓN", name:"Sushi Burros", price:100, desc:"Rollo empanizado cortado a la mitad relleno de arrachera y queso.", mods:false, img:"", emoji:"🌯"},
   {id:"sf_pizza", cat:"SUSHI FUSIÓN", name:"Sushi Pizza", price:100, desc:"Rollo empanizado cortado de forma especial relleno de queso, con salsa de tomate y arrachera.", mods:false, img:"", emoji:"🍕"},
   {id:"sf_hamburguesa", cat:"SUSHI FUSIÓN", name:"Hamburguesa de Sushi", price:150, desc:"Hamburguesa con base y tapa de arroz empanizado por dentro tiene mayonesa y catsup, 2 aros de cebolla arrachera y acompañada de papas a la francesa.", mods:false, img:"", emoji:"🍔"},
   {id:"sf_banderillas", cat:"SUSHI FUSIÓN", name:"Banderillas de Sushi", price:90, desc:"2 banderillas de rollos california empanizadas.", mods:false, img:"", emoji:"🍢"},
 
-  // PLATOS DE ARROZ
   {id:"ar_hakimeshi", cat:"PLATOS DE ARROZ", name:"Hakimeshi", price:80, desc:"Arroz frito con verduras. Extras a escoger: camarón, surimi, arrachera o pollo.", mods:true, img:"", emoji:"🍚"},
   {id:"ar_gohan", cat:"PLATOS DE ARROZ", name:"Gohan", price:50, desc:"Arroz al vapor con verduras y furikake. Extras a escoger: camarón, surimi, pollo o arrachera.", mods:true, img:"", emoji:"🥣"},
 
-  // TACOS
   {id:"taco_gobernador", cat:"TACOS", name:"Tacos Gobernador", price:90, desc:"Orden de 3 tacos de camarón capeados en tempura tradicional, acompañados con pico de gallo y verdura.", mods:false, img:"", emoji:"🌮"},
   {id:"taco_arrachera", cat:"TACOS", name:"Tacos de Arrachera", price:90, desc:"Orden de 3 tacos bien surtidos acompañados con nuestra salsa, pico de gallo y verduras.", mods:false, img:"", emoji:"🌮"},
 
-  // CAJAS
   {id:"caja_chica", cat:"CAJAS", name:"Caja Chica", price:370, desc:"2 rollos a escoger, medio kilo de alitas, papas a la francesa y 2 onigiris empanizados.", mods:true, img:"", emoji:"📦"},
   {id:"caja_grande", cat:"CAJAS", name:"Caja Grande", price:570, desc:"3 rollos a escoger, medio kilo de alitas, papas a la francesa, papas gajo, aros de cebolla y 2 onigiris empanizados.", mods:true, img:"", emoji:"📦"},
   {id:"caja_jumbo", cat:"CAJAS", name:"Caja Jumbo", price:720, desc:"4 rollos a escoger, 1 kilo de alitas, papas a la francesa, papas gajo, aros de cebolla y 2 onigiris empanizados.", mods:true, img:"", emoji:"📦"},
 
-  // PAQUETES
   {id:"paq_llenes", cat:"PAQUETES", name:"Paquete Llenes", price:250, desc:"2 rollos a escoger y 3 kushiagues a su elección.", mods:true, img:"", emoji:"🍱"},
   {id:"paq_umi", cat:"PAQUETES", name:"Combo Umi", price:380, desc:"Medio de alitas, 1 sushi pops, 2 onigiris empanizados, 1 rollo a escoger y 1 sushi ball.", mods:true, img:"", emoji:"🍱"},
   {id:"paq_pruebes", cat:"PAQUETES", name:"Paquete Pruebes", price:260, desc:"1 rollo a escoger, 1 sushi pops y 1 sushi ball.", mods:true, img:"", emoji:"🍱"},
   {id:"paq_familiar", cat:"PAQUETES", name:"Paquete Familiar", price:490, desc:"4 rollos a escoger, 2 onigiris empanizados y 4 refrescos a escoger.", mods:true, img:"", emoji:"🍱"},
 
-  // SUSHI BALL
   {id:"ball_sushi", cat:"SUSHI BALL", name:"Sushi Ball", price:90, desc:"Bola empanizada, rellena de nuestra combinación especial estilo california o tampico.", mods:true, img:"", emoji:"⚪"},
   {id:"ball_tropical", cat:"SUSHI BALL", name:"Tropical Ball", price:100, desc:"Bola empanizada rellena de fruta de temporada.", mods:false, img:"", emoji:"🍍"},
   {id:"ball_cow", cat:"SUSHI BALL", name:"Cow Ball", price:120, desc:"Bola empanizada, rellena de arrachera, aguacate, queso manchego y chile serrano.", mods:false, img:"", emoji:"🥩"},
   {id:"ball_pollo", cat:"SUSHI BALL", name:"Pollo Ball", price:110, desc:"Bola empanizada rellena de zanahoria rallada y pollo teriyaki.", mods:false, img:"", emoji:"🍗"},
   {id:"ball_boneless", cat:"SUSHI BALL", name:"Boneless Ball", price:120, desc:"Bola empanizada rellena de boneless, sabor a escoger.", mods:true, img:"", emoji:"🔥"},
 
-  // SNACKS
   {id:"snk_papas_francesa", cat:"SNACKS", name:"Papas a la Francesa", price:45, desc:"Orden de papas a la francesa.", mods:false, img:"", emoji:"🍟"},
   {id:"snk_papas_gajo", cat:"SNACKS", name:"Papas Gajo", price:55, desc:"Orden de papas gajo.", mods:false, img:"", emoji:"🥔"},
   {id:"snk_aros", cat:"SNACKS", name:"Aros de Cebolla (12 pzs)", price:80, desc:"Aros de cebolla crujientes.", mods:false, img:"", emoji:"🧅"},
@@ -945,11 +947,9 @@ const catalogo = [
   {id:"snk_boneless_media", cat:"SNACKS", name:"Boneless (1/2 kg)", price:200, desc:"Sabores: BBQ, Red Hot, Parmesano, Mango Habanero, Valentina, Buffalo, Lemon Pepper o Adobadas.", mods:true, img:"", emoji:"🍖"},
   {id:"snk_boneless_kg", cat:"SNACKS", name:"Boneless (1 kg)", price:300, desc:"Sabores: BBQ, Red Hot, Parmesano, Mango Habanero, Valentina, Buffalo, Lemon Pepper o Adobadas.", mods:true, img:"", emoji:"🍖"},
 
-  // POSTRES
   {id:"pos_nieve", cat:"POSTRES", name:"Nieve de la Casa", price:80, desc:"Orden de dos bolas de nieve cubiertas con chocolate.", mods:false, img:"", emoji:"🍨"},
   {id:"pos_tempura_helado", cat:"POSTRES", name:"Tempura de Helado", price:90, desc:"Bola de nieve cubierta con tempura dulce cubierta de chocolate.", mods:false, img:"", emoji:"🍦"},
 
-  // BEBIDAS
   {id:"beb_refresco", cat:"BEBIDAS", name:"Familia Coca-Cola 600 ml", price:30, desc:"Coca-Cola, Coca-Cola Light, Coca-Cola Zero, Fresca, Delaware Punch, Sprite, Mundet o Fanta.", mods:true, img:"", emoji:"🥤"},
   {id:"beb_calpi_nat_medio", cat:"BEBIDAS", name:"Calpi Natural 1/2 Lt", price:30, desc:"Bebida estilo calpi natural.", mods:false, img:"", emoji:"🥛"},
   {id:"beb_calpi_nat_litro", cat:"BEBIDAS", name:"Calpi Natural 1 Lt", price:50, desc:"Bebida estilo calpi natural.", mods:false, img:"", emoji:"🥛"},
@@ -958,7 +958,6 @@ const catalogo = [
   {id:"beb_calpi_sabor_medio", cat:"BEBIDAS", name:"Calpi de Sabor 1/2 Lt", price:45, desc:"Bebida tradicional japonesa a base de lácteos con fruta natural macerada.", mods:true, img:"", emoji:"🍓"},
   {id:"beb_calpi_sabor_litro", cat:"BEBIDAS", name:"Calpi de Sabor 1 Lt", price:80, desc:"Bebida tradicional japonesa a base de lácteos con fruta natural macerada.", mods:true, img:"", emoji:"🍓"},
 
-  // EXTRAS 10
   {id:"ex10_empanizado", cat:"EXTRAS $10", name:"Empanizado", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
   {id:"ex10_philadelphia", cat:"EXTRAS $10", name:"Philadelphia", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
   {id:"ex10_aguacate", cat:"EXTRAS $10", name:"Aguacate", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
@@ -968,7 +967,6 @@ const catalogo = [
   {id:"ex10_anguila", cat:"EXTRAS $10", name:"Anguila", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
   {id:"ex10_catsup", cat:"EXTRAS $10", name:"Catsup", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
 
-  // EXTRAS 15
   {id:"ex15_queso_manchego", cat:"EXTRAS $15", name:"Queso Manchego", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"},
   {id:"ex15_camaron", cat:"EXTRAS $15", name:"Camarón", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"},
   {id:"ex15_arrachera", cat:"EXTRAS $15", name:"Arrachera", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"},
@@ -996,9 +994,6 @@ const CATS = [
   "EXTRAS $15"
 ];
 
-/** =========================
- * MODIFICADORES
- * ========================= */
 const MODS = {
   proteinaRoll: {
     title:"Proteína / relleno",
@@ -1062,10 +1057,7 @@ const MODS = {
 
 function modsPara(item){
   const ids = [];
-
-  if(["rf_california","rf_maki_california","re_california","re_maki_emp","rp_dragon"].includes(item.id)){
-    ids.push("proteinaRoll");
-  }
+  if(["rf_california","rf_maki_california","re_california","re_maki_emp","rp_dragon"].includes(item.id)) ids.push("proteinaRoll");
   if(item.id === "ent_onigiris") ids.push("entradaOnigiri");
   if(["ar_hakimeshi","ar_gohan"].includes(item.id)) ids.push("arrozExtra");
   if(["paq_llenes","paq_umi","paq_pruebes","paq_familiar","caja_chica","caja_grande","caja_jumbo"].includes(item.id)) ids.push("paquetesRollos");
@@ -1074,13 +1066,9 @@ function modsPara(item){
   if(item.id === "ball_sushi") ids.push("ballRelleno");
   if(["ball_boneless","snk_alitas_media","snk_alitas_kg","snk_boneless_media","snk_boneless_kg"].includes(item.id)) ids.push("salsasAlitas");
   if(item.mods) ids.push("conSin");
-
   return [...new Set(ids)];
 }
 
-/** =========================
- * HELPERS
- * ========================= */
 function money(n){ return "$" + Number(n || 0).toFixed(2); }
 function escapeHtml(s){
   return String(s || "")
@@ -1129,9 +1117,6 @@ function renderMedia(item){
   return `<div>${escapeHtml(item.emoji || "🍣")}</div>`;
 }
 
-/** =========================
- * UI MENU
- * ========================= */
 const tabs = document.getElementById("tabs");
 const itemsBox = document.getElementById("items");
 const sectionTitle = document.getElementById("sectionTitle");
@@ -1191,9 +1176,6 @@ function renderItems(){
 }
 q.addEventListener("input", renderItems);
 
-/** =========================
- * CARRITO
- * ========================= */
 let cart = [];
 const cartBox = document.getElementById("cart");
 const totalEl = document.getElementById("total");
@@ -1266,9 +1248,6 @@ function renderCart(){
   });
 }
 
-/** =========================
- * MODAL PRODUCTO
- * ========================= */
 const backdrop = document.getElementById("backdrop");
 const mTitle = document.getElementById("mTitle");
 const mBody  = document.getElementById("mBody");
@@ -1446,9 +1425,6 @@ mAdd.addEventListener("click", ()=>{
   closeModal();
 }, {passive:true});
 
-/** =========================
- * CHECKOUT + MAPA
- * ========================= */
 const stepsBackdrop = document.getElementById("stepsBackdrop");
 const stepsClose = document.getElementById("stepsClose");
 const stepsBody = document.getElementById("stepsBody");
@@ -1902,9 +1878,6 @@ function buildWhatsAppText(){
   return lines.join("\n");
 }
 
-/** =========================
- * BOTONES PRINCIPALES
- * ========================= */
 document.getElementById("btnCheckout").addEventListener("click", ()=>{
   if(cart.length === 0){
     alert("Agrega algo al carrito primero 😄");
@@ -1958,9 +1931,6 @@ document.getElementById("btnNext").addEventListener("click", async ()=>{
   closeSteps();
 });
 
-/** =========================
- * INIT
- * ========================= */
 renderTabs();
 renderItems();
 renderCart();
