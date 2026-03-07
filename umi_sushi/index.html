@@ -1,0 +1,1969 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Menú — Umi Sushi Irapuato</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <style>
+    :root{
+      --bg:#050505;
+      --bg2:#0c0c0c;
+      --paper:#101010;
+      --card:#151515;
+      --card2:#1b1b1b;
+      --ink:#ffffff;
+      --muted:#d7d7d7;
+      --line:rgba(255,255,255,.10);
+
+      --brand:#ff2020;
+      --brand2:#b50000;
+      --brand3:#ff4d4d;
+      --gold:#ffcc66;
+
+      --ok:#27d17c;
+      --shadow:0 18px 55px rgba(0,0,0,.45);
+      --shadow2:0 10px 26px rgba(255,0,0,.14);
+      --r:20px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(900px 400px at 0% 0%, rgba(255,0,0,.18), transparent 60%),
+        radial-gradient(900px 400px at 100% 100%, rgba(255,0,0,.12), transparent 60%),
+        linear-gradient(180deg, #080808 0%, #030303 100%);
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:linear-gradient(180deg, rgba(0,0,0,.98), rgba(20,0,0,.94));
+      border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 12px 30px rgba(0,0,0,.45);
+    }
+    header .row{
+      max-width:1300px;
+      margin:0 auto;
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .brandWrap{
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+    }
+    .brandTop{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .logoBadge{
+      width:44px;height:44px;border-radius:14px;
+      background:linear-gradient(180deg, var(--brand), var(--brand2));
+      display:grid;place-items:center;
+      font-weight:1000;font-size:20px;
+      box-shadow:0 10px 24px rgba(255,0,0,.35);
+      flex:0 0 auto;
+    }
+    header h1{
+      margin:0;
+      font-size:18px;
+      font-weight:1000;
+      letter-spacing:.4px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .sub{
+      margin-top:3px;
+      font-size:12px;
+      color:#ffd7d7;
+      font-weight:900;
+      letter-spacing:.3px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:var(--shadow2);
+      font-size:12px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .wrap{
+      max-width:1300px;
+      margin:0 auto;
+      padding:16px;
+      display:grid;
+      gap:16px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border-radius:26px;
+      border:1px solid rgba(255,255,255,.08);
+      background:
+        linear-gradient(135deg, rgba(255,0,0,.18), transparent 35%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)),
+        #090909;
+      min-height:220px;
+      box-shadow:var(--shadow);
+    }
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(155deg, rgba(255,0,0,.90) 0 13%, transparent 13% 100%),
+        linear-gradient(335deg, rgba(255,0,0,.45) 0 8%, transparent 8% 100%);
+      opacity:.95;
+      pointer-events:none;
+    }
+    .heroInner{
+      position:relative;
+      z-index:2;
+      min-height:220px;
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:20px;
+      align-items:center;
+      padding:24px;
+    }
+    .heroText h2{
+      margin:0 0 8px;
+      font-size:clamp(30px,5vw,56px);
+      line-height:.95;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+      font-weight:1000;
+    }
+    .heroText p{
+      margin:0;
+      max-width:760px;
+      color:#ededed;
+      font-weight:800;
+      line-height:1.4;
+    }
+    .heroTags{
+      margin-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .heroTag{
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      font-size:12px;
+      font-weight:1000;
+      color:#fff;
+    }
+    .heroArt{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+    }
+    .heroCircle{
+      width:min(250px, 100%);
+      aspect-ratio:1/1;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,.25), transparent 28%),
+        radial-gradient(circle at 50% 50%, rgba(255,40,40,.45), transparent 60%),
+        linear-gradient(180deg, #1b1b1b, #0b0b0b);
+      border:5px solid rgba(255,40,40,.8);
+      display:grid;
+      place-items:center;
+      box-shadow:0 20px 50px rgba(255,0,0,.18);
+      font-size:70px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1.45fr .95fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media (max-width:990px){
+      .grid{grid-template-columns:1fr}
+      .heroInner{grid-template-columns:1fr}
+      .heroArt{justify-content:flex-start}
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:var(--r);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+    .card h2{
+      margin:0;
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(255,0,0,.16), rgba(255,0,0,0));
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      font-size:15px;
+      text-transform:uppercase;
+      letter-spacing:.6px;
+    }
+    .content{padding:16px}
+
+    .searchRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .searchRow input{
+      width:100%;
+      padding:13px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:#101010;
+      color:#fff;
+      outline:none;
+      font-size:14px;
+      font-weight:800;
+    }
+
+    .tabs{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .tab{
+      border:1px solid rgba(255,255,255,.10);
+      background:#121212;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:1000;
+      cursor:pointer;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+      box-shadow:var(--shadow2);
+      user-select:none;
+    }
+    .tab.active{
+      background:linear-gradient(180deg, var(--brand), var(--brand2));
+      border-color:transparent;
+      box-shadow:0 0 0 3px rgba(255,40,40,.18), 0 14px 28px rgba(255,0,0,.25);
+    }
+
+    .sectionTitle{
+      margin:14px 0 10px;
+      font-size:clamp(28px,4vw,50px);
+      line-height:.95;
+      font-weight:1000;
+      letter-spacing:1px;
+      text-transform:uppercase;
+    }
+    .divider{
+      height:5px;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--brand), rgba(255,255,255,.08));
+      margin-bottom:18px;
+    }
+
+    .items{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:14px;
+    }
+    @media (max-width:700px){
+      .items{grid-template-columns:1fr}
+    }
+
+    .prod{
+      background:linear-gradient(180deg, #161616, #0d0d0d);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns:1.15fr .95fr;
+      min-height:188px;
+      box-shadow:0 12px 34px rgba(0,0,0,.40);
+    }
+    .prodLeft{
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-width:0;
+    }
+    .prodName{
+      margin:0;
+      font-weight:1000;
+      font-size:24px;
+      line-height:1.06;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+      word-break:break-word;
+    }
+    .prodDesc{
+      margin:0;
+      color:#dedede;
+      font-size:12px;
+      line-height:1.35;
+      font-weight:800;
+    }
+    .badgeLine{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:2px;
+    }
+    .miniBadge{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      font-size:11px;
+      font-weight:1000;
+      color:#fff;
+    }
+    .price{
+      margin-top:auto;
+      font-weight:1000;
+      color:#fff;
+      font-size:14px;
+    }
+    .price b{
+      display:inline-block;
+      margin-top:4px;
+      background:linear-gradient(180deg, var(--brand), var(--brand2));
+      color:#fff;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:28px;
+      line-height:1;
+      box-shadow:0 10px 20px rgba(255,0,0,.22);
+    }
+
+    .prodRight{
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      background:
+        radial-gradient(circle at center, rgba(255,0,0,.08), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));
+    }
+    .prodImg{
+      width:100%;
+      height:100px;
+      border-radius:18px;
+      overflow:hidden;
+      background:#0f0f0f;
+      border:3px solid rgba(255,40,40,.85);
+      display:grid;
+      place-items:center;
+      font-size:38px;
+      box-shadow:0 14px 30px rgba(0,0,0,.32);
+    }
+    .prodImg img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .btnAdd,.stickyBtn,.btnDark{
+      border:none;
+      cursor:pointer;
+      padding:12px 20px;
+      border-radius:999px;
+      font-weight:1000;
+      color:#fff;
+      background:linear-gradient(180deg, var(--brand), var(--brand2));
+      box-shadow:0 12px 24px rgba(255,0,0,.28);
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+    .btnAdd{font-size:14px}
+    .btnGhost{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      color:#fff;
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:1000;
+      pointer-events:none;
+    }
+    .btnLight,.btnClear,.closeX,.mini{
+      border:1px solid rgba(255,255,255,.10);
+      background:#141414;
+      color:#fff;
+      cursor:pointer;
+      border-radius:12px;
+      font-weight:1000;
+    }
+    .btnLight,.btnClear{padding:12px 14px}
+    .closeX{
+      width:42px;height:42px;
+      font-size:18px;
+    }
+    .mini{
+      width:32px;height:32px;
+    }
+
+    .cartLine{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 0;
+      border-bottom:1px dashed rgba(255,255,255,.10);
+    }
+    .cartLine:last-child{border-bottom:none}
+    .muted{color:var(--muted)}
+    .qtyRow{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:1000;
+      margin:10px 0 6px;
+      color:#fff;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+    input,textarea,select{
+      width:100%;
+      padding:12px 12px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      font-size:14px;
+      outline:none;
+      background:#111;
+      color:#fff;
+      font-weight:800;
+    }
+    textarea{min-height:90px; resize:vertical}
+
+    .totalRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding-top:12px;
+      margin-top:12px;
+      border-top:1px solid rgba(255,255,255,.10);
+      font-size:14px;
+      font-weight:1000;
+      text-transform:uppercase;
+    }
+    .totalRow strong{font-size:22px}
+
+    .stickyBar{
+      position:sticky;
+      bottom:12px;
+      z-index:25;
+      margin-top:12px;
+      background:linear-gradient(180deg, rgba(18,18,18,.98), rgba(8,8,8,.98));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      box-shadow:0 18px 60px rgba(0,0,0,.40);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px;
+    }
+    .stickyBar .left{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      font-weight:1000;
+    }
+    .stickyBar .amount{
+      font-size:18px;
+      letter-spacing:.3px;
+    }
+
+    .note{
+      font-size:12px;
+      color:#ededed;
+      background:#121212;
+      border:1px solid rgba(255,255,255,.08);
+      padding:12px;
+      border-radius:14px;
+      line-height:1.45;
+      font-weight:800;
+      margin-top:12px;
+    }
+
+    .backdrop,.stepsBackdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.72);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:60;
+    }
+    .modal,.steps{
+      width:min(840px,100%);
+      background:#0d0d0d;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:0 40px 100px rgba(0,0,0,.5);
+    }
+    .steps{
+      max-height:88vh;
+      display:flex;
+      flex-direction:column;
+    }
+    .modalHead,.stepsHead{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(255,0,0,.14), rgba(255,0,0,0));
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .modalHead h3{margin:0;font-size:15px;text-transform:uppercase}
+    .stepsHead .t{display:flex;flex-direction:column;gap:4px}
+    .stepsHead .t b{font-size:16px;text-transform:uppercase}
+    .stepsHead .t span{font-size:12px;color:#e8c3c3;font-weight:900}
+
+    .stepsBody{
+      padding:14px 16px;
+      overflow:auto;
+      flex:1 1 auto;
+    }
+    .stepsFoot,.footerBtns{
+      display:flex;
+      gap:10px;
+      padding:14px 16px;
+      border-top:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.02);
+    }
+    .stepsFoot button,.footerBtns button{flex:1}
+
+    .optGroup{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:12px;
+      margin-top:10px;
+      background:#121212;
+    }
+    .optTitle{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .optTitle b{
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+    .optTitle span{
+      font-size:12px;
+      color:#d5b6b6;
+      font-weight:900;
+    }
+    .optList{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .optBtn{
+      border:1px solid rgba(255,255,255,.10);
+      background:#191919;
+      color:#fff;
+      padding:9px 11px;
+      border-radius:999px;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      font-weight:1000;
+    }
+    .optBtn.active{
+      background:linear-gradient(180deg, var(--brand), var(--brand2));
+      border-color:transparent;
+      box-shadow:0 0 0 3px rgba(255,40,40,.16);
+    }
+
+    .stepRow{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width:560px){
+      .stepRow{grid-template-columns:1fr}
+    }
+
+    .mapWrap{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      overflow:hidden;
+      background:#000;
+      margin-top:10px;
+    }
+    #miniMap{width:100%;height:170px;background:#111}
+    .mapBar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .mapBar .btnLight{flex:1;min-width:170px}
+
+    .kpiRow{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .kpi{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      background:#111;
+      padding:12px;
+    }
+    .kpi b{
+      display:block;
+      font-size:12px;
+      color:#ffd6d6;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+    .kpi span{
+      display:block;
+      margin-top:5px;
+      font-weight:1000;
+      font-size:18px;
+    }
+
+    .detailsToggle{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border:1px solid rgba(255,255,255,.08);
+      background:#111;
+      color:#fff;
+      padding:12px;
+      border-radius:14px;
+      font-weight:1000;
+      cursor:pointer;
+      margin-top:10px;
+      text-transform:uppercase;
+    }
+    .detailsWrap{display:none}
+    .detailsWrap.show{display:block}
+
+    .emptyState{
+      padding:20px;
+      border:1px dashed rgba(255,255,255,.12);
+      border-radius:16px;
+      background:#111;
+      color:#e8e8e8;
+      font-weight:900;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="row">
+    <div class="brandWrap">
+      <div class="brandTop">
+        <div class="logoBadge">🍣</div>
+        <h1>Umi Sushi Irapuato</h1>
+      </div>
+      <div class="sub">Menú digital • Negro / rojo • Pedido rápido por WhatsApp</div>
+    </div>
+    <div class="pill" id="cartPill">🛒 <b>0</b> • <span id="pillTotal">$0.00</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="heroInner">
+      <div class="heroText">
+        <h2>UMI<br>SUSHI</h2>
+        <p>
+          Rollos fríos, empanizados, premium, sushi ball, snacks, bebidas y paquetes.
+          Elige tus productos, agrega extras y manda tu pedido directo por WhatsApp.
+        </p>
+        <div class="heroTags">
+          <span class="heroTag">🍱 Paquetes</span>
+          <span class="heroTag">🔥 Empanizados</span>
+          <span class="heroTag">🍣 Premium</span>
+          <span class="heroTag">📲 Pedido rápido</span>
+        </div>
+      </div>
+      <div class="heroArt">
+        <div class="heroCircle">🍣</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Menú</h2>
+      <div class="content">
+        <div class="searchRow">
+          <input id="q" placeholder="Buscar producto (ej. california, paquete, ball, boneless, coca)..."/>
+        </div>
+
+        <div class="tabs" id="tabs"></div>
+
+        <div id="sectionHdr">
+          <div class="sectionTitle" id="sectionTitle">ENTRADAS</div>
+          <div class="divider"></div>
+        </div>
+
+        <div class="items" id="items"></div>
+
+        <div class="note">
+          Algunos productos permiten elegir extras o escribir observaciones.
+          Si quieres una combinación especial, ponla en la nota del producto o en observaciones finales.
+        </div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h2>
+        Tu pedido
+        <button class="btnGhost" id="btnCambioServicio">Servicio: <span id="servTxt">Domicilio</span></button>
+      </h2>
+
+      <div class="content">
+        <select id="canal" style="display:none">
+          <option value="domicilio" selected>Envío a domicilio</option>
+        </select>
+
+        <div id="cart"></div>
+
+        <div class="totalRow">
+          <span>Total</span>
+          <strong id="total">$0.00</strong>
+        </div>
+
+        <div class="note">
+          Al dar <b>Continuar</b>, se abrirá el checkout y al final WhatsApp con el pedido listo para enviar.
+        </div>
+
+        <div class="stickyBar">
+          <div class="left">
+            <span>🛒</span>
+            <span class="amount" id="barTotal">$0.00</span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end">
+            <button class="btnClear" id="btnClear">Vaciar</button>
+            <button class="stickyBtn" id="btnCheckout">Continuar</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="backdrop" id="backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modalHead">
+      <div>
+        <h3 id="mTitle">Producto</h3>
+        <div class="muted" id="mSub" style="font-size:12px;font-weight:900">Configura como lo quieres</div>
+      </div>
+      <button class="closeX" id="mClose" type="button">✕</button>
+    </div>
+
+    <div class="content" id="mBody"></div>
+
+    <div class="footerBtns">
+      <button class="btnLight" id="mCancel" type="button">Cancelar</button>
+      <button class="btnDark" id="mAdd" type="button">Agregar al carrito</button>
+    </div>
+  </div>
+</div>
+
+<div class="stepsBackdrop" id="stepsBackdrop" aria-hidden="true">
+  <div class="steps" role="dialog" aria-modal="true">
+    <div class="stepsHead">
+      <div class="t">
+        <b id="stepTitle">Paso</b>
+        <span id="stepSub">—</span>
+      </div>
+      <button class="closeX" id="stepsClose" type="button">✕</button>
+    </div>
+
+    <div class="stepsBody" id="stepsBody"></div>
+
+    <div class="stepsFoot">
+      <button class="btnLight" id="btnBack" type="button">Regresar</button>
+      <button class="btnDark" id="btnNext" type="button">Continuar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/** =========================
+ * CONFIG
+ * ========================= */
+const TAQUERIA_NOMBRE = "Umi Sushi Irapuato";
+const WHATSAPP_TAQ = "5214622527782";
+const TQ_LAT = 20.6752891;
+const TQ_LNG = -101.3569277;
+const IMG_BASE = "";
+
+/** =========================
+ * TARIFAS DOMICILIO
+ * ========================= */
+const TARIFAS = [
+  {from:0, to:3, normal:50, lluvia:65},
+  {from:3, to:4, normal:55, lluvia:75},
+  {from:4, to:5, normal:60, lluvia:85},
+  {from:5, to:6, normal:65, lluvia:95},
+  {from:6, to:7, normal:70, lluvia:105},
+  {from:7, to:8, normal:75, lluvia:115},
+  {from:8, to:9, normal:80, lluvia:125},
+  {from:9, to:10, normal:85, lluvia:135},
+];
+function getTarifa(km, lluvia=false){
+  const k = Number(km);
+  const row = TARIFAS.find(r => k >= r.from && k < r.to) || null;
+  if(!row) return {ok:false, precio:0, limiteKm:10};
+  return {ok:true, precio: lluvia ? row.lluvia : row.normal};
+}
+let lluvia = false;
+
+/** =========================
+ * CATALOGO
+ * ========================= */
+const catalogo = [
+  // ENTRADAS
+  {id:"ent_kappa_maki", cat:"ENTRADAS", name:"Kappa Maki", price:50, desc:"Rollo pequeño relleno solamente de pepino fresco envuelto en arroz de sushi sazonado y alga nori.", mods:false, img:"", emoji:"🥒"},
+  {id:"ent_onigiris", cat:"ENTRADAS", name:"Onigiris", price:60, desc:"2 triángulos de arroz tradicionales, rellenos de nuestra combinación especial estilo california, pueden ir fritos o empanizados.", mods:true, img:"", emoji:"🍙"},
+  {id:"ent_sushi_pop", cat:"ENTRADAS", name:"Sushi Pop", price:70, desc:"6 bolitas pequeñas empanizadas rellenas de nuestra combinación especial estilo california.", mods:false, img:"", emoji:"🟠"},
+  {id:"ent_tropical_pops", cat:"ENTRADAS", name:"Tropical Pops", price:90, desc:"6 bolitas pequeñas rellenas de fruta de temporada con camarón y empanizada.", mods:false, img:"", emoji:"🍤"},
+  {id:"ent_tempura_verduras", cat:"ENTRADAS", name:"Tempura de Verduras", price:100, desc:"Verduras en tiras capeadas con tempura tradicional japonés.", mods:false, img:"", emoji:"🥕"},
+  {id:"ent_kushiagues", cat:"ENTRADAS", name:"Kushiagues", price:75, desc:"Orden de 3 banderillas empanizadas. Queso manchego, surimi y camarón.", mods:false, img:"", emoji:"🍢"},
+
+  // ROLLOS FRIOS
+  {id:"rf_california", cat:"ROLLOS FRÍOS", name:"California Roll", price:80, desc:"Rollo cubierto de queso philadelphia y ajonjolí negro, relleno de queso philadelphia, aguacate, pepino, surimi o camarón.", mods:true, img:"", emoji:"🍣"},
+  {id:"rf_tropical", cat:"ROLLOS FRÍOS", name:"Tropical Roll", price:110, desc:"Rollo de philadelphia y fruta de temporada, relleno de queso philadelphia, camarón y fruta de temporada.", mods:false, img:"", emoji:"🍓"},
+  {id:"rf_veg", cat:"ROLLOS FRÍOS", name:"California Vegetariano", price:80, desc:"Rollo frío cubierto con queso philadelphia y ajonjolí, relleno con queso philadelphia, aguacate, pepino y zanahoria.", mods:false, img:"", emoji:"🥬"},
+  {id:"rf_maki_california", cat:"ROLLOS FRÍOS", name:"Maki California", price:90, desc:"Rollo cubierto en alga nori, relleno de queso philadelphia, aguacate, pepino, surimi o camarón.", mods:true, img:"", emoji:"🌯"},
+  {id:"rf_fruit", cat:"ROLLOS FRÍOS", name:"Fruit Roll", price:100, desc:"Rollo cubierto de queso philadelphia y láminas de fruta de temporada, relleno de fruta de temporada y queso philadelphia.", mods:false, img:"", emoji:"🍍"},
+  {id:"rf_irapuato", cat:"ROLLOS FRÍOS", name:"Irapuato Roll", price:100, desc:"Rollo cubierto con láminas de fresa con mermelada y philadelphia, relleno de fresa y philadelphia.", mods:false, img:"", emoji:"🍓"},
+
+  // ROLLOS EMPANIZADOS
+  {id:"re_california", cat:"ROLLOS EMPANIZADOS", name:"California Empanizado", price:90, desc:"Rollo empanizado, relleno de queso philadelphia, aguacate, pepino, surimi o camarón.", mods:true, img:"", emoji:"🔥"},
+  {id:"re_tropical", cat:"ROLLOS EMPANIZADOS", name:"Tropical Roll Empanizado", price:100, desc:"Rollo empanizado relleno de queso philadelphia, fruta de temporada y camarón.", mods:false, img:"", emoji:"🍤"},
+  {id:"re_veg", cat:"ROLLOS EMPANIZADOS", name:"California Vegetariano Empanizado", price:90, desc:"Rollo empanizado relleno de queso philadelphia, aguacate, pepino y zanahoria.", mods:false, img:"", emoji:"🥦"},
+  {id:"re_maki_emp", cat:"ROLLOS EMPANIZADOS", name:"Maki Empanizado", price:100, desc:"Maki tradicional cubierto con alga nori empanizado, relleno de queso philadelphia, aguacate, pepino, camarón o surimi.", mods:true, img:"", emoji:"🍥"},
+  {id:"re_arrachera", cat:"ROLLOS EMPANIZADOS", name:"Arrachera Roll", price:100, desc:"Rollo empanizado relleno de aguacate, queso manchego, chile serrano y nuestra arrachera especial.", mods:false, img:"", emoji:"🥩"},
+  {id:"re_tokyo", cat:"ROLLOS EMPANIZADOS", name:"Tokyo Roll", price:100, desc:"Rollo empanizado relleno de aguacate, pepino, queso philadelphia y camarones en tempura.", mods:false, img:"", emoji:"🍤"},
+  {id:"re_pollo", cat:"ROLLOS EMPANIZADOS", name:"Pollo Roll", price:100, desc:"Rollo empanizado relleno de pollo cocinado con salsa teriyaki, cebolla caramelizada y zanahoria rallada.", mods:false, img:"", emoji:"🍗"},
+
+  // ROLLOS PREMIUM
+  {id:"rp_wings", cat:"ROLLOS PREMIUM", name:"Wings Roll", price:120, desc:"Rollo empanizado relleno de carne de nuestras alitas adobadas y queso manchego acompañado de 2 alitas.", mods:false, img:"", emoji:"🍗"},
+  {id:"rp_dragon", cat:"ROLLOS PREMIUM", name:"Dragon Roll", price:120, desc:"Rollo cubierto con philadelphia, láminas de aguacate y ajonjolí, relleno de queso philadelphia, aguacate, pepino, surimi y camarón.", mods:true, img:"", emoji:"🐉"},
+  {id:"rp_mar_tierra", cat:"ROLLOS PREMIUM", name:"Mar y Tierra", price:120, desc:"Rollo empanizado relleno de arrachera, camarón, philadelphia y aguacate.", mods:false, img:"", emoji:"🌊"},
+  {id:"rp_all_blue", cat:"ROLLOS PREMIUM", name:"All Blue Roll", price:145, desc:"Rollo empanizado relleno de camarón, philadelphia, con aderezo chipotle y camarones en tempura.", mods:false, img:"", emoji:"💙"},
+
+  // SUSHI FUSION
+  {id:"sf_burros", cat:"SUSHI FUSIÓN", name:"Sushi Burros", price:100, desc:"Rollo empanizado cortado a la mitad relleno de arrachera y queso.", mods:false, img:"", emoji:"🌯"},
+  {id:"sf_pizza", cat:"SUSHI FUSIÓN", name:"Sushi Pizza", price:100, desc:"Rollo empanizado cortado de forma especial relleno de queso, con salsa de tomate y arrachera.", mods:false, img:"", emoji:"🍕"},
+  {id:"sf_hamburguesa", cat:"SUSHI FUSIÓN", name:"Hamburguesa de Sushi", price:150, desc:"Hamburguesa con base y tapa de arroz empanizado por dentro tiene mayonesa y catsup, 2 aros de cebolla arrachera y acompañada de papas a la francesa.", mods:false, img:"", emoji:"🍔"},
+  {id:"sf_banderillas", cat:"SUSHI FUSIÓN", name:"Banderillas de Sushi", price:90, desc:"2 banderillas de rollos california empanizadas.", mods:false, img:"", emoji:"🍢"},
+
+  // PLATOS DE ARROZ
+  {id:"ar_hakimeshi", cat:"PLATOS DE ARROZ", name:"Hakimeshi", price:80, desc:"Arroz frito con verduras. Extras a escoger: camarón, surimi, arrachera o pollo.", mods:true, img:"", emoji:"🍚"},
+  {id:"ar_gohan", cat:"PLATOS DE ARROZ", name:"Gohan", price:50, desc:"Arroz al vapor con verduras y furikake. Extras a escoger: camarón, surimi, pollo o arrachera.", mods:true, img:"", emoji:"🥣"},
+
+  // TACOS
+  {id:"taco_gobernador", cat:"TACOS", name:"Tacos Gobernador", price:90, desc:"Orden de 3 tacos de camarón capeados en tempura tradicional, acompañados con pico de gallo y verdura.", mods:false, img:"", emoji:"🌮"},
+  {id:"taco_arrachera", cat:"TACOS", name:"Tacos de Arrachera", price:90, desc:"Orden de 3 tacos bien surtidos acompañados con nuestra salsa, pico de gallo y verduras.", mods:false, img:"", emoji:"🌮"},
+
+  // CAJAS
+  {id:"caja_chica", cat:"CAJAS", name:"Caja Chica", price:370, desc:"2 rollos a escoger, medio kilo de alitas, papas a la francesa y 2 onigiris empanizados.", mods:true, img:"", emoji:"📦"},
+  {id:"caja_grande", cat:"CAJAS", name:"Caja Grande", price:570, desc:"3 rollos a escoger, medio kilo de alitas, papas a la francesa, papas gajo, aros de cebolla y 2 onigiris empanizados.", mods:true, img:"", emoji:"📦"},
+  {id:"caja_jumbo", cat:"CAJAS", name:"Caja Jumbo", price:720, desc:"4 rollos a escoger, 1 kilo de alitas, papas a la francesa, papas gajo, aros de cebolla y 2 onigiris empanizados.", mods:true, img:"", emoji:"📦"},
+
+  // PAQUETES
+  {id:"paq_llenes", cat:"PAQUETES", name:"Paquete Llenes", price:250, desc:"2 rollos a escoger y 3 kushiagues a su elección.", mods:true, img:"", emoji:"🍱"},
+  {id:"paq_umi", cat:"PAQUETES", name:"Combo Umi", price:380, desc:"Medio de alitas, 1 sushi pops, 2 onigiris empanizados, 1 rollo a escoger y 1 sushi ball.", mods:true, img:"", emoji:"🍱"},
+  {id:"paq_pruebes", cat:"PAQUETES", name:"Paquete Pruebes", price:260, desc:"1 rollo a escoger, 1 sushi pops y 1 sushi ball.", mods:true, img:"", emoji:"🍱"},
+  {id:"paq_familiar", cat:"PAQUETES", name:"Paquete Familiar", price:490, desc:"4 rollos a escoger, 2 onigiris empanizados y 4 refrescos a escoger.", mods:true, img:"", emoji:"🍱"},
+
+  // SUSHI BALL
+  {id:"ball_sushi", cat:"SUSHI BALL", name:"Sushi Ball", price:90, desc:"Bola empanizada, rellena de nuestra combinación especial estilo california o tampico.", mods:true, img:"", emoji:"⚪"},
+  {id:"ball_tropical", cat:"SUSHI BALL", name:"Tropical Ball", price:100, desc:"Bola empanizada rellena de fruta de temporada.", mods:false, img:"", emoji:"🍍"},
+  {id:"ball_cow", cat:"SUSHI BALL", name:"Cow Ball", price:120, desc:"Bola empanizada, rellena de arrachera, aguacate, queso manchego y chile serrano.", mods:false, img:"", emoji:"🥩"},
+  {id:"ball_pollo", cat:"SUSHI BALL", name:"Pollo Ball", price:110, desc:"Bola empanizada rellena de zanahoria rallada y pollo teriyaki.", mods:false, img:"", emoji:"🍗"},
+  {id:"ball_boneless", cat:"SUSHI BALL", name:"Boneless Ball", price:120, desc:"Bola empanizada rellena de boneless, sabor a escoger.", mods:true, img:"", emoji:"🔥"},
+
+  // SNACKS
+  {id:"snk_papas_francesa", cat:"SNACKS", name:"Papas a la Francesa", price:45, desc:"Orden de papas a la francesa.", mods:false, img:"", emoji:"🍟"},
+  {id:"snk_papas_gajo", cat:"SNACKS", name:"Papas Gajo", price:55, desc:"Orden de papas gajo.", mods:false, img:"", emoji:"🥔"},
+  {id:"snk_aros", cat:"SNACKS", name:"Aros de Cebolla (12 pzs)", price:80, desc:"Aros de cebolla crujientes.", mods:false, img:"", emoji:"🧅"},
+  {id:"snk_dedos", cat:"SNACKS", name:"Dedos de Queso (6 pzs)", price:80, desc:"Dedos de queso empanizados.", mods:false, img:"", emoji:"🧀"},
+  {id:"snk_alitas_media", cat:"SNACKS", name:"Alitas (1/2 kg)", price:150, desc:"Sabores: BBQ, Red Hot, Parmesano, Mango Habanero, Valentina, Buffalo, Lemon Pepper o Adobadas.", mods:true, img:"", emoji:"🍗"},
+  {id:"snk_alitas_kg", cat:"SNACKS", name:"Alitas (1 kg)", price:250, desc:"Sabores: BBQ, Red Hot, Parmesano, Mango Habanero, Valentina, Buffalo, Lemon Pepper o Adobadas.", mods:true, img:"", emoji:"🍗"},
+  {id:"snk_boneless_media", cat:"SNACKS", name:"Boneless (1/2 kg)", price:200, desc:"Sabores: BBQ, Red Hot, Parmesano, Mango Habanero, Valentina, Buffalo, Lemon Pepper o Adobadas.", mods:true, img:"", emoji:"🍖"},
+  {id:"snk_boneless_kg", cat:"SNACKS", name:"Boneless (1 kg)", price:300, desc:"Sabores: BBQ, Red Hot, Parmesano, Mango Habanero, Valentina, Buffalo, Lemon Pepper o Adobadas.", mods:true, img:"", emoji:"🍖"},
+
+  // POSTRES
+  {id:"pos_nieve", cat:"POSTRES", name:"Nieve de la Casa", price:80, desc:"Orden de dos bolas de nieve cubiertas con chocolate.", mods:false, img:"", emoji:"🍨"},
+  {id:"pos_tempura_helado", cat:"POSTRES", name:"Tempura de Helado", price:90, desc:"Bola de nieve cubierta con tempura dulce cubierta de chocolate.", mods:false, img:"", emoji:"🍦"},
+
+  // BEBIDAS
+  {id:"beb_refresco", cat:"BEBIDAS", name:"Familia Coca-Cola 600 ml", price:30, desc:"Coca-Cola, Coca-Cola Light, Coca-Cola Zero, Fresca, Delaware Punch, Sprite, Mundet o Fanta.", mods:true, img:"", emoji:"🥤"},
+  {id:"beb_calpi_nat_medio", cat:"BEBIDAS", name:"Calpi Natural 1/2 Lt", price:30, desc:"Bebida estilo calpi natural.", mods:false, img:"", emoji:"🥛"},
+  {id:"beb_calpi_nat_litro", cat:"BEBIDAS", name:"Calpi Natural 1 Lt", price:50, desc:"Bebida estilo calpi natural.", mods:false, img:"", emoji:"🥛"},
+  {id:"beb_calpi_min_medio", cat:"BEBIDAS", name:"Calpi Mineral 1/2 Lt", price:35, desc:"Calpi mineral.", mods:false, img:"", emoji:"🫧"},
+  {id:"beb_calpi_min_litro", cat:"BEBIDAS", name:"Calpi Mineral 1 Lt", price:60, desc:"Calpi mineral.", mods:false, img:"", emoji:"🫧"},
+  {id:"beb_calpi_sabor_medio", cat:"BEBIDAS", name:"Calpi de Sabor 1/2 Lt", price:45, desc:"Bebida tradicional japonesa a base de lácteos con fruta natural macerada.", mods:true, img:"", emoji:"🍓"},
+  {id:"beb_calpi_sabor_litro", cat:"BEBIDAS", name:"Calpi de Sabor 1 Lt", price:80, desc:"Bebida tradicional japonesa a base de lácteos con fruta natural macerada.", mods:true, img:"", emoji:"🍓"},
+
+  // EXTRAS 10
+  {id:"ex10_empanizado", cat:"EXTRAS $10", name:"Empanizado", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex10_philadelphia", cat:"EXTRAS $10", name:"Philadelphia", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex10_aguacate", cat:"EXTRAS $10", name:"Aguacate", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex10_pepino", cat:"EXTRAS $10", name:"Pepino", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex10_soya", cat:"EXTRAS $10", name:"Soya", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex10_chipotle", cat:"EXTRAS $10", name:"Chipotle", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex10_anguila", cat:"EXTRAS $10", name:"Anguila", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex10_catsup", cat:"EXTRAS $10", name:"Catsup", price:10, desc:"Extra", mods:false, img:"", emoji:"➕"},
+
+  // EXTRAS 15
+  {id:"ex15_queso_manchego", cat:"EXTRAS $15", name:"Queso Manchego", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex15_camaron", cat:"EXTRAS $15", name:"Camarón", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex15_arrachera", cat:"EXTRAS $15", name:"Arrachera", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex15_surimi", cat:"EXTRAS $15", name:"Surimi", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex15_pollo", cat:"EXTRAS $15", name:"Pollo", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex15_tampico", cat:"EXTRAS $15", name:"Tampico", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"},
+  {id:"ex15_ranch", cat:"EXTRAS $15", name:"Ranch", price:15, desc:"Extra", mods:false, img:"", emoji:"➕"}
+];
+
+const CATS = [
+  "ENTRADAS",
+  "ROLLOS FRÍOS",
+  "ROLLOS EMPANIZADOS",
+  "ROLLOS PREMIUM",
+  "SUSHI FUSIÓN",
+  "PLATOS DE ARROZ",
+  "TACOS",
+  "CAJAS",
+  "PAQUETES",
+  "SUSHI BALL",
+  "SNACKS",
+  "POSTRES",
+  "BEBIDAS",
+  "EXTRAS $10",
+  "EXTRAS $15"
+];
+
+/** =========================
+ * MODIFICADORES
+ * ========================= */
+const MODS = {
+  proteinaRoll: {
+    title:"Proteína / relleno",
+    type:"single",
+    required:false,
+    options:["Surimi","Camarón","Pollo","Arrachera"]
+  },
+  entradaOnigiri: {
+    title:"Preparación",
+    type:"single",
+    required:false,
+    options:["Tradicional","Frito","Empanizado"]
+  },
+  arrozExtra: {
+    title:"Extra a escoger",
+    type:"single",
+    required:false,
+    options:["Camarón","Surimi","Pollo","Arrachera"]
+  },
+  paquetesRollos: {
+    title:"Especifica tus rollos",
+    type:"multi",
+    required:false,
+    options:[
+      "California Roll","Tropical Roll","California Vegetariano","Maki California",
+      "Fruit Roll","Irapuato Roll","California Empanizado","Tropical Empanizado",
+      "Maki Empanizado","Arrachera Roll","Tokyo Roll","Pollo Roll"
+    ]
+  },
+  bebidaRefresco: {
+    title:"Refresco",
+    type:"single",
+    required:false,
+    options:["Coca-Cola","Coca-Cola Light","Coca-Cola Zero","Fresca","Delaware Punch","Sprite","Mundet","Fanta"]
+  },
+  calpiSabor: {
+    title:"Sabor",
+    type:"single",
+    required:false,
+    options:["Fresa","Mango","Durazno","Fruta de temporada"]
+  },
+  ballRelleno: {
+    title:"Relleno / estilo",
+    type:"single",
+    required:false,
+    options:["California","Tampico"]
+  },
+  salsasAlitas: {
+    title:"Sabor",
+    type:"single",
+    required:false,
+    options:["BBQ","Red Hot","Parmesano","Mango Habanero","Valentina","Buffalo","Lemon Pepper","Adobadas"]
+  },
+  conSin: {
+    title:"Indicaciones",
+    type:"multi",
+    required:false,
+    options:["Sin salsa","Sin chipotle","Extra soya","Extra servilletas","Bien dorado"]
+  }
+};
+
+function modsPara(item){
+  const ids = [];
+
+  if(["rf_california","rf_maki_california","re_california","re_maki_emp","rp_dragon"].includes(item.id)){
+    ids.push("proteinaRoll");
+  }
+  if(item.id === "ent_onigiris") ids.push("entradaOnigiri");
+  if(["ar_hakimeshi","ar_gohan"].includes(item.id)) ids.push("arrozExtra");
+  if(["paq_llenes","paq_umi","paq_pruebes","paq_familiar","caja_chica","caja_grande","caja_jumbo"].includes(item.id)) ids.push("paquetesRollos");
+  if(item.id === "beb_refresco") ids.push("bebidaRefresco");
+  if(["beb_calpi_sabor_medio","beb_calpi_sabor_litro"].includes(item.id)) ids.push("calpiSabor");
+  if(item.id === "ball_sushi") ids.push("ballRelleno");
+  if(["ball_boneless","snk_alitas_media","snk_alitas_kg","snk_boneless_media","snk_boneless_kg"].includes(item.id)) ids.push("salsasAlitas");
+  if(item.mods) ids.push("conSin");
+
+  return [...new Set(ids)];
+}
+
+/** =========================
+ * HELPERS
+ * ========================= */
+function money(n){ return "$" + Number(n || 0).toFixed(2); }
+function escapeHtml(s){
+  return String(s || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+function modsToText(mods){
+  const parts = [];
+  for(const k of Object.keys(mods || {})){
+    const g = MODS[k];
+    if(!g) continue;
+    const val = mods[k];
+    if(Array.isArray(val) && val.length) parts.push(`${g.title}: ${val.join(", ")}`);
+    if(typeof val === "string" && val) parts.push(`${g.title}: ${val}`);
+  }
+  return parts.join(" • ");
+}
+function buildKey(item, mods, note){
+  return item.id + "|" + JSON.stringify(mods || {}) + "|" + (note || "");
+}
+function validateRequired(item, mods){
+  const keys = modsPara(item);
+  for(const k of keys){
+    const g = MODS[k];
+    if(!g || !g.required) continue;
+    const v = mods[k];
+    if(g.type === "single" && !v) return `${g.title} es obligatorio.`;
+    if(g.type === "multi" && (!v || !v.length)) return `${g.title} es obligatorio.`;
+  }
+  return null;
+}
+function productBadges(item){
+  const arr = [];
+  if(item.cat === "ROLLOS PREMIUM") arr.push("Premium");
+  if(item.cat === "ROLLOS EMPANIZADOS") arr.push("Empanizado");
+  if(item.cat === "EXTRAS $10" || item.cat === "EXTRAS $15") arr.push("Extra");
+  if(item.cat === "PAQUETES" || item.cat === "CAJAS") arr.push("Paquete");
+  return arr;
+}
+function renderMedia(item){
+  if(item.img){
+    return `<img src="${IMG_BASE + item.img}" alt="${escapeHtml(item.name)}">`;
+  }
+  return `<div>${escapeHtml(item.emoji || "🍣")}</div>`;
+}
+
+/** =========================
+ * UI MENU
+ * ========================= */
+const tabs = document.getElementById("tabs");
+const itemsBox = document.getElementById("items");
+const sectionTitle = document.getElementById("sectionTitle");
+const q = document.getElementById("q");
+let activeCat = CATS[0];
+
+function renderTabs(){
+  tabs.innerHTML = "";
+  CATS.forEach(c=>{
+    const el = document.createElement("div");
+    el.className = "tab" + (c === activeCat ? " active" : "");
+    el.textContent = c;
+    el.addEventListener("click", ()=>{
+      activeCat = c;
+      renderTabs();
+      renderItems();
+    }, {passive:true});
+    tabs.appendChild(el);
+  });
+}
+
+function renderItems(){
+  sectionTitle.textContent = activeCat;
+  const term = (q.value || "").trim().toLowerCase();
+
+  const list = catalogo.filter(x=>{
+    const inCat = x.cat === activeCat;
+    const inSearch = !term || x.name.toLowerCase().includes(term) || (x.desc || "").toLowerCase().includes(term);
+    return inCat && inSearch;
+  });
+
+  itemsBox.innerHTML = "";
+  if(!list.length){
+    itemsBox.innerHTML = `<div class="emptyState">No hay resultados en esta categoría.</div>`;
+    return;
+  }
+
+  list.forEach(it=>{
+    const badges = productBadges(it).map(b=>`<span class="miniBadge">${escapeHtml(b)}</span>`).join("");
+    const card = document.createElement("div");
+    card.className = "prod";
+    card.innerHTML = `
+      <div class="prodLeft">
+        <h3 class="prodName">${escapeHtml(it.name)}</h3>
+        <div class="badgeLine">${badges}</div>
+        <p class="prodDesc">${escapeHtml(it.desc || "")}</p>
+        <div class="price">MXN<br><b>${money(it.price)}</b></div>
+      </div>
+      <div class="prodRight">
+        <div class="prodImg">${renderMedia(it)}</div>
+        <button class="btnAdd" type="button">Agregar</button>
+      </div>
+    `;
+    card.querySelector("button").addEventListener("click", ()=> onAddClicked(it), {passive:true});
+    itemsBox.appendChild(card);
+  });
+}
+q.addEventListener("input", renderItems);
+
+/** =========================
+ * CARRITO
+ * ========================= */
+let cart = [];
+const cartBox = document.getElementById("cart");
+const totalEl = document.getElementById("total");
+const cartPill = document.getElementById("cartPill");
+const barTotal = document.getElementById("barTotal");
+const servTxt = document.getElementById("servTxt");
+
+function cartCount(){ return cart.reduce((a,x)=>a + x.qty, 0); }
+function cartSubTotal(){ return cart.reduce((a,x)=>a + x.qty * x.basePrice, 0); }
+
+let envioPrecio = 0;
+let envioKm = 0;
+
+function cartTotal(){ return cartSubTotal() + envioPrecio; }
+
+function renderCart(){
+  const count = cartCount();
+  cartPill.innerHTML = `🛒 <b>${count}</b> • <span id="pillTotal">${money(cartTotal())}</span>`;
+  totalEl.textContent = money(cartTotal());
+  barTotal.textContent = money(cartTotal());
+  servTxt.textContent = "Domicilio";
+
+  if(cart.length === 0){
+    cartBox.innerHTML = `<div class="emptyState">Aún no agregas nada 😄</div>`;
+    return;
+  }
+
+  cartBox.innerHTML = "";
+  cart.forEach((line, idx)=>{
+    const wrap = document.createElement("div");
+    wrap.className = "cartLine";
+    const lineTotal = line.qty * line.basePrice;
+    wrap.innerHTML = `
+      <div style="min-width:0">
+        <div style="font-weight:1000;font-size:14px;text-transform:uppercase">${escapeHtml(line.name)}
+          <span class="muted" style="font-weight:1000">(${money(line.basePrice)})</span>
+        </div>
+        <div class="muted" style="font-size:12px; margin-top:4px; line-height:1.3; font-weight:900">
+          ${escapeHtml(modsToText(line.mods) || "")}
+        </div>
+        ${line.note ? `<div class="muted" style="font-size:12px; margin-top:4px; font-weight:900">Nota: ${escapeHtml(line.note)}</div>` : ``}
+      </div>
+      <div style="text-align:right">
+        <div class="qtyRow">
+          <button class="mini" type="button" data-act="dec">−</button>
+          <div style="min-width:24px; text-align:center; font-weight:1000">${line.qty}</div>
+          <button class="mini" type="button" data-act="inc">+</button>
+        </div>
+        <div style="margin-top:6px; font-weight:1000">${money(lineTotal)}</div>
+        <button class="mini" type="button" data-act="del" style="margin-top:8px;width:100%;height:34px;border-radius:12px;font-weight:1000">✕</button>
+      </div>
+    `;
+
+    wrap.querySelector('[data-act="dec"]').addEventListener("click", ()=>{
+      line.qty = Math.max(1, line.qty - 1);
+      renderCart();
+    }, {passive:true});
+
+    wrap.querySelector('[data-act="inc"]').addEventListener("click", ()=>{
+      line.qty += 1;
+      renderCart();
+    }, {passive:true});
+
+    wrap.querySelector('[data-act="del"]').addEventListener("click", ()=>{
+      cart.splice(idx, 1);
+      renderCart();
+    }, {passive:true});
+
+    cartBox.appendChild(wrap);
+  });
+}
+
+/** =========================
+ * MODAL PRODUCTO
+ * ========================= */
+const backdrop = document.getElementById("backdrop");
+const mTitle = document.getElementById("mTitle");
+const mBody  = document.getElementById("mBody");
+const mClose = document.getElementById("mClose");
+const mCancel= document.getElementById("mCancel");
+const mAdd   = document.getElementById("mAdd");
+
+let currentItem = null;
+let draft = null;
+
+function openModal(item){
+  currentItem = item;
+  draft = {mods:{}, note:"", qty:1};
+
+  mTitle.textContent = `${item.name} — ${money(item.price)}`;
+  mBody.innerHTML = "";
+
+  const qtyBox = document.createElement("div");
+  qtyBox.className = "optGroup";
+  qtyBox.innerHTML = `
+    <div class="optTitle">
+      <b>Cantidad</b>
+      <span>elige cuántos vas a agregar</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-top:12px;">
+      <button type="button" class="mini" id="qtyMinus" style="width:42px;height:42px;font-size:22px;">−</button>
+      <div id="qtyValue" style="min-width:42px;text-align:center;font-size:22px;font-weight:1000;">1</div>
+      <button type="button" class="mini" id="qtyPlus" style="width:42px;height:42px;font-size:22px;">+</button>
+    </div>
+  `;
+  mBody.appendChild(qtyBox);
+
+  const keys = modsPara(item);
+  if(keys.length){
+    keys.forEach(k=>{
+      const g = MODS[k];
+      const box = document.createElement("div");
+      box.className = "optGroup";
+      box.innerHTML = `
+        <div class="optTitle">
+          <b>${escapeHtml(g.title)}${g.required ? " *" : ""}</b>
+          <span>${g.type === "single" ? "elige 1" : "elige las que quieras"}</span>
+        </div>
+        <div class="optList" data-k="${escapeHtml(k)}"></div>
+      `;
+      const list = box.querySelector(".optList");
+
+      g.options.forEach(opt=>{
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "optBtn";
+        btn.textContent = opt;
+        btn.addEventListener("pointerdown", (e)=>{
+          e.preventDefault();
+          e.stopPropagation();
+          toggleOpt(k, opt, btn);
+        }, {passive:false});
+        list.appendChild(btn);
+      });
+
+      mBody.appendChild(box);
+    });
+  }
+
+  const n = document.createElement("div");
+  n.className = "optGroup";
+  n.innerHTML = `
+    <div class="optTitle">
+      <b>Nota (opcional)</b>
+      <span>ej. “rollo california y tokyo” / “poco picante”</span>
+    </div>
+    <div style="margin-top:10px">
+      <input id="noteProd" placeholder="Escribe una nota para este producto..."/>
+    </div>
+  `;
+  mBody.appendChild(n);
+
+  backdrop.style.display = "flex";
+  backdrop.setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
+
+  setTimeout(()=>{
+    const inp = document.getElementById("noteProd");
+    if(inp) inp.oninput = ()=> draft.note = inp.value;
+
+    const qtyValue = document.getElementById("qtyValue");
+    const qtyMinus = document.getElementById("qtyMinus");
+    const qtyPlus = document.getElementById("qtyPlus");
+
+    function refreshQty(){
+      if(qtyValue) qtyValue.textContent = draft.qty;
+    }
+    if(qtyMinus){
+      qtyMinus.addEventListener("click", ()=>{
+        draft.qty = Math.max(1, draft.qty - 1);
+        refreshQty();
+      });
+    }
+    if(qtyPlus){
+      qtyPlus.addEventListener("click", ()=>{
+        draft.qty += 1;
+        refreshQty();
+      });
+    }
+    refreshQty();
+  }, 0);
+}
+function closeModal(){
+  backdrop.style.display = "none";
+  backdrop.setAttribute("aria-hidden","true");
+  currentItem = null;
+  draft = null;
+  document.body.style.overflow = "";
+}
+function toggleOpt(k, opt, el){
+  const g = MODS[k];
+  if(g.type === "single"){
+    draft.mods[k] = opt;
+    el.parentElement.querySelectorAll(".optBtn").forEach(x=>x.classList.remove("active"));
+    el.classList.add("active");
+  }else{
+    draft.mods[k] = draft.mods[k] || [];
+    const arr = draft.mods[k];
+    const i = arr.indexOf(opt);
+    if(i >= 0){
+      arr.splice(i,1);
+      el.classList.remove("active");
+    }else{
+      arr.push(opt);
+      el.classList.add("active");
+    }
+  }
+}
+function addLine(item, mods, note, qty=1){
+  const key = buildKey(item, mods, note);
+  const existing = cart.find(x=>x.key === key);
+
+  if(existing){
+    existing.qty += qty;
+  }else{
+    cart.push({
+      key,
+      id:item.id,
+      name:item.name,
+      basePrice:item.price,
+      qty,
+      mods,
+      note: note || ""
+    });
+  }
+  renderCart();
+}
+function onAddClicked(item){
+  openModal(item);
+}
+
+mClose.addEventListener("click", closeModal, {passive:true});
+mCancel.addEventListener("click", closeModal, {passive:true});
+backdrop.addEventListener("pointerdown", (e)=>{
+  if(e.target === backdrop){
+    e.preventDefault();
+    closeModal();
+  }
+}, {passive:false});
+mAdd.addEventListener("click", ()=>{
+  if(!currentItem || !draft) return;
+
+  const err = validateRequired(currentItem, draft.mods);
+  if(err){
+    alert(err);
+    return;
+  }
+
+  addLine(currentItem, draft.mods, draft.note, Number(draft.qty || 1));
+  closeModal();
+}, {passive:true});
+
+/** =========================
+ * CHECKOUT + MAPA
+ * ========================= */
+const stepsBackdrop = document.getElementById("stepsBackdrop");
+const stepsClose = document.getElementById("stepsClose");
+const stepsBody = document.getElementById("stepsBody");
+const stepTitle = document.getElementById("stepTitle");
+const stepSub = document.getElementById("stepSub");
+const btnBack = document.getElementById("btnBack");
+const btnNext = document.getElementById("btnNext");
+
+let step = 1;
+
+const form = {
+  nombre: "",
+  tel: "",
+  calle: "",
+  noext: "",
+  col: "",
+  ciudad: "Irapuato",
+  cp: "",
+  estado: "Guanajuato",
+  refs: "",
+  lat: null,
+  lng: null,
+  metodo: "efectivo",
+  pagareCon: "",
+  notas: ""
+};
+
+let showAddrDetails = true;
+let map = null, marker = null, mapReady = false;
+
+function openSteps(startAt){
+  step = (typeof startAt === "number") ? startAt : 1;
+  stepsBackdrop.style.display = "flex";
+  stepsBackdrop.setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
+  renderStep();
+}
+function closeSteps(){
+  stepsBackdrop.style.display = "none";
+  stepsBackdrop.setAttribute("aria-hidden","true");
+  document.body.style.overflow = "";
+  destroyMap();
+}
+stepsClose.addEventListener("click", closeSteps, {passive:true});
+stepsBackdrop.addEventListener("pointerdown", (e)=>{
+  if(e.target === stepsBackdrop){
+    e.preventDefault();
+    closeSteps();
+  }
+}, {passive:false});
+
+function haversineKm(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+async function reverseGeocode(lat,lng){
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`;
+  const res = await fetch(url, { headers: { "Accept":"application/json" } });
+  if(!res.ok) throw new Error("No se pudo obtener dirección");
+  return res.json();
+}
+function pickAddrParts(addr){
+  const road = addr.road || addr.pedestrian || addr.footway || addr.path || "";
+  const house = addr.house_number || "";
+  const suburb = addr.suburb || addr.neighbourhood || addr.quarter || addr.residential || "";
+  const city = addr.city || addr.town || addr.village || addr.municipality || "";
+  const state = addr.state || "";
+  const postcode = addr.postcode || "";
+  return {road, house, suburb, city, state, postcode};
+}
+
+function destroyMap(){
+  try{
+    if(map){ map.off(); map.remove(); }
+  }catch(e){}
+  map = null; marker = null; mapReady = false;
+}
+function ensureMapInit(){
+  const el = document.getElementById("miniMap");
+  if(!el) return;
+
+  if(mapReady){
+    setTimeout(()=> map && map.invalidateSize(true), 80);
+    return;
+  }
+
+  el.innerHTML = "";
+  const centerLat = (form.lat ?? TQ_LAT);
+  const centerLng = (form.lng ?? TQ_LNG);
+
+  map = L.map('miniMap', { zoomControl:true, attributionControl:false }).setView([centerLat, centerLng], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map);
+
+  marker = L.marker([centerLat, centerLng], { draggable:true }).addTo(map);
+
+  marker.on('dragend', async ()=>{
+    const p = marker.getLatLng();
+    await setDomFromLatLng(p.lat, p.lng, true);
+  });
+
+  map.on('click', async (e)=>{
+    marker.setLatLng(e.latlng);
+    await setDomFromLatLng(e.latlng.lat, e.latlng.lng, true);
+  });
+
+  setTimeout(()=> map.invalidateSize(true), 140);
+  mapReady = true;
+}
+async function setDomFromLatLng(lat,lng,recompute=true){
+  form.lat = lat;
+  form.lng = lng;
+
+  try{
+    const data = await reverseGeocode(lat,lng);
+    const addr = data.address || {};
+    const parts = pickAddrParts(addr);
+
+    form.calle = (parts.road || form.calle || "");
+    if(parts.house) form.noext = parts.house;
+    form.col = (parts.suburb || form.col || "");
+    form.ciudad = (parts.city || form.ciudad || "Irapuato");
+    form.estado = (parts.state || form.estado || "Guanajuato");
+    form.cp = (parts.postcode || form.cp || "");
+
+    const f = (id,val)=>{ const el=document.getElementById(id); if(el) el.value = val || ""; };
+    f("s_calle", form.calle);
+    f("s_noext", form.noext);
+    f("s_col", form.col);
+    f("s_ciudad", form.ciudad);
+    f("s_estado", form.estado);
+    f("s_cp", form.cp);
+  }catch(err){}
+
+  if(recompute) await recomputeEnvio();
+}
+async function recomputeEnvio(){
+  if(form.lat == null || form.lng == null){
+    envioPrecio = 0;
+    envioKm = 0;
+    renderCart();
+    return;
+  }
+  envioKm = haversineKm(TQ_LAT, TQ_LNG, Number(form.lat), Number(form.lng));
+  envioKm = Math.round(envioKm * 10) / 10;
+
+  const r = getTarifa(envioKm, lluvia);
+  envioPrecio = r.ok ? r.precio : 0;
+
+  const envioTxt = document.getElementById("envioTxt");
+  if(envioTxt) envioTxt.textContent = r.ok ? money(envioPrecio) : `Fuera de rango (0–${r.limiteKm} km)`;
+
+  renderCart();
+}
+
+function renderStep(){
+  const subTotal = cartSubTotal();
+  const total = cartTotal();
+
+  if(step === 1){
+    stepTitle.textContent = "Paso 1 de 3";
+    stepSub.textContent = "Datos personales";
+    btnBack.style.display = "none";
+    btnNext.textContent = "Continuar";
+
+    stepsBody.innerHTML = `
+      <div class="stepRow">
+        <div>
+          <label>* Nombre</label>
+          <input id="s_nombre" value="${escapeHtml(form.nombre)}" placeholder="Ej. Marciano Pérez">
+        </div>
+        <div>
+          <label>* Número de celular</label>
+          <input id="s_tel" value="${escapeHtml(form.tel)}" placeholder="Ej. 4621234567">
+        </div>
+      </div>
+      <div class="note">
+        Servicio: <b>Domicilio</b><br>
+        Subtotal: <b>${money(subTotal)}</b>
+      </div>
+    `;
+    setTimeout(()=>{
+      const a = document.getElementById("s_nombre");
+      const b = document.getElementById("s_tel");
+      if(a) a.oninput = e=> form.nombre = e.target.value;
+      if(b) b.oninput = e=> form.tel = e.target.value;
+    },0);
+    return;
+  }
+
+  if(step === 2){
+    btnBack.style.display = "inline-block";
+    btnNext.textContent = "Continuar";
+    stepTitle.textContent = "Paso 2 de 3";
+    stepSub.textContent = "Elige tu ubicación";
+
+    stepsBody.innerHTML = `
+      <div class="note" style="margin-top:0">Toca el mapa para poner tu pin o arrástralo. Con eso calculamos el envío.</div>
+
+      <div class="mapWrap"><div id="miniMap"></div></div>
+
+      <div class="mapBar">
+        <button class="btnLight" type="button" id="btnMiUbicacion">📍 Usar mi ubicación</button>
+        <button class="btnLight" type="button" id="btnCentrarTq">🏁 Centrar en sucursal</button>
+      </div>
+
+      <div class="kpiRow">
+        <div class="kpi"><b>Envío</b><span id="envioTxt">${money(envioPrecio)}</span></div>
+        <div class="kpi"><b>Total estimado</b><span>${money(total)}</span></div>
+      </div>
+
+      <button class="detailsToggle" id="btnAddrToggle" type="button" aria-expanded="${showAddrDetails ? "true":"false"}">
+        <span>Detalles de la dirección</span>
+        <span class="arrow" id="addrArrow">${showAddrDetails ? "▲" : "▼"}</span>
+      </button>
+
+      <div class="detailsWrap ${showAddrDetails ? "show":""}" id="addrDetails">
+        <div class="optGroup" style="margin-top:10px">
+          <div class="optTitle"><b>Domicilio</b><span>puedes corregirlo</span></div>
+
+          <div class="stepRow" style="margin-top:10px">
+            <div><label>* Calle</label><input id="s_calle" value="${escapeHtml(form.calle)}" placeholder="Ej. Calle Unión"></div>
+            <div><label>* No. Exterior</label><input id="s_noext" value="${escapeHtml(form.noext)}" placeholder="Ej. 678"></div>
+          </div>
+
+          <div class="stepRow">
+            <div><label>* Colonia</label><input id="s_col" value="${escapeHtml(form.col)}" placeholder="Ej. Barrio de la Calzada"></div>
+            <div><label>* CP</label><input id="s_cp" value="${escapeHtml(form.cp)}" placeholder="Ej. 36580"></div>
+          </div>
+
+          <div class="stepRow">
+            <div><label>* Ciudad</label><input id="s_ciudad" value="${escapeHtml(form.ciudad)}"></div>
+            <div><label>* Estado</label><input id="s_estado" value="${escapeHtml(form.estado)}"></div>
+          </div>
+
+          <label>* Referencias</label>
+          <textarea id="s_refs" placeholder="Entre calles, color de la casa, etc.">${escapeHtml(form.refs)}</textarea>
+        </div>
+      </div>
+    `;
+
+    setTimeout(async ()=>{
+      destroyMap();
+      ensureMapInit();
+
+      const link = (id, key)=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener("input", ()=> form[key] = el.value);
+      };
+      link("s_calle","calle");
+      link("s_noext","noext");
+      link("s_col","col");
+      link("s_cp","cp");
+      link("s_ciudad","ciudad");
+      link("s_estado","estado");
+      link("s_refs","refs");
+
+      const btnToggle = document.getElementById("btnAddrToggle");
+      const wrap = document.getElementById("addrDetails");
+      const arrow = document.getElementById("addrArrow");
+      if(btnToggle && wrap && arrow){
+        btnToggle.addEventListener("click", ()=>{
+          showAddrDetails = !showAddrDetails;
+          wrap.classList.toggle("show", showAddrDetails);
+          arrow.textContent = showAddrDetails ? "▲" : "▼";
+          btnToggle.setAttribute("aria-expanded", showAddrDetails ? "true":"false");
+          setTimeout(()=> map && map.invalidateSize(true), 120);
+        }, {passive:true});
+      }
+
+      const btnMi = document.getElementById("btnMiUbicacion");
+      if(btnMi){
+        btnMi.addEventListener("click", ()=>{
+          if(!navigator.geolocation){
+            alert("Tu navegador no soporta ubicación.");
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(async (pos)=>{
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            marker.setLatLng([lat,lng]);
+            map.setView([lat,lng], 16, {animate:true});
+            await setDomFromLatLng(lat,lng,true);
+          }, ()=>{
+            alert("No se pudo obtener tu ubicación. Revisa permisos.");
+          }, { enableHighAccuracy:true, timeout:12000, maximumAge:0 });
+        }, {passive:true});
+      }
+
+      const btnC = document.getElementById("btnCentrarTq");
+      if(btnC){
+        btnC.addEventListener("click", ()=>{
+          marker.setLatLng([TQ_LAT,TQ_LNG]);
+          map.setView([TQ_LAT,TQ_LNG], 14, {animate:true});
+        }, {passive:true});
+      }
+
+      if(form.lat == null || form.lng == null){
+        marker.setLatLng([TQ_LAT,TQ_LNG]);
+        map.setView([TQ_LAT,TQ_LNG], 14);
+        await recomputeEnvio();
+      }else{
+        marker.setLatLng([form.lat, form.lng]);
+        map.setView([form.lat, form.lng], 16);
+        await recomputeEnvio();
+      }
+
+      setTimeout(()=> map && map.invalidateSize(true), 160);
+    }, 0);
+    return;
+  }
+
+  btnBack.style.display = "inline-block";
+  btnNext.textContent = "Enviar pedido";
+  stepTitle.textContent = "Paso 3 de 3";
+  stepSub.textContent = "Pago y envío";
+
+  stepsBody.innerHTML = `
+    <div class="kpiRow">
+      <div class="kpi"><b>Subtotal</b><span>${money(cartSubTotal())}</span></div>
+      <div class="kpi"><b>Envío</b><span>${money(envioPrecio)}</span></div>
+    </div>
+
+    <div class="stepRow" style="margin-top:10px">
+      <div>
+        <label>Método de pago</label>
+        <select id="s_metodo">
+          <option value="efectivo" ${form.metodo==="efectivo"?"selected":""}>Efectivo</option>
+        </select>
+
+        <label>Si pagas en efectivo: ¿Pagarás con cuánto?</label>
+        <input id="s_pagare" value="${escapeHtml(form.pagareCon)}" placeholder="Ej. 500">
+      </div>
+      <div>
+        <div class="note">
+          Total a pagar: <b>${money(cartTotal())}</b><br>
+          Al enviar, se abrirá WhatsApp con el pedido listo.
+        </div>
+      </div>
+    </div>
+
+    <label>Notas / Indicaciones</label>
+    <textarea id="s_notas" placeholder="Ej. poco picante / sin chipotle / qué rollos quieres en el paquete">${escapeHtml(form.notas)}</textarea>
+  `;
+
+  setTimeout(()=>{
+    const m = document.getElementById("s_metodo");
+    const p = document.getElementById("s_pagare");
+    const n = document.getElementById("s_notas");
+    if(m) m.onchange = e=> form.metodo = e.target.value;
+    if(p) p.oninput  = e=> form.pagareCon = e.target.value;
+    if(n) n.oninput  = e=> form.notas = e.target.value;
+  },0);
+}
+
+function stepValidate(){
+  if(step === 1){
+    if(!form.nombre.trim()) return "Pon tu nombre.";
+    if(!form.tel.trim()) return "Pon tu celular.";
+  }
+  if(step === 2){
+    if(form.lat == null || form.lng == null) return "Elige tu ubicación en el mapa.";
+    if(!form.calle.trim()) return "Falta la calle.";
+    if(!form.noext.trim()) return "Falta el número exterior.";
+    if(!form.col.trim()) return "Falta la colonia.";
+    if(!form.cp.trim()) return "Falta el CP.";
+    if(!form.refs.trim()) return "Faltan referencias.";
+    const r = getTarifa(envioKm, lluvia);
+    if(!r.ok) return "Tu domicilio está fuera del rango de envío (0–10 km).";
+  }
+  if(step === 3){
+    const p = form.pagareCon.trim();
+    if(p && isNaN(Number(p))) return "En 'Pagaré con' pon solo número (ej. 500).";
+  }
+  return null;
+}
+
+function cleanWA(text){
+  return (text || "")
+    .replace(/\uFFFD/g, "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function buildWhatsAppText(){
+  const sub = cartSubTotal();
+  const total = cartTotal();
+  const orderNo = String(Date.now()).slice(-6);
+
+  const lines = [];
+  lines.push(`*${TAQUERIA_NOMBRE}*`);
+  lines.push(`Hola, mi nombre es *${form.nombre}*, este es mi pedido:`);
+  lines.push(``);
+  lines.push(`Número de pedido: *${orderNo}*`);
+  lines.push(`Servicio: *Domicilio*`);
+  lines.push(`Contacto: *+52${form.tel.replace(/\D/g,"")}*`);
+
+  const dir = [
+    `Calle: ${form.calle} ${form.noext}`,
+    `Colonia: ${form.col}`,
+    `Ciudad: ${form.ciudad}`,
+    `CP: ${form.cp}`,
+    `Estado: ${form.estado}`,
+    `Referencias: ${form.refs}`,
+    `Ubicación: ${Number(form.lat).toFixed(5)}, ${Number(form.lng).toFixed(5)}`
+  ].join("\n");
+
+  lines.push(``);
+  lines.push(`Domicilio para la entrega:`);
+  lines.push(dir);
+  lines.push(``);
+  lines.push(`Envío: *${money(envioPrecio)}*`);
+  lines.push(``);
+  lines.push(`--------------------------`);
+  cart.forEach(x=>{
+    lines.push(`- ${x.qty} x ${x.name} (${money(x.basePrice)})`);
+    const mt = modsToText(x.mods);
+    if(mt) lines.push(`  • ${mt}`);
+    if(x.note) lines.push(`  • Nota: ${x.note}`);
+  });
+  lines.push(`--------------------------`);
+  lines.push(`Subtotal: ${money(sub)}`);
+  lines.push(`Envío: ${money(envioPrecio)}`);
+  lines.push(`Total: *${money(total)}*`);
+
+  if(form.metodo === "efectivo"){
+    lines.push(``);
+    if(form.pagareCon.trim()){
+      lines.push(`Pagaré con: *$${Number(form.pagareCon).toFixed(2)}* en efectivo`);
+    }else{
+      lines.push(`Método de pago: *Efectivo*`);
+    }
+  }
+
+  if(form.notas.trim()){
+    lines.push(``);
+    lines.push(`Indicaciones: ${form.notas}`);
+  }
+
+  lines.push(``);
+  lines.push(`Gracias por tu pedido 🍣`);
+  return lines.join("\n");
+}
+
+/** =========================
+ * BOTONES PRINCIPALES
+ * ========================= */
+document.getElementById("btnCheckout").addEventListener("click", ()=>{
+  if(cart.length === 0){
+    alert("Agrega algo al carrito primero 😄");
+    return;
+  }
+  openSteps(1);
+}, {passive:true});
+
+document.getElementById("btnClear").addEventListener("click", ()=>{
+  if(confirm("¿Vaciar carrito?")){
+    cart = [];
+    renderCart();
+  }
+}, {passive:true});
+
+document.getElementById("btnBack").addEventListener("click", ()=>{
+  if(step > 1){
+    step--;
+    renderStep();
+  }
+}, {passive:true});
+
+document.getElementById("btnNext").addEventListener("click", async ()=>{
+  const err = stepValidate();
+  if(err){
+    alert(err);
+    return;
+  }
+
+  if(step === 1){
+    step = 2;
+    renderStep();
+    return;
+  }
+
+  if(step === 2){
+    await recomputeEnvio();
+    const r = getTarifa(envioKm, lluvia);
+    if(!r.ok){
+      alert("Tu domicilio está fuera del rango de envío (0–10 km).");
+      return;
+    }
+    step = 3;
+    renderStep();
+    return;
+  }
+
+  const text = cleanWA(buildWhatsAppText());
+  const url = `https://wa.me/${WHATSAPP_TAQ}?text=${encodeURIComponent(text)}`;
+  window.open(url, "_blank");
+  closeSteps();
+});
+
+/** =========================
+ * INIT
+ * ========================= */
+renderTabs();
+renderItems();
+renderCart();
+</script>
+</body>
+</html>
