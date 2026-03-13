@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Menú — Taquería Guadalupe Victoria</title>
 
-  <!-- Leaflet (mapa gratis) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
@@ -21,6 +20,7 @@
       --gold1:#c98a1e;
       --gold2:#b77712;
       --green:#1f6b2a;
+      --red:#b42318;
 
       --shadow: 0 18px 50px rgba(32,24,16,.18);
       --r:18px;
@@ -51,6 +51,7 @@
     header .row{
       display:flex; gap:12px; align-items:center; justify-content:space-between;
       max-width:1200px; margin:0 auto;
+      flex-wrap:wrap;
     }
     header .brand{display:flex; flex-direction:column; line-height:1.05; min-width:0;}
     header h1{
@@ -61,6 +62,14 @@
     }
     header .sub{
       font-size:12px; opacity:.92; margin-top:3px;
+    }
+
+    .topRight{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
 
     .pill{
@@ -75,6 +84,14 @@
       white-space:nowrap;
     }
     .pill b{font-size:13px}
+    .pillStatus.open{
+      background: rgba(31,107,42,.22);
+      border-color: rgba(255,255,255,.20);
+    }
+    .pillStatus.closed{
+      background: rgba(180,35,24,.24);
+      border-color: rgba(255,255,255,.20);
+    }
 
     .wrap{
       max-width:1200px;
@@ -235,6 +252,12 @@
     }
     .btnAdd:active,.stickyBtn:active{transform: translateY(1px)}
     .btnAdd:focus,.stickyBtn:focus{outline: 3px solid rgba(201,138,30,.28)}
+    .btnDisabled{
+      background: linear-gradient(180deg, #9a9a9a, #6f6f6f) !important;
+      box-shadow:none !important;
+      cursor:not-allowed !important;
+      opacity:.85;
+    }
 
     .btnGhost{
       border:1px solid rgba(255,255,255,.18);
@@ -304,6 +327,7 @@
       justify-content:space-between;
       gap:10px;
       padding: 10px 10px 10px 12px;
+      flex-wrap:wrap;
     }
     .stickyBar .left{display:flex; align-items:center; gap:10px; font-weight:1000;}
     .stickyBar .amount{font-size:18px; letter-spacing:.2px;}
@@ -430,6 +454,16 @@
       border:1px solid rgba(59,42,31,.16);
       margin-top:12px;
     }
+    .noteWarn{
+      color:#7a2e00;
+      background: rgba(255,235,205,.75);
+      border-color: rgba(201,138,30,.35);
+    }
+    .noteClosed{
+      color:#7a0f0f;
+      background: rgba(255,232,232,.90);
+      border-color: rgba(180,35,24,.25);
+    }
 
     .steps{
       width:min(760px, 100%);
@@ -509,9 +543,13 @@
   <div class="row">
     <div class="brand">
       <h1>🌮 Menú — Taquería Guadalupe Victoria</h1>
-      <div class="sub">Pedidos rápidos • Picapiedra</div>
+      <div class="sub" id="statusSub">Pedidos rápidos • Picapiedra</div>
     </div>
-    <div class="pill" id="cartPill">🛒 <b>0</b> • <span id="pillTotal">$0.00</span></div>
+
+    <div class="topRight">
+      <div class="pill pillStatus" id="openStatusPill">⏳ Revisando horario...</div>
+      <div class="pill" id="cartPill">🛒 <b>0</b> • <span id="pillTotal">$0.00</span></div>
+    </div>
   </div>
 </header>
 
@@ -524,6 +562,8 @@
     <section class="card">
       <h2>Menú</h2>
       <div class="content">
+        <div id="horarioAviso"></div>
+
         <div class="searchRow">
           <input id="q" placeholder="Buscar un producto (ej. taco, quesadilla, charola)..."/>
         </div>
@@ -561,7 +601,7 @@
           <strong id="total">$0.00</strong>
         </div>
 
-        <div class="note">
+        <div class="note" id="checkoutNote">
           Al dar <b>CONTINUAR</b> te sale el checkout y al final se abre WhatsApp listo para enviar.
         </div>
 
@@ -570,7 +610,7 @@
             <span style="opacity:.9">🛒</span>
             <span class="amount" id="barTotal">$0.00</span>
           </div>
-          <div style="display:flex; gap:8px; align-items:center">
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
             <button class="btnClear" id="btnClear">Vaciar</button>
             <button class="stickyBtn" id="btnCheckout">CONTINUAR</button>
           </div>
@@ -580,7 +620,6 @@
   </div>
 </div>
 
-<!-- MODAL MODIFICADORES -->
 <div class="backdrop" id="backdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true">
     <div class="modalHead">
@@ -600,7 +639,6 @@
   </div>
 </div>
 
-<!-- CHECKOUT -->
 <div class="stepsBackdrop" id="stepsBackdrop" aria-hidden="true">
   <div class="steps" role="dialog" aria-modal="true">
     <div class="stepsHead">
@@ -632,23 +670,166 @@ const TQ_LNG = -101.3569277;
 const IMG_BASE = "";
 
 /** =========================
+ *  HORARIO
+ *  =========================
+ *  0 = domingo, 1 = lunes ... 6 = sábado
+ */
+const HORARIO = {
+  0: null, // domingo cerrado
+  1: { open: "17:00", close: "00:30" }, // lunes
+  2: { open: "17:00", close: "00:30" }, // martes
+  3: { open: "17:00", close: "00:30" }, // miércoles
+  4: { open: "17:00", close: "00:30" }, // jueves
+  5: { open: "17:00", close: "00:30" }, // viernes
+  6: { open: "17:00", close: "00:30" }, // sábado
+};
+
+const NOMBRES_DIA = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+
+function hhmmToMinutes(hhmm){
+  const [h,m] = hhmm.split(":").map(Number);
+  return (h * 60) + m;
+}
+function getNowMinutes(d = new Date()){
+  return d.getHours() * 60 + d.getMinutes();
+}
+function formatHour(hhmm){
+  const [h,m] = hhmm.split(":").map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d.toLocaleTimeString("es-MX", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+function getHorarioEstado(now = new Date()){
+  const day = now.getDay();
+  const mins = getNowMinutes(now);
+
+  const today = HORARIO[day];
+  const prevDay = (day + 6) % 7;
+  const prev = HORARIO[prevDay];
+
+  // 1) revisar si seguimos abiertos por horario del día anterior (ej. 12:10 a.m.)
+  if(prev){
+    const prevOpen = hhmmToMinutes(prev.open);
+    const prevClose = hhmmToMinutes(prev.close);
+    const prevCrossesMidnight = prevClose <= prevOpen;
+
+    if(prevCrossesMidnight && mins < prevClose){
+      return {
+        open: true,
+        sourceDay: prevDay,
+        openText: prev.open,
+        closeText: prev.close,
+        statusText: `Abierto ahora • cierra ${formatHour(prev.close)}`
+      };
+    }
+  }
+
+  // 2) revisar horario normal del día
+  if(!today){
+    return {
+      open: false,
+      sourceDay: day,
+      openText: null,
+      closeText: null,
+      statusText: `Cerrado hoy`
+    };
+  }
+
+  const openMin = hhmmToMinutes(today.open);
+  const closeMin = hhmmToMinutes(today.close);
+  const crossesMidnight = closeMin <= openMin;
+
+  let isOpen = false;
+  if(crossesMidnight){
+    isOpen = mins >= openMin;
+  }else{
+    isOpen = mins >= openMin && mins < closeMin;
+  }
+
+  if(isOpen){
+    return {
+      open: true,
+      sourceDay: day,
+      openText: today.open,
+      closeText: today.close,
+      statusText: `Abierto ahora • cierra ${formatHour(today.close)}`
+    };
+  }
+
+  return {
+    open: false,
+    sourceDay: day,
+    openText: today.open,
+    closeText: today.close,
+    statusText: `Cerrado ahora • abre ${formatHour(today.open)}`
+  };
+}
+function localAbiertoAhora(){
+  return getHorarioEstado().open;
+}
+function renderHorarioEstado(){
+  const pill = document.getElementById("openStatusPill");
+  const sub = document.getElementById("statusSub");
+  const aviso = document.getElementById("horarioAviso");
+  const btn = document.getElementById("btnCheckout");
+  const note = document.getElementById("checkoutNote");
+
+  const estado = getHorarioEstado();
+  const hoy = NOMBRES_DIA[new Date().getDay()];
+
+  pill.classList.remove("open","closed");
+  pill.classList.add(estado.open ? "open" : "closed");
+  pill.textContent = estado.open ? `🟢 ${estado.statusText}` : `🔴 ${estado.statusText}`;
+
+  sub.textContent = estado.open
+    ? `Pedidos rápidos • Picapiedra • ${estado.statusText}`
+    : `Pedidos rápidos • Picapiedra • ${estado.statusText}`;
+
+  if(estado.open){
+    aviso.innerHTML = `
+      <div class="note">
+        <b>Horario de servicio:</b> lunes, martes, miércoles, jueves, viernes y sábado de <b>5:00 p.m.</b> a <b>12:30 a.m.</b>. Domingo <b>cerrado</b>.
+      </div>
+    `;
+    btn.disabled = false;
+    btn.classList.remove("btnDisabled");
+    note.className = "note";
+    note.innerHTML = `Al dar <b>CONTINUAR</b> te sale el checkout y al final se abre WhatsApp listo para enviar.`;
+  }else{
+    aviso.innerHTML = `
+      <div class="note noteClosed">
+        <b>En este momento no estamos recibiendo pedidos.</b><br>
+        Hoy es <b>${hoy}</b>. ${estado.statusText}.<br>
+        Horario: lunes a sábado de <b>5:00 p.m.</b> a <b>12:30 a.m.</b>. Domingo <b>cerrado</b>.
+      </div>
+    `;
+    btn.disabled = true;
+    btn.classList.add("btnDisabled");
+    note.className = "note noteClosed";
+    note.innerHTML = `Por ahora el local está <b>cerrado</b>. Los pedidos solo se pueden hacer cuando el negocio esté abierto.`;
+  }
+}
+
+/** =========================
  *  TARIFAS DOMICILIO
  *  ========================= */
 const TARIFAS = [
-  {from:0, to:3, normal:50, lluvia:65},
-  {from:3, to:4, normal:55, lluvia:75},
-  {from:4, to:5, normal:60, lluvia:85},
-  {from:5, to:6, normal:65, lluvia:95},
-  {from:6, to:7, normal:70, lluvia:105},
-  {from:7, to:8, normal:75, lluvia:115},
-  {from:8, to:9, normal:80, lluvia:125},
-  {from:9, to:10, normal:85, lluvia:135},
+  {from:0,   to:3.1, precio:50, lluvia:65},
+  {from:3.1, to:4.1, precio:55, lluvia:75},
+  {from:4.1, to:5.1, precio:60, lluvia:85},
+  {from:5.1, to:6.1, precio:65, lluvia:95},
+  {from:6.1, to:7.1, precio:70, lluvia:105},
+  {from:7.1, to:8.1, precio:75, lluvia:115},
+  {from:8.1, to:9.1, precio:80, lluvia:125},
 ];
 function getTarifa(km, lluvia=false){
   const k = Number(km);
   const row = TARIFAS.find(r => k >= r.from && k < r.to) || null;
-  if(!row) return {ok:false, precio:0, limiteKm: 10};
-  return {ok:true, precio: lluvia ? row.lluvia : row.normal};
+  if(!row) return {ok:false, precio:0, limiteKm: 9};
+  return {ok:true, precio: lluvia ? row.lluvia : row.precio};
 }
 let lluvia = false;
 
@@ -1108,6 +1289,10 @@ let showAddrDetails = true;
 let map = null, marker = null, mapReady = false;
 
 function openSteps(startAt){
+  if(!localAbiertoAhora()){
+    alert("En este momento el local está cerrado. Solo se pueden hacer pedidos dentro del horario de servicio.");
+    return;
+  }
   step = (typeof startAt==="number") ? startAt : 1;
   stepsBackdrop.style.display = "flex";
   stepsBackdrop.setAttribute("aria-hidden","false");
@@ -1235,7 +1420,7 @@ async function recomputeEnvio(){
   envioPrecio = r.ok ? r.precio : 0;
 
   const envioTxt = document.getElementById("envioTxt");
-  if(envioTxt) envioTxt.textContent = r.ok ? money(envioPrecio) : `Fuera de rango (0–${r.limiteKm} km)`;
+  if(envioTxt) envioTxt.textContent = r.ok ? money(envioPrecio) : `Fuera de rango (0–9 km)`;
 
   renderCart();
 }
@@ -1261,16 +1446,45 @@ function renderStep(){
           <input id="s_tel" value="${escapeHtml(form.tel)}" placeholder="Ej. 4621234567">
         </div>
       </div>
+
+      <div class="optGroup">
+        <div class="optTitle">
+          <b>¿Está lloviendo?</b>
+          <span>esto ajusta la tarifa de envío</span>
+        </div>
+        <div class="optList">
+          <button type="button" class="optBtn ${!lluvia ? "active":""}" id="lluviaNo">No</button>
+          <button type="button" class="optBtn ${lluvia ? "active":""}" id="lluviaSi">Sí</button>
+        </div>
+      </div>
+
       <div class="note">
         Servicio: <b>Domicilio</b><br>
-        Subtotal: <b>${money(subTotal)}</b>
+        Subtotal: <b>${money(subTotal)}</b><br>
+        Tarifa por lluvia: <b>${lluvia ? "activada" : "normal"}</b>
       </div>
     `;
     setTimeout(()=>{
       const a = document.getElementById("s_nombre");
       const b = document.getElementById("s_tel");
+      const lluviaNo = document.getElementById("lluviaNo");
+      const lluviaSi = document.getElementById("lluviaSi");
+
       if(a) a.oninput = e=> form.nombre = e.target.value;
       if(b) b.oninput = e=> form.tel = e.target.value;
+
+      if(lluviaNo){
+        lluviaNo.addEventListener("click", ()=>{
+          lluvia = false;
+          renderStep();
+        }, {passive:true});
+      }
+      if(lluviaSi){
+        lluviaSi.addEventListener("click", ()=>{
+          lluvia = true;
+          renderStep();
+        }, {passive:true});
+      }
     },0);
     return;
   }
@@ -1292,7 +1506,7 @@ function renderStep(){
       </div>
 
       <div class="kpiRow">
-        <div class="kpi"><b>Envío</b><span id="envioTxt">${money(envioPrecio)}</span></div>
+        <div class="kpi"><b>Envío ${lluvia ? "(lluvia)" : ""}</b><span id="envioTxt">${money(envioPrecio)}</span></div>
         <div class="kpi"><b>Total (estimado)</b><span>${money(total)}</span></div>
       </div>
 
@@ -1403,7 +1617,7 @@ function renderStep(){
   stepsBody.innerHTML = `
     <div class="kpiRow">
       <div class="kpi"><b>Subtotal</b><span>${money(cartSubTotal())}</span></div>
-      <div class="kpi"><b>Envío</b><span>${money(envioPrecio)}</span></div>
+      <div class="kpi"><b>Envío ${lluvia ? "(lluvia)" : ""}</b><span>${money(envioPrecio)}</span></div>
     </div>
 
     <div class="stepRow" style="margin-top:10px">
@@ -1419,6 +1633,7 @@ function renderStep(){
       <div>
         <div class="note">
           Total a pagar: <b>${money(cartTotal())}</b><br>
+          Tarifa aplicada: <b>${lluvia ? "Lluvia" : "Normal"}</b><br>
           Al enviar, se abrirá WhatsApp con el mensaje listo.
         </div>
       </div>
@@ -1439,6 +1654,8 @@ function renderStep(){
 }
 
 function stepValidate(){
+  if(!localAbiertoAhora()) return "En este momento el local está cerrado. Solo se pueden hacer pedidos dentro del horario de servicio.";
+
   if(step===1){
     if(!form.nombre.trim()) return "Pon tu nombre.";
     if(!form.tel.trim()) return "Pon tu celular.";
@@ -1451,7 +1668,7 @@ function stepValidate(){
     if(!form.cp.trim()) return "Falta el CP.";
     if(!form.refs.trim()) return "Faltan referencias.";
     const r = getTarifa(envioKm, lluvia);
-    if(!r.ok) return "Tu domicilio está fuera del rango de envío (0–10 km).";
+    if(!r.ok) return "Tu domicilio está fuera del rango de envío (0–9 km).";
   }
   if(step===3){
     const p = form.pagareCon.trim();
@@ -1480,6 +1697,7 @@ function buildWhatsAppText(){
   lines.push(`Número de pedido: *${orderNo}*`);
   lines.push(`Servicio: *Domicilio*`);
   lines.push(`Contacto: *+52${form.tel.replace(/\D/g,"")}*`);
+  lines.push(`Tarifa de envío: *${lluvia ? "Lluvia" : "Normal"}*`);
 
   const dir = [
     `Calle: ${form.calle} ${form.noext}`,
@@ -1533,6 +1751,10 @@ function buildWhatsAppText(){
  *  BOTONES PRINCIPALES
  *  ========================= */
 document.getElementById("btnCheckout").addEventListener("click", ()=>{
+  if(!localAbiertoAhora()){
+    alert("En este momento el local está cerrado. Solo se pueden hacer pedidos dentro del horario de servicio.");
+    return;
+  }
   if(cart.length===0){
     alert("Agrega algo al carrito primero 😄");
     return;
@@ -1571,11 +1793,17 @@ document.getElementById("btnNext").addEventListener("click", async ()=>{
     await recomputeEnvio();
     const r = getTarifa(envioKm, lluvia);
     if(!r.ok){
-      alert("Tu domicilio está fuera del rango de envío (0–10 km).");
+      alert("Tu domicilio está fuera del rango de envío (0–9 km).");
       return;
     }
     step = 3;
     renderStep();
+    return;
+  }
+
+  if(!localAbiertoAhora()){
+    alert("En este momento el local está cerrado. No se puede enviar el pedido.");
+    closeSteps();
     return;
   }
 
@@ -1591,6 +1819,8 @@ document.getElementById("btnNext").addEventListener("click", async ()=>{
 renderTabs();
 renderItems();
 renderCart();
+renderHorarioEstado();
+setInterval(renderHorarioEstado, 30000);
 </script>
 
 </body>
