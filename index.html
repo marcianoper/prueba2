@@ -7,10 +7,9 @@
 
   <style>
     :root{
-      /* ====== PICAPIEDRA THEME (negro + naranja) ====== */
-      --bg0:#050507;        /* negro profundo */
-      --bg1:#0b0b10;        /* negro azulado */
-      --card:#0f1117;       /* panel */
+      --bg0:#050507;
+      --bg1:#0b0b10;
+      --card:#0f1117;
       --card2:#121521;
       --line:rgba(255,255,255,.10);
 
@@ -44,7 +43,6 @@
       overflow-x:hidden;
     }
 
-    /* ====== Top header ====== */
     header{
       position:sticky; top:0; z-index:50;
       background: rgba(10,10,14,.72);
@@ -127,7 +125,6 @@
     }
     .dot{width:10px;height:10px;border-radius:999px;background:var(--good); box-shadow: 0 0 0 6px rgba(31,191,102,.12)}
 
-    /* ====== Category bar (Picapiedra chips) ====== */
     .catsBar{
       max-width: 1260px;
       margin:0 auto;
@@ -227,7 +224,6 @@
       white-space:nowrap;
     }
 
-    /* ===== Layout ===== */
     .wrap{
       max-width:1260px;
       margin:0 auto;
@@ -236,7 +232,6 @@
       gap:14px;
     }
 
-    /* ====== HERO con logo que luce ====== */
     .hero{
       border-radius: calc(var(--r) + 6px);
       border:1px solid rgba(255,255,255,.10);
@@ -297,7 +292,6 @@
       border-color: rgba(255,122,0,.18);
     }
 
-    /* Logo showcase box */
     .logoShow{
       border-radius: 22px;
       border:1px solid rgba(255,122,0,.22);
@@ -379,7 +373,6 @@
       background: rgba(255,122,0,.08);
     }
 
-    /* ===== Section ===== */
     .sec{
       border-radius: var(--r);
       border:1px solid rgba(255,255,255,.10);
@@ -426,7 +419,6 @@
       font-size:12px;
     }
 
-    /* ===== Carousel ===== */
     .carouselWrap{ position:relative; }
     .cards{
       display:flex;
@@ -449,7 +441,6 @@
       .fadeL,.fadeR{ display:none; }
     }
 
-    /* ===== Card ===== */
     .rCard{
       flex: 0 0 360px;
       border-radius: 20px;
@@ -663,8 +654,6 @@
 </header>
 
 <main class="wrap">
-
-  <!-- HERO con logo grande -->
   <section class="hero">
     <div class="heroGrid">
       <div class="heroText">
@@ -680,7 +669,6 @@
 
       <aside class="logoShow">
         <div class="logoFrame">
-          <!-- ✅ Cambia esta ruta por tu imagen -->
           <img id="logoPicapiedra" src="" alt="PICAPIEDRA Logo">
         </div>
 
@@ -698,7 +686,6 @@
     </div>
   </section>
 
-  <!-- ===== TAQUERÍAS ===== -->
   <section class="sec" data-sec="taquerias">
     <div class="secHead">
       <div class="left">
@@ -713,7 +700,6 @@
     </div>
   </section>
 
-  <!-- ===== MENUDERÍAS ===== -->
   <section class="sec" data-sec="menuderias">
     <div class="secHead">
       <div class="left">
@@ -728,7 +714,6 @@
     </div>
   </section>
 
-  <!-- ===== CARNICERÍA ===== -->
   <section class="sec" data-sec="carniceria">
     <div class="secHead">
       <div class="left">
@@ -743,7 +728,6 @@
     </div>
   </section>
 
-  <!-- ===== MAYOREO ===== -->
   <section class="sec" data-sec="mayoreo">
     <div class="secHead">
       <div class="left">
@@ -758,7 +742,6 @@
     </div>
   </section>
 
-  <!-- ===== ALITAS ===== -->
   <section class="sec" data-sec="alitas">
     <div class="secHead">
       <div class="left">
@@ -773,7 +756,6 @@
     </div>
   </section>
 
-  <!-- ===== PIZZA ===== -->
   <section class="sec" data-sec="pizza">
     <div class="secHead">
       <div class="left">
@@ -788,7 +770,6 @@
     </div>
   </section>
 
-  <!-- ===== CARNE ASADA ===== -->
   <section class="sec" data-sec="carne_asada">
     <div class="secHead">
       <div class="left">
@@ -803,7 +784,6 @@
     </div>
   </section>
 
-  <!-- ===== SUSHI ===== -->
   <section class="sec" data-sec="sushi">
     <div class="secHead">
       <div class="left">
@@ -818,7 +798,6 @@
     </div>
   </section>
 
-  <!-- ===== BEBIDAS ===== -->
   <section class="sec" data-sec="bebidas">
     <div class="secHead">
       <div class="left">
@@ -832,52 +811,114 @@
       <div class="cards" id="cards_bebidas"></div>
     </div>
   </section>
-
 </main>
 
 <script>
-/** =========================
- *  LOGO (pon aquí tu ruta)
- *  =========================
- * Opción 1 (recomendado): sube el logo a tu repo y pon ruta relativa:
- *   const logoSrc = "./assets/picapiedra.png";
- * Opción 2: URL completa (si está alojado en tu GitHub Pages):
- *   const logoSrc = "https://tusitio.github.io/tuRepo/assets/picapiedra.png";
- */
 const logoSrc = "picapiedra.png";
 document.getElementById("logoPicapiedra").src = logoSrc;
 
-/** =========================
- *  DATA (por categorías)
- *  ========================= */
 const CATALOG = {
   taquerias: [
     {
-      id:"chema",
-      name:"Tacos Paisa Chema",
+      id:"guadalupe_victoria",
       name:"Tacos Guadalupe Victoria",
-      desc:"Menú para ordenar (tacos, gringas, volcanes, bebidas).",
+      desc:"Menú para ordenar tacos, gringas, volcanes y bebidas.",
       tags:["Menú","Pedidos","WhatsApp"],
-      route:"https://marcianoper.github.io/prueba2/",
       route:"https://picapiedra.org/Guadalupe/",
       logoText:"🌮",
       flavor:"hot"
-    },
-@@ -914,316 +914,316 @@
-    { id:"asada_demo", name:"Carne Asada (demo)", desc:"Ejemplo: parrilladas, tacos, papas, salsas.", tags:["Parrilla","Tacos","Pedidos"], route:"#", logoText:"🔥", flavor:"hot" }
+    }
+  ],
+  menuderias: [
+    {
+      id:"menuderia_demo",
+      name:"Menudería (demo)",
+      desc:"Ejemplo: menudo, quesadillas y extras.",
+      tags:["Menudo","Quesadillas","Pedidos"],
+      route:"#",
+      logoText:"🥣",
+      flavor:"hot"
+    }
+  ],
+  carniceria: [
+    {
+      id:"carniceria_demo",
+      name:"Carnicería (demo)",
+      desc:"Ejemplo: cortes, carne fresca y pedidos.",
+      tags:["Carne","Cortes","Pedidos"],
+      route:"#",
+      logoText:"🥩",
+      flavor:"cool"
+    }
+  ],
+  mayoreo: [
+    {
+      id:"mayoreo_demo",
+      name:"Mayoreo (demo)",
+      desc:"Ejemplo: compra por volumen y atención comercial.",
+      tags:["Mayoreo","Volumen","Atención"],
+      route:"#",
+      logoText:"📦",
+      flavor:"cool"
+    }
+  ],
+  alitas: [
+    {
+      id:"alitas_demo",
+      name:"Alitas (demo)",
+      desc:"Ejemplo: alitas, boneless, combos y papas.",
+      tags:["Alitas","Combos","Pedidos"],
+      route:"#",
+      logoText:"🍗",
+      flavor:"hot"
+    }
+  ],
+  pizza: [
+    {
+      id:"pizza_demo",
+      name:"Pizza (demo)",
+      desc:"Ejemplo: pizzas, promos y bebidas.",
+      tags:["Pizza","Promos","Pedidos"],
+      route:"#",
+      logoText:"🍕",
+      flavor:"hot"
+    }
+  ],
+  carne_asada: [
+    {
+      id:"asada_demo",
+      name:"Carne Asada (demo)",
+      desc:"Ejemplo: parrilladas, tacos, papas y salsas.",
+      tags:["Parrilla","Tacos","Pedidos"],
+      route:"#",
+      logoText:"🔥",
+      flavor:"hot"
+    }
   ],
   sushi: [
-    { id:"sushi_demo", name:"Sushi (demo)", desc:"Ejemplo: rollos, bowls, combos.", tags:["Sushi","Combos","Pedidos"], route:"#", logoText:"🍣", flavor:"cool" }
-    { id:"sushi_demo", name:"Umi sushi irapuato", desc:"Ejemplo: rollos, bowls, combos.", tags:["Sushi","Combos","Pedidos"], route:"https://picapiedra.org/umi_sushi/", logoText:"🍣", flavor:"cool" }
+    {
+      id:"umi_sushi",
+      name:"Umi Sushi Irapuato",
+      desc:"Rollos, bowls, combos y bebidas.",
+      tags:["Sushi","Combos","Pedidos"],
+      route:"https://picapiedra.org/umi_sushi/",
+      logoText:"🍣",
+      flavor:"cool"
+    }
   ],
   bebidas: [
-    { id:"bebidas_demo", name:"Bebidas (demo)", desc:"Ejemplo: aguas, refrescos, jugos, café.", tags:["Bebidas","Extras","Pedidos"], route:"#", logoText:"🥤", flavor:"cool" }
+    {
+      id:"bebidas_demo",
+      name:"Bebidas (demo)",
+      desc:"Ejemplo: aguas, refrescos, jugos y café.",
+      tags:["Bebidas","Extras","Pedidos"],
+      route:"#",
+      logoText:"🥤",
+      flavor:"cool"
+    }
   ]
 };
 
-/** =========================
- *  CONFIG auto-scroll
- *  ========================= */
 const AUTO_MS = 2600;
 const PAUSE_ON_INTERACT_MS = 4500;
 
@@ -888,18 +929,15 @@ const sections = [
   { key:"menuderias", secEl: document.querySelector('[data-sec="menuderias"]'), el: document.getElementById("cards_menuderias"), count: document.getElementById("count_menuderias") },
   { key:"carniceria", secEl: document.querySelector('[data-sec="carniceria"]'), el: document.getElementById("cards_carniceria"), count: document.getElementById("count_carniceria") },
   { key:"mayoreo",    secEl: document.querySelector('[data-sec="mayoreo"]'),    el: document.getElementById("cards_mayoreo"),    count: document.getElementById("count_mayoreo") },
-  { key:"alitas",      secEl: document.querySelector('[data-sec="alitas"]'),      el: document.getElementById("cards_alitas"),      count: document.getElementById("count_alitas") },
-  { key:"pizza",       secEl: document.querySelector('[data-sec="pizza"]'),       el: document.getElementById("cards_pizza"),       count: document.getElementById("count_pizza") },
-  { key:"carne_asada", secEl: document.querySelector('[data-sec="carne_asada"]'), el: document.getElementById("cards_carne_asada"), count: document.getElementById("count_carne_asada") },
-  { key:"sushi",       secEl: document.querySelector('[data-sec="sushi"]'),       el: document.getElementById("cards_sushi"),       count: document.getElementById("count_sushi") },
-  { key:"bebidas",     secEl: document.querySelector('[data-sec="bebidas"]'),     el: document.getElementById("cards_bebidas"),     count: document.getElementById("count_bebidas") }
+  { key:"alitas",     secEl: document.querySelector('[data-sec="alitas"]'),     el: document.getElementById("cards_alitas"),     count: document.getElementById("count_alitas") },
+  { key:"pizza",      secEl: document.querySelector('[data-sec="pizza"]'),      el: document.getElementById("cards_pizza"),      count: document.getElementById("count_pizza") },
+  { key:"carne_asada",secEl: document.querySelector('[data-sec="carne_asada"]'),el: document.getElementById("cards_carne_asada"),count: document.getElementById("count_carne_asada") },
+  { key:"sushi",      secEl: document.querySelector('[data-sec="sushi"]'),      el: document.getElementById("cards_sushi"),      count: document.getElementById("count_sushi") },
+  { key:"bebidas",    secEl: document.querySelector('[data-sec="bebidas"]'),    el: document.getElementById("cards_bebidas"),    count: document.getElementById("count_bebidas") }
 ];
 
 let activeCategory = "all";
 
-/** =========================
- *  Render
- *  ========================= */
 function tagHtml(tag, flavor){
   const cls = (flavor==="hot") ? "hot" : "cool";
   return `<span class="tag ${cls}">${escapeHtml(tag)}</span>`;
@@ -943,7 +981,8 @@ function renderSection(sec, list){
     btn.onclick = (e)=>{
       const card = e.target.closest(".rCard");
       if(!card) return;
-      window.location.href = card.getAttribute("data-route");
+      const route = card.getAttribute("data-route");
+      if(route && route !== "#") window.location.href = route;
     };
   });
 
@@ -951,7 +990,8 @@ function renderSection(sec, list){
     btn.onclick = (e)=>{
       const card = e.target.closest(".rCard");
       if(!card) return;
-      window.open(card.getAttribute("data-route"), "_blank");
+      const route = card.getAttribute("data-route");
+      if(route && route !== "#") window.open(route, "_blank");
     };
   });
 }
@@ -968,9 +1008,6 @@ function renderAll(filteredCatalog){
   });
 }
 
-/** =========================
- *  Search + Category filter
- *  ========================= */
 function applyFilter(){
   const term = (q.value||"").trim().toLowerCase();
 
@@ -996,20 +1033,19 @@ document.addEventListener("keydown", (e)=>{
   const isK = (e.key||"").toLowerCase()==="k";
   if((e.ctrlKey || e.metaKey) && isK){
     e.preventDefault();
-    q.focus(); q.select();
+    q.focus();
+    q.select();
   }
   if(e.key === "Enter" && document.activeElement === q){
     const visibleSection = sections.find(s => !s.secEl.classList.contains("hidden"));
     const first = visibleSection?.el?.querySelector(".rCard") || document.querySelector(".rCard");
     if(first){
-      window.location.href = first.getAttribute("data-route");
+      const route = first.getAttribute("data-route");
+      if(route && route !== "#") window.location.href = route;
     }
   }
 });
 
-/** =========================
- *  Barra de categorías (scroll + flechas + auto)
- *  ========================= */
 const catsEl = document.getElementById("cats");
 const catsPrev = document.getElementById("catsPrev");
 const catsNext = document.getElementById("catsNext");
@@ -1103,10 +1139,7 @@ function stopCatsAuto(){
   }, {passive:true});
 });
 
-/** =========================
- *  Auto-moving per section
- *  ========================= */
-const auto = {}; // {key:{timer, pausedUntil}}
+const auto = {};
 
 function stepPx(cardsEl){
   const first = cardsEl.querySelector(".rCard");
@@ -1159,9 +1192,6 @@ function bindPause(key, cardsEl){
   });
 }
 
-/** =========================
- *  Helpers
- *  ========================= */
 function escapeHtml(s){
   return (s||"")
     .replaceAll("&","&amp;")
@@ -1171,9 +1201,6 @@ function escapeHtml(s){
     .replaceAll("'","&#039;");
 }
 
-/** =========================
- *  INIT
- *  ========================= */
 sections.forEach(sec=> bindPause(sec.key, sec.el));
 renderAll(CATALOG);
 updateCatsUI();
