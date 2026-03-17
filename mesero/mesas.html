@@ -881,50 +881,62 @@ try{
    CATÁLOGO CON PRECIOS
    ========================= */
 const catalogo = [
-  {id:"taco_tripa",      cat:"TACOS",       name:"Taco de Tripa",         price:38,  desc:"", requiereNota:false, cocina:true},
-  {id:"taco_pastor",     cat:"TACOS",       name:"Taco de Pastor",        price:28,  desc:"", requiereNota:false, cocina:true},
-  {id:"taco_bistec",     cat:"TACOS",       name:"Taco de Bistec",        price:28,  desc:"", requiereNota:false, cocina:true},
-  {id:"taco_chorizo",    cat:"TACOS",       name:"Taco de Chorizo",       price:28,  desc:"", requiereNota:false, cocina:true},
-  {id:"taco_higado",     cat:"TACOS",       name:"Taco de Hígado",        price:28,  desc:"", requiereNota:false, cocina:true},
-  {id:"taco_costilla",   cat:"TACOS",       name:"Taco de Costilla",      price:28,  desc:"", requiereNota:false, cocina:true},
-  {id:"taco_barbacoa",   cat:"TACOS",       name:"Taco de Barbacoa",      price:28,  desc:"", requiereNota:false, cocina:true},
-  {id:"taco_alambre",    cat:"TACOS",       name:"Taco de Alambre",       price:28,  desc:"", requiereNota:false, cocina:true},
-  {id:"taco_combi",      cat:"TACOS",       name:"Taco Combinado",        price:38,  desc:"Escribe combinación", requiereNota:true, cocina:true},
+  {id:"taco_tripa",      cat:"TACOS",              name:"Taco de Tripa",                   price:38,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_pastor",     cat:"TACOS",              name:"Taco de Pastor",                  price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_bistec",     cat:"TACOS",              name:"Taco de Bistec",                  price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_chorizo",    cat:"TACOS",              name:"Taco de Chorizo",                 price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_higado",     cat:"TACOS",              name:"Taco de Hígado",                  price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_costilla",   cat:"TACOS",              name:"Taco de Costilla",                price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_barbacoa",   cat:"TACOS",              name:"Taco de Barbacoa",                price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_alambre",    cat:"TACOS",              name:"Taco de Alambre",                 price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_combi",      cat:"TACOS",              name:"Taco Combinado",                  price:38,  desc:"Escribe combinación", requiereNota:true, cocina:true},
 
-  {id:"quesa_tripa",     cat:"QUESADILLAS", name:"Quesadilla de Tripa",    price:100, desc:"", requiereNota:false, cocina:true},
-  {id:"quesa_pastor",    cat:"QUESADILLAS", name:"Quesadilla de Pastor",   price:90,  desc:"", requiereNota:false, cocina:true},
-  {id:"quesa_bistec",    cat:"QUESADILLAS", name:"Quesadilla de Bistec",   price:90,  desc:"", requiereNota:false, cocina:true},
-  {id:"quesa_chorizo",   cat:"QUESADILLAS", name:"Quesadilla de Chorizo",  price:90,  desc:"", requiereNota:false, cocina:true},
-  {id:"quesa_higado",    cat:"QUESADILLAS", name:"Quesadilla de Hígado",   price:90,  desc:"", requiereNota:false, cocina:true},
-  {id:"quesa_costilla",  cat:"QUESADILLAS", name:"Quesadilla de Costilla", price:90,  desc:"", requiereNota:false, cocina:true},
-  {id:"quesa_barbacoa",  cat:"QUESADILLAS", name:"Quesadilla de Barbacoa", price:90,  desc:"", requiereNota:false, cocina:true},
-  {id:"quesa_alambre",   cat:"QUESADILLAS", name:"Quesadilla de Alambre",  price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_tripa",     cat:"QUESADILLAS",        name:"Quesadilla de Tripa",             price:100, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_pastor",    cat:"QUESADILLAS",        name:"Quesadilla de Pastor",            price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_bistec",    cat:"QUESADILLAS",        name:"Quesadilla de Bistec",            price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chorizo",   cat:"QUESADILLAS",        name:"Quesadilla de Chorizo",           price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_higado",    cat:"QUESADILLAS",        name:"Quesadilla de Hígado",            price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_costilla",  cat:"QUESADILLAS",        name:"Quesadilla de Costilla",          price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_barbacoa",  cat:"QUESADILLAS",        name:"Quesadilla de Barbacoa",          price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_alambre",   cat:"QUESADILLAS",        name:"Quesadilla de Alambre",           price:90,  desc:"", requiereNota:false, cocina:true},
 
-  {id:"charola_combi",   cat:"CHAROLAS",    name:"Charola Combinada",     price:100, desc:"Escribe combinación", requiereNota:true, cocina:true},
-  {id:"charola_alam",    cat:"CHAROLAS",    name:"Charola de Alambre",    price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chica_tripa",    cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Tripa",    price:70, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chica_pastor",   cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Pastor",   price:65, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chica_bistec",   cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Bistec",   price:65, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chica_chorizo",  cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Chorizo",  price:65, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chica_higado",   cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Hígado",   price:65, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chica_costilla", cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Costilla", price:65, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chica_barbacoa", cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Barbacoa", price:65, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chica_alambre",  cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Alambre",  price:65, desc:"", requiereNota:false, cocina:true},
 
-  {id:"volcan_tripa",    cat:"VOLCANES",    name:"Volcán de Tripa",       price:90, desc:"", requiereNota:false, cocina:true},
-  {id:"volcan_pastor",   cat:"VOLCANES",    name:"Volcán de Pastor",      price:85, desc:"", requiereNota:false, cocina:true},
-  {id:"volcan_bistec",   cat:"VOLCANES",    name:"Volcán de Bistec",      price:85, desc:"", requiereNota:false, cocina:true},
-  {id:"volcan_chorizo",  cat:"VOLCANES",    name:"Volcán de Chorizo",     price:85, desc:"", requiereNota:false, cocina:true},
-  {id:"volcan_higado",   cat:"VOLCANES",    name:"Volcán de Hígado",      price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"charola_combi",   cat:"CHAROLAS",           name:"Charola Combinada",               price:100, desc:"Escribe combinación", requiereNota:true, cocina:true},
+  {id:"charola_alam",    cat:"CHAROLAS",           name:"Charola de Alambre",              price:90,  desc:"", requiereNota:false, cocina:true},
 
-  {id:"beb_coca_light",  cat:"BEBIDAS",     name:"Coca Light",            price:35, desc:"", requiereNota:false, cocina:false},
-  {id:"beb_coca",        cat:"BEBIDAS",     name:"Coca",                  price:35, desc:"", requiereNota:false, cocina:false},
-  {id:"beb_fresca",      cat:"BEBIDAS",     name:"Fresca",                price:35, desc:"", requiereNota:false, cocina:false},
-  {id:"beb_sprite",      cat:"BEBIDAS",     name:"Sprite",                price:35, desc:"", requiereNota:false, cocina:false},
-  {id:"beb_agua",        cat:"BEBIDAS",     name:"Agua fresca",           price:30, desc:"", requiereNota:false, cocina:false},
-  {id:"beb_agua_lt",     cat:"BEBIDAS",     name:"Agua fresca 1 Lt",      price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"volcan_tripa",    cat:"VOLCANES",           name:"Volcán de Tripa",                 price:90, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_pastor",   cat:"VOLCANES",           name:"Volcán de Pastor",                price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_bistec",   cat:"VOLCANES",           name:"Volcán de Bistec",                price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_chorizo",  cat:"VOLCANES",           name:"Volcán de Chorizo",               price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_higado",   cat:"VOLCANES",           name:"Volcán de Hígado",                price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_costilla", cat:"VOLCANES",           name:"Volcán de Costilla",              price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_barbacoa", cat:"VOLCANES",           name:"Volcán de Barbacoa",              price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_alambre",  cat:"VOLCANES",           name:"Volcán de Alambre",               price:85, desc:"", requiereNota:false, cocina:true},
 
-  {id:"pos_pay",         cat:"POSTRES",     name:"Pay de queso",          price:60, desc:"", requiereNota:false, cocina:false},
-  {id:"pos_rompope",     cat:"POSTRES",     name:"Gelatina vainilla con rompope", price:60, desc:"", requiereNota:false, cocina:false},
-  {id:"pos_arroz",       cat:"POSTRES",     name:"Arroz con leche",       price:60, desc:"", requiereNota:false, cocina:false},
-  {id:"pos_flan",        cat:"POSTRES",     name:"Flan",                  price:60, desc:"", requiereNota:false, cocina:false},
-  {id:"pos_fresa",       cat:"POSTRES",     name:"Gelatina fresa con yoghurt", price:60, desc:"", requiereNota:false, cocina:false},
-  {id:"pos_napolitano",  cat:"POSTRES",     name:"Napolitano",            price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_coca_light",  cat:"BEBIDAS",            name:"Coca Light",                      price:35, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_coca",        cat:"BEBIDAS",            name:"Coca",                            price:35, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_fresca",      cat:"BEBIDAS",            name:"Fresca",                          price:35, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_sprite",      cat:"BEBIDAS",            name:"Sprite",                          price:35, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_agua",        cat:"BEBIDAS",            name:"Agua fresca",                     price:30, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_agua_lt",     cat:"BEBIDAS",            name:"Agua fresca 1 Lt",                price:60, desc:"", requiereNota:false, cocina:false},
+
+  {id:"pos_pay",         cat:"POSTRES",            name:"Pay de queso",                    price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_rompope",     cat:"POSTRES",            name:"Gelatina vainilla con rompope",   price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_arroz",       cat:"POSTRES",            name:"Arroz con leche",                 price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_flan",        cat:"POSTRES",            name:"Flan",                            price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_fresa",       cat:"POSTRES",            name:"Gelatina fresa con yoghurt",      price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_napolitano",  cat:"POSTRES",            name:"Napolitano",                      price:60, desc:"", requiereNota:false, cocina:false},
 ];
 
-const CATS = ["TACOS","QUESADILLAS","CHAROLAS","VOLCANES","BEBIDAS","POSTRES"];
+const CATS = ["TACOS","QUESADILLAS","QUESADILLAS CHICAS","CHAROLAS","VOLCANES","BEBIDAS","POSTRES"];
 const PLATOS = ["Plato 1","Plato 2","Plato 3","Plato 4","Plato 5","General"];
 const MESAS = ["Mesa 1","Mesa 2","Mesa 3","Mesa 4","Mesa 5"];
 
@@ -1393,7 +1405,7 @@ function getQuickMods(item){
   if(["TACOS","VOLCANES"].includes(item.cat)){
     mods.push("Sin verdura", "Solo cebolla", "Solo cilantro");
   }
-  if(item.cat === "QUESADILLAS"){
+  if(item.cat === "QUESADILLAS" || item.cat === "QUESADILLAS CHICAS"){
     mods.push("Sin frijoles", "Sin verdura", "Solo cebolla", "Solo cilantro");
   }
   if(item.cat === "CHAROLAS"){
@@ -1505,6 +1517,7 @@ async function agregarLinea(item, persona, note, cardEl=null){
 
   const nombreSimple = item.cat === "TACOS" ? "Taco" :
                        item.cat === "QUESADILLAS" ? "Quesadilla" :
+                       item.cat === "QUESADILLAS CHICAS" ? "Quesadilla chica" :
                        item.cat === "VOLCANES" ? "Volcán" :
                        item.cat === "CHAROLAS" ? "Charola" :
                        "Producto";
