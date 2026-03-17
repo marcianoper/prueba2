@@ -1,1 +1,1838 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Comandas Cocina — Guadalupe Victoria</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#f6f8fc;
+  --paper:#ffffff;
+  --ink:#102033;
+  --muted:#5f7187;
+  --line:rgba(16,32,51,.12);
+
+  --red:#c62828;
+  --red-dark:#8e1d1d;
+  --blue:#1565c0;
+  --blue-dark:#0f4f98;
+  --yellow:#fbc02d;
+  --yellow-dark:#e0a800;
+  --green:#2e7d32;
+  --green-dark:#1f6a24;
+
+  --shadow:0 16px 40px rgba(2,6,23,.10);
+  --r:20px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(1000px 420px at 0% 0%, rgba(251,192,45,.18), transparent 60%),
+    radial-gradient(1000px 420px at 100% 0%, rgba(21,101,192,.14), transparent 60%),
+    linear-gradient(180deg,#f6f8fc 0%, #eef4fb 100%);
+  color:var(--ink);
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:30;
+  padding:12px;
+  background:linear-gradient(135deg,var(--red) 0%, var(--red-dark) 100%);
+  color:#fff;
+  box-shadow:0 12px 30px rgba(198,40,40,.25);
+}
+.head{
+  max-width:980px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.brand h1{
+  margin:0;
+  font-size:18px;
+  line-height:1.1;
+}
+.brand .sub{
+  margin-top:4px;
+  font-size:12px;
+  opacity:.95;
+}
+.pill{
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.18);
+  padding:8px 12px;
+  border-radius:999px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.wrap{
+  max-width:980px;
+  margin:auto;
+  padding:14px 14px 94px;
+}
+
+.stepDots{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:14px;
+}
+.stepDot{
+  border-radius:16px;
+  padding:10px 8px;
+  text-align:center;
+  font-size:12px;
+  font-weight:900;
+  border:2px solid rgba(21,101,192,.12);
+  background:#fff;
+  color:var(--muted);
+}
+.stepDot.active{
+  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
+  color:#5a3b00;
+  border-color:#d39a00;
+}
+.stepDot.done{
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  color:#fff;
+  border-color:var(--blue-dark);
+}
+
+.card{
+  background:var(--paper);
+  border:1px solid rgba(21,101,192,.12);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.cardHead{
+  padding:14px 16px;
+  border-bottom:1px solid rgba(21,101,192,.12);
+  background:linear-gradient(180deg, rgba(21,101,192,.05), rgba(251,192,45,.08));
+}
+.cardHead h2{
+  margin:0;
+  font-size:18px;
+  color:#0b3d6e;
+}
+.cardHead p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
+.cardBody{
+  padding:14px;
+}
+
+.step{display:none}
+.step.active{display:block}
+
+label{
+  display:block;
+  margin-bottom:6px;
+  font-size:12px;
+  font-weight:900;
+  color:#355070;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+input, select{
+  width:100%;
+  padding:15px 14px;
+  border-radius:16px;
+  border:2px solid rgba(21,101,192,.14);
+  background:#fff;
+  font-size:18px;
+  color:var(--ink);
+  outline:none;
+}
+input:focus, select:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(21,101,192,.10);
+}
+
+.btnRow{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.btn{
+  border:none;
+  border-radius:16px;
+  padding:14px 18px;
+  font-weight:1000;
+  font-size:15px;
+  cursor:pointer;
+}
+.btnBlue{
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  color:#fff;
+  box-shadow:0 10px 24px rgba(21,101,192,.22);
+}
+.btnRed{
+  background:linear-gradient(180deg,var(--red),var(--red-dark));
+  color:#fff;
+  box-shadow:0 10px 24px rgba(198,40,40,.22);
+}
+.btnYellow{
+  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
+  color:#5a3b00;
+  box-shadow:0 10px 24px rgba(251,192,45,.24);
+}
+.btnLight{
+  background:#fff;
+  color:#0b4f93;
+  border:2px solid rgba(21,101,192,.16);
+}
+
+.fixedContinue{
+  position:fixed;
+  left:12px;
+  right:12px;
+  bottom:12px;
+  z-index:25;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(21,101,192,.12);
+  border-radius:18px;
+  box-shadow:0 18px 40px rgba(2,6,23,.14);
+  padding:10px;
+}
+.fixedContinue .btn{
+  width:100%;
+}
+
+.mesasGrid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+.mesaBtn{
+  border:none;
+  cursor:pointer;
+  background:transparent;
+  padding:0;
+}
+.mesaCard{
+  position:relative;
+  min-height:116px;
+  border-radius:22px;
+  border:2px solid rgba(21,101,192,.16);
+  background:linear-gradient(180deg,#ffffff,#eef6ff);
+  box-shadow:0 10px 24px rgba(21,101,192,.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:8px;
+}
+.mesaTop{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
+  border:3px solid rgba(90,59,0,.12);
+  box-shadow:inset 0 2px 8px rgba(255,255,255,.35);
+}
+.mesaLegs{
+  display:flex;
+  gap:18px;
+  margin-top:-4px;
+}
+.mesaLegs span{
+  width:6px;
+  height:18px;
+  border-radius:99px;
+  background:#8d6e63;
+}
+.mesaText{
+  font-weight:1000;
+  color:#0b3d6e;
+  font-size:16px;
+}
+.mesaBtn.active .mesaCard{
+  border-color:var(--red);
+  background:linear-gradient(180deg,#fff1f1,#ffe2e2);
+  box-shadow:0 14px 30px rgba(198,40,40,.18);
+}
+.mesaBtn.active .mesaText{
+  color:var(--red-dark);
+}
+
+.stickyTop{
+  position:sticky;
+  top:78px;
+  z-index:15;
+  background:linear-gradient(180deg, rgba(246,248,252,.97), rgba(246,248,252,.90));
+  backdrop-filter:blur(6px);
+  padding-bottom:10px;
+  margin-bottom:10px;
+}
+
+.resumeBar{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media (max-width:640px){
+  .resumeBar{grid-template-columns:1fr}
+}
+.resumeBox{
+  border-radius:16px;
+  padding:12px 14px;
+  background:#fff;
+  border:2px solid rgba(21,101,192,.12);
+  box-shadow:0 8px 18px rgba(2,6,23,.05);
+}
+.resumeBox b{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  margin-bottom:5px;
+  text-transform:uppercase;
+}
+.resumeBox span{
+  font-size:22px;
+  font-weight:1000;
+  line-height:1;
+}
+
+.personasGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+@media (max-width:640px){
+  .personasGrid{grid-template-columns:repeat(2,1fr)}
+}
+.personaBtn{
+  border:none;
+  border-radius:16px;
+  min-height:64px;
+  font-size:16px;
+  font-weight:1000;
+  cursor:pointer;
+  background:linear-gradient(180deg,#fffef7,#fff5cc);
+  border:2px solid rgba(251,192,45,.55);
+  color:#7a5100;
+}
+.personaBtn.active{
+  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
+  color:#5a3b00;
+  border-color:#d69b00;
+}
+
+.cats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+.catBtn{
+  border:none;
+  border-radius:999px;
+  padding:11px 14px;
+  font-size:14px;
+  font-weight:1000;
+  cursor:pointer;
+  background:#fff;
+  color:#0b4f93;
+  border:2px solid rgba(21,101,192,.18);
+}
+.catBtn.active{
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  color:#fff;
+}
+
+.items{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+@media (max-width:640px){
+  .items{grid-template-columns:1fr}
+}
+.itemCard{
+  border-radius:18px;
+  background:linear-gradient(180deg,#ffffff,#fff5f5);
+  border:2px solid rgba(198,40,40,.14);
+  box-shadow:0 6px 16px rgba(198,40,40,.06);
+  overflow:hidden;
+  transition:background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.itemCard.added{
+  background:linear-gradient(180deg,#ecfff0,#c8f2d2);
+  border-color:rgba(46,125,50,.55);
+  box-shadow:0 10px 22px rgba(46,125,50,.22);
+}
+.itemMain{
+  border:none;
+  width:100%;
+  cursor:pointer;
+  text-align:left;
+  padding:14px 14px 10px;
+  background:transparent;
+}
+.itemMain:active{ transform:scale(.99); }
+.itemName{
+  font-size:20px;
+  font-weight:1000;
+  color:#8e1d1d;
+  line-height:1.1;
+}
+.itemCard.added .itemName{ color:var(--green-dark); }
+.itemDesc{
+  margin-top:5px;
+  font-size:12px;
+  color:var(--muted);
+  font-weight:700;
+}
+.itemLastCfg{
+  margin-top:6px;
+  font-size:11px;
+  color:#1f6a24;
+  font-weight:900;
+  background:#edf9ef;
+  border:1px solid rgba(46,125,50,.18);
+  border-radius:999px;
+  padding:4px 8px;
+  display:inline-block;
+}
+.qtyMiniBar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:6px;
+  padding:0 10px 10px;
+}
+.qtyMiniBtn, .qtyMiniVal{
+  height:32px;
+  min-width:32px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:1000;
+}
+.qtyMiniBtn{
+  border:1.5px solid rgba(21,101,192,.18);
+  background:#fff;
+  color:#0b4f93;
+  cursor:pointer;
+}
+.qtyMiniVal{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:38px;
+  background:#f7fbff;
+  border:1.5px solid rgba(21,101,192,.12);
+  color:#355070;
+}
+
+.comandaCompacta{
+  margin-top:12px;
+  display:grid;
+  gap:10px;
+}
+.group{
+  border-radius:16px;
+  overflow:hidden;
+  border:2px solid rgba(21,101,192,.14);
+  background:#fff;
+}
+.groupHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  background:linear-gradient(90deg, rgba(251,192,45,.22), rgba(21,101,192,.12));
+}
+.groupTitle{
+  font-weight:1000;
+  color:#0b3d6e;
+}
+.groupTag{
+  font-size:11px;
+  background:#fff;
+  border:1px solid rgba(21,101,192,.18);
+  color:#33597f;
+  border-radius:999px;
+  padding:4px 8px;
+  font-weight:900;
+}
+.groupBody{display:none}
+.group.open .groupBody{display:block}
+.toggleBtn{
+  border:none;
+  cursor:pointer;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:1000;
+  background:#fff;
+  color:#0b4f93;
+  border:1px solid rgba(21,101,192,.16);
+}
+.line{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:10px 12px;
+  border-top:1px dashed rgba(16,32,51,.12);
+}
+.lineTitle{
+  font-weight:1000;
+  line-height:1.2;
+}
+.lineMeta{
+  margin-top:4px;
+  font-size:12px;
+  color:var(--muted);
+  white-space:pre-wrap;
+  font-weight:700;
+}
+.lineCat{
+  margin-top:6px;
+  display:inline-block;
+  font-size:11px;
+  border-radius:999px;
+  padding:4px 8px;
+  background:#fff8d6;
+  color:#7a5100;
+  border:1px solid rgba(251,192,45,.45);
+  font-weight:900;
+}
+.rightInfo{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:82px;
+}
+.qtyBadge{
+  min-width:52px;
+  height:40px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f7fbff;
+  border:2px solid rgba(21,101,192,.14);
+  color:#0b4f93;
+  font-weight:1000;
+  font-size:16px;
+}
+
+.noteBox{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(21,101,192,.06), rgba(251,192,45,.10));
+  border:1px solid rgba(21,101,192,.14);
+  color:#355070;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.35;
+}
+
+.syncStatus{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid rgba(21,101,192,.14);
+  background:#f4f9ff;
+  color:#0b4f93;
+}
+.syncStatus.ok{
+  background:#edf9ef;
+  color:#1f6a24;
+  border-color:rgba(46,125,50,.22);
+}
+.syncStatus.warn{
+  background:#fff7e8;
+  color:#8a5a00;
+  border-color:rgba(251,192,45,.35);
+}
+.syncStatus.bad{
+  background:#fff1f1;
+  color:#8e1d1d;
+  border-color:rgba(198,40,40,.25);
+}
+
+.backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.52);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:50;
+}
+.modal{
+  width:min(560px,100%);
+  background:#fff;
+  border-radius:20px;
+  overflow:hidden;
+  border:1px solid rgba(21,101,192,.14);
+  box-shadow:0 30px 80px rgba(2,6,23,.24);
+}
+.modalHead{
+  padding:14px 16px;
+  border-bottom:1px solid rgba(21,101,192,.12);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  background:linear-gradient(180deg, rgba(21,101,192,.06), rgba(251,192,45,.08));
+}
+.modalHead h3{
+  margin:0;
+  font-size:17px;
+  color:#0b3d6e;
+}
+.closeX{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  border:1px solid rgba(21,101,192,.12);
+  background:#fff;
+  color:#0b4f93;
+  font-size:18px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.modalBody{ padding:14px; }
+.quickMods{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+@media (max-width:520px){
+  .quickMods{grid-template-columns:1fr}
+}
+.modBtn{
+  border:none;
+  cursor:pointer;
+  padding:12px 12px;
+  border-radius:14px;
+  background:#fff;
+  color:#0b4f93;
+  border:2px solid rgba(21,101,192,.16);
+  font-weight:1000;
+  text-align:center;
+}
+.modBtn.active{
+  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
+  color:#5a3b00;
+  border-color:#d39a00;
+}
+.modalFoot{
+  padding:14px;
+  border-top:1px solid rgba(21,101,192,.12);
+  display:flex;
+  gap:10px;
+  background:rgba(255,255,255,.8);
+}
+
+.toastWrap{
+  position:fixed;
+  left:12px;
+  right:12px;
+  bottom:88px;
+  z-index:60;
+  display:flex;
+  justify-content:center;
+  pointer-events:none;
+}
+.toast{
+  background:linear-gradient(180deg,var(--green),var(--green-dark));
+  color:#fff;
+  padding:12px 16px;
+  border-radius:999px;
+  font-weight:1000;
+  box-shadow:0 12px 28px rgba(46,125,50,.30);
+  opacity:0;
+  transform:translateY(10px) scale(.98);
+  transition:opacity .18s ease, transform .18s ease;
+}
+.toast.show{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+
+.print-area{display:none}
+@media print{
+  body *{visibility:hidden!important}
+  .print-area,.print-area *{visibility:visible!important}
+  .print-area{
+    display:block!important;
+    position:absolute;
+    inset:0;
+    background:#fff;
+  }
+  @page{
+    size:80mm auto;
+    margin:1mm;
+  }
+}
+.ticket{
+  width:76mm;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  color:#000;
+  background:#fff;
+  padding:2mm;
+  font-size:16px;
+  line-height:1.24;
+}
+.ticket .c{text-align:center}
+.ticket .b{font-weight:900}
+.ticket .lg{font-size:25px}
+.ticket .hr{border-top:1px dashed #000;margin:6px 0}
+.ticket .g{font-weight:900;margin-top:7px;font-size:18px;text-transform:uppercase}
+.ticket .it{margin:5px 0}
+.ticket .itn{font-weight:900;font-size:22px;line-height:1.15}
+.ticket .sub{padding-left:8px;font-size:18px;white-space:pre-wrap}
+.ticket .small{font-size:18px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head">
+    <div class="brand">
+      <h1>🍽️ Comandas Cocina</h1>
+      <div class="sub">Flujo por pasos para celular y tablet</div>
+    </div>
+    <div class="pill" id="pill">0 productos</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stepDots">
+    <div class="stepDot active" id="dot1">1. Mesero</div>
+    <div class="stepDot" id="dot2">2. Mesa</div>
+    <div class="stepDot" id="dot3">3. Pedido</div>
+    <div class="stepDot" id="dot4">4. Comanda</div>
+  </div>
+
+  <div class="card">
+    <div class="cardHead">
+      <h2 id="screenTitle">Paso 1 — Mesero</h2>
+      <p id="screenSub">Primero selecciona quién está tomando el pedido.</p>
+      <div class="syncStatus warn" id="syncStatus">Supabase pendiente de configurar</div>
+    </div>
+
+    <div class="cardBody">
+      <section class="step active" id="step1">
+        <label>Mesero</label>
+        <select id="mesero">
+          <option value="" selected disabled>Selecciona un mesero</option>
+          <option value="Mesero 1">Mesero 1</option>
+          <option value="Mesero 2">Mesero 2</option>
+        </select>
+      </section>
+
+      <section class="step" id="step2">
+        <div class="noteBox" style="margin-top:0">
+          Elige la mesa tocando un botón grande. Pensado para usar rápido en celular o tablet.
+        </div>
+        <div class="mesasGrid" id="mesasGrid" style="margin-top:12px"></div>
+      </section>
+
+      <section class="step" id="step3">
+        <div class="stickyTop">
+          <div class="resumeBar">
+            <div class="resumeBox">
+              <b>Mesero</b>
+              <span id="meseroView">—</span>
+            </div>
+            <div class="resumeBox">
+              <b>Mesa</b>
+              <span id="mesaView">—</span>
+            </div>
+          </div>
+
+          <div class="btnRow" style="margin-top:10px">
+            <button class="btn btnLight" id="btnCambiarMesaPaso3" type="button">Cambiar mesa</button>
+          </div>
+
+          <label style="margin-top:12px">Plato</label>
+          <div class="personasGrid" id="personas"></div>
+
+          <div class="cats" id="cats"></div>
+        </div>
+
+        <div class="items" id="items"></div>
+
+        <div class="noteBox">
+          Toca el producto para configurarlo. Después puedes usar <b>+</b> y seguirá agregando la última configuración usada de ese mismo producto en ese plato. Si nunca tuvo configuración, el <b>+</b> lo agrega normal.
+        </div>
+      </section>
+
+      <section class="step" id="step4">
+        <div class="resumeBar">
+          <div class="resumeBox">
+            <b>Mesero</b>
+            <span id="meseroView4">—</span>
+          </div>
+          <div class="resumeBox">
+            <b>Mesa</b>
+            <span id="mesaView4">—</span>
+          </div>
+        </div>
+
+        <div class="btnRow" style="margin-top:10px">
+          <button class="btn btnLight" id="btnCambiarMesaPaso4" type="button">Cambiar mesa</button>
+        </div>
+
+        <div class="btnRow">
+          <button class="btn btnLight" id="backTo3" type="button">Seguir capturando</button>
+          <button class="btn btnLight" id="expandAll" type="button">Abrir todo</button>
+          <button class="btn btnLight" id="collapseAll" type="button">Cerrar todo</button>
+        </div>
+
+        <div class="comandaCompacta" id="cart"></div>
+
+        <div class="btnRow">
+          <button class="btn btnYellow" id="btnResumen" type="button">Resumen</button>
+          <button class="btn btnBlue" id="btnImprimir" type="button">Imprimir cocina</button>
+        </div>
+
+        <div class="noteBox">
+          Aquí revisas e imprimes. Las bebidas y postres se ven en la comanda, pero no salen en el ticket de cocina.
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="fixedContinue" id="fixedContinue">
+  <button type="button" class="btn btnBlue" id="mainContinueBtn">Continuar</button>
+</div>
+
+<div class="backdrop" id="backdrop">
+  <div class="modal">
+    <div class="modalHead">
+      <h3 id="modalTitle">Agregar detalle</h3>
+      <button class="closeX" id="btnCerrarModal" type="button">✕</button>
+    </div>
+    <div class="modalBody">
+      <label id="modalPersonaLabel">Indicaciones rápidas</label>
+      <div class="quickMods" id="quickMods"></div>
+
+      <label style="margin-top:12px">Nota libre</label>
+      <input id="notaRapida" placeholder="Opcional: ej. bien dorado">
+    </div>
+    <div class="modalFoot">
+      <button class="btn btnRed" id="btnCancelarModal" type="button">Cancelar</button>
+      <button class="btn btnBlue" id="btnGuardarModal" type="button">Guardar configuración</button>
+    </div>
+  </div>
+</div>
+
+<div class="toastWrap">
+  <div class="toast" id="toastMsg">Producto añadido</div>
+</div>
+
+<div class="print-area" id="printArea"></div>
+
+<script>
+/* =========================
+   CONFIG SUPABASE
+   ========================= */
+const SUPABASE_URL = "https://rcegikeiaxptolrduguc.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZWdpa2VpYXhwdG9scmR1Z3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NTMyMDcsImV4cCI6MjA3MTIyOTIwN30.jbPM9F977zeITEmFA_xvVU6SCxlWWVCi3Dx7ZhFfTp8";
+
+
+try{
+  if (
+    SUPABASE_URL &&
+    SUPABASE_ANON_KEY &&
+    window.supabase &&
+    typeof window.supabase.createClient === "function"
+  ) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabaseReady = true;
+  }
+}catch(err){
+  console.error("Error inicializando Supabase:", err);
+  supabaseReady = false;
+}
+
+/* =========================
+   CATÁLOGO CON PRECIOS
+   ========================= */
+const catalogo = [
+  {id:"taco_tripa",      cat:"TACOS",       name:"Taco de Tripa",         price:38,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_pastor",     cat:"TACOS",       name:"Taco de Pastor",        price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_bistec",     cat:"TACOS",       name:"Taco de Bistec",        price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_chorizo",    cat:"TACOS",       name:"Taco de Chorizo",       price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_higado",     cat:"TACOS",       name:"Taco de Hígado",        price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_costilla",   cat:"TACOS",       name:"Taco de Costilla",      price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_barbacoa",   cat:"TACOS",       name:"Taco de Barbacoa",      price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_alambre",    cat:"TACOS",       name:"Taco de Alambre",       price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_combi",      cat:"TACOS",       name:"Taco Combinado",        price:38,  desc:"Escribe combinación", requiereNota:true, cocina:true},
+
+  {id:"quesa_tripa",     cat:"QUESADILLAS", name:"Quesadilla de Tripa",    price:100, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_pastor",    cat:"QUESADILLAS", name:"Quesadilla de Pastor",   price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_bistec",    cat:"QUESADILLAS", name:"Quesadilla de Bistec",   price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_chorizo",   cat:"QUESADILLAS", name:"Quesadilla de Chorizo",  price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_higado",    cat:"QUESADILLAS", name:"Quesadilla de Hígado",   price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_costilla",  cat:"QUESADILLAS", name:"Quesadilla de Costilla", price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_barbacoa",  cat:"QUESADILLAS", name:"Quesadilla de Barbacoa", price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_alambre",   cat:"QUESADILLAS", name:"Quesadilla de Alambre",  price:90,  desc:"", requiereNota:false, cocina:true},
+
+  {id:"charola_combi",   cat:"CHAROLAS",    name:"Charola Combinada",     price:100, desc:"Escribe combinación", requiereNota:true, cocina:true},
+  {id:"charola_alam",    cat:"CHAROLAS",    name:"Charola de Alambre",    price:90,  desc:"", requiereNota:false, cocina:true},
+
+  {id:"volcan_tripa",    cat:"VOLCANES",    name:"Volcán de Tripa",       price:90, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_pastor",   cat:"VOLCANES",    name:"Volcán de Pastor",      price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_bistec",   cat:"VOLCANES",    name:"Volcán de Bistec",      price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_chorizo",  cat:"VOLCANES",    name:"Volcán de Chorizo",     price:85, desc:"", requiereNota:false, cocina:true},
+  {id:"volcan_higado",   cat:"VOLCANES",    name:"Volcán de Hígado",      price:85, desc:"", requiereNota:false, cocina:true},
+
+  {id:"beb_coca_light",  cat:"BEBIDAS",     name:"Coca Light",            price:35, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_coca",        cat:"BEBIDAS",     name:"Coca",                  price:35, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_fresca",      cat:"BEBIDAS",     name:"Fresca",                price:35, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_sprite",      cat:"BEBIDAS",     name:"Sprite",                price:35, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_agua",        cat:"BEBIDAS",     name:"Agua fresca",           price:30, desc:"", requiereNota:false, cocina:false},
+  {id:"beb_agua_lt",     cat:"BEBIDAS",     name:"Agua fresca 1 Lt",      price:60, desc:"", requiereNota:false, cocina:false},
+
+  {id:"pos_pay",         cat:"POSTRES",     name:"Pay de queso",          price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_rompope",     cat:"POSTRES",     name:"Gelatina vainilla con rompope", price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_arroz",       cat:"POSTRES",     name:"Arroz con leche",       price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_flan",        cat:"POSTRES",     name:"Flan",                  price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_fresa",       cat:"POSTRES",     name:"Gelatina fresa con yoghurt", price:60, desc:"", requiereNota:false, cocina:false},
+  {id:"pos_napolitano",  cat:"POSTRES",     name:"Napolitano",            price:60, desc:"", requiereNota:false, cocina:false},
+];
+
+const CATS = ["TACOS","QUESADILLAS","CHAROLAS","VOLCANES","BEBIDAS","POSTRES"];
+const PLATOS = ["Plato 1","Plato 2","Plato 3","Plato 4","Plato 5","General"];
+const MESAS = ["Mesa 1","Mesa 2","Mesa 3","Mesa 4","Mesa 5"];
+
+let currentStep = 1;
+let meseroNombre = "";
+let mesaActiva = "";
+let personaActiva = "Plato 1";
+let activeCat = "TACOS";
+let cart = [];
+let draftItem = null;
+const openGroups = new Set();
+let toastTimer = null;
+
+let comandaIdActual = null;
+let syncing = false;
+let syncQueued = false;
+
+const lastConfigByPlateProduct = {};
+
+const steps = {
+  1: document.getElementById("step1"),
+  2: document.getElementById("step2"),
+  3: document.getElementById("step3"),
+  4: document.getElementById("step4"),
+};
+
+const titles = {
+  1: ["Paso 1 — Mesero","Primero selecciona quién está tomando el pedido."],
+  2: ["Paso 2 — Elegir mesa","Toca la mesa donde se está levantando la orden."],
+  3: ["Paso 3 — Capturar pedido","Elige plato y agrega productos sin bajar hasta la comanda."],
+  4: ["Paso 4 — Revisar e imprimir","Confirma la comanda y manda a imprimir cocina."],
+};
+
+const meseroInput = document.getElementById("mesero");
+const mesasGrid = document.getElementById("mesasGrid");
+const personasBox = document.getElementById("personas");
+const catsBox = document.getElementById("cats");
+const itemsBox = document.getElementById("items");
+const cartBox = document.getElementById("cart");
+const pill = document.getElementById("pill");
+const screenTitle = document.getElementById("screenTitle");
+const screenSub = document.getElementById("screenSub");
+
+const meseroView = document.getElementById("meseroView");
+const mesaView = document.getElementById("mesaView");
+const meseroView4 = document.getElementById("meseroView4");
+const mesaView4 = document.getElementById("mesaView4");
+
+const backdrop = document.getElementById("backdrop");
+const modalTitle = document.getElementById("modalTitle");
+const modalPersonaLabel = document.getElementById("modalPersonaLabel");
+const notaRapida = document.getElementById("notaRapida");
+const quickMods = document.getElementById("quickMods");
+const btnCerrarModal = document.getElementById("btnCerrarModal");
+const btnCancelarModal = document.getElementById("btnCancelarModal");
+const btnGuardarModal = document.getElementById("btnGuardarModal");
+
+const mainContinueBtn = document.getElementById("mainContinueBtn");
+const fixedContinue = document.getElementById("fixedContinue");
+const toastMsg = document.getElementById("toastMsg");
+const syncStatus = document.getElementById("syncStatus");
+
+function escapeHtml(s){
+  return String(s || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
+function totalProductos(){
+  return cart.reduce((a,x)=>a + x.qty, 0);
+}
+
+function makeKey(item, persona, note){
+  return [item.id, persona, note || ""].join("|");
+}
+
+function getConfigMemoryKey(productId, persona){
+  return `${persona}__${productId}`;
+}
+
+function saveLastConfig(productId, persona, note){
+  lastConfigByPlateProduct[getConfigMemoryKey(productId, persona)] = note || "";
+}
+
+function getLastConfig(productId, persona){
+  return lastConfigByPlateProduct[getConfigMemoryKey(productId, persona)] || "";
+}
+
+function updateHeaderPill(){
+  pill.textContent = `${totalProductos()} productos`;
+}
+
+function updateResumeViews(){
+  meseroView.textContent = meseroNombre || "—";
+  mesaView.textContent = mesaActiva || "—";
+  meseroView4.textContent = meseroNombre || "—";
+  mesaView4.textContent = mesaActiva || "—";
+}
+
+function updateContinueButton(){
+  fixedContinue.style.display = "block";
+
+  if(currentStep === 1){
+    mainContinueBtn.textContent = "Continuar a mesas";
+    mainContinueBtn.className = "btn btnBlue";
+    return;
+  }
+  if(currentStep === 2){
+    mainContinueBtn.textContent = "Continuar al pedido";
+    mainContinueBtn.className = "btn btnBlue";
+    return;
+  }
+  if(currentStep === 3){
+    mainContinueBtn.textContent = "Revisar comanda";
+    mainContinueBtn.className = "btn btnYellow";
+    return;
+  }
+  if(currentStep === 4){
+    mainContinueBtn.textContent = "Seguir capturando";
+    mainContinueBtn.className = "btn btnLight";
+    return;
+  }
+}
+
+function setSyncStatus(text, type="warn"){
+  syncStatus.textContent = text;
+  syncStatus.className = `syncStatus ${type}`;
+}
+
+function goToStep(n){
+  currentStep = Number(n);
+
+  Object.values(steps).forEach(stepEl=>{
+    if(stepEl) stepEl.classList.remove("active");
+  });
+
+  if(steps[currentStep]){
+    steps[currentStep].classList.add("active");
+  }
+
+  [1,2,3,4].forEach(i=>{
+    const dot = document.getElementById("dot" + i);
+    if(!dot) return;
+    dot.classList.remove("active","done");
+    if(i < currentStep) dot.classList.add("done");
+    if(i === currentStep) dot.classList.add("active");
+  });
+
+  if(screenTitle) screenTitle.textContent = titles[currentStep][0];
+  if(screenSub) screenSub.textContent = titles[currentStep][1];
+
+  updateContinueButton();
+
+  setTimeout(()=>{
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 20);
+}
+
+function regresarASeleccionMesa(){
+  if(!meseroNombre){
+    alert("Primero selecciona un mesero.");
+    goToStep(1);
+    return;
+  }
+  goToStep(2);
+}
+
+/* =========================
+   SUPABASE
+   ========================= */
+async function ensureComandaAbierta(){
+  if(!supabaseReady || !mesaActiva) return null;
+
+  const { data: existente, error: errFind } = await supabase
+    .from("comandas")
+    .select("*")
+    .eq("mesa", mesaActiva)
+    .eq("estado", "abierta")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if(errFind){
+    console.error("Error buscando comanda abierta:", errFind);
+    throw errFind;
+  }
+
+  if(existente){
+    comandaIdActual = existente.id;
+    return existente.id;
+  }
+
+  const { data: creada, error: errCreate } = await supabase
+    .from("comandas")
+    .insert([{
+      mesa: mesaActiva,
+      mesero: meseroNombre || null,
+      estado: "abierta",
+      total_productos: totalProductos()
+    }])
+    .select()
+    .single();
+
+  if(errCreate){
+    console.error("Error creando comanda:", errCreate);
+    throw errCreate;
+  }
+
+  comandaIdActual = creada.id;
+  return creada.id;
+}
+
+async function cargarComandaDeMesa(mesa){
+  if(!supabaseReady){
+    cart = [];
+    comandaIdActual = null;
+    openGroups.clear();
+    Object.keys(lastConfigByPlateProduct).forEach(k=>delete lastConfigByPlateProduct[k]);
+    updateHeaderPill();
+    renderCart();
+    renderItems();
+    return;
+  }
+
+  if(!mesa) return;
+
+  setSyncStatus(`Cargando ${mesa}...`, "warn");
+
+  const { data: comanda, error: errComanda } = await supabase
+    .from("comandas")
+    .select("*")
+    .eq("mesa", mesa)
+    .eq("estado", "abierta")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if(errComanda){
+    console.error("Error cargando comanda:", errComanda);
+    setSyncStatus("Error al cargar comanda de la mesa", "bad");
+    alert("No se pudo cargar la comanda de la mesa.");
+    return;
+  }
+
+  if(!comanda){
+    cart = [];
+    comandaIdActual = null;
+    openGroups.clear();
+    Object.keys(lastConfigByPlateProduct).forEach(k=>delete lastConfigByPlateProduct[k]);
+    updateHeaderPill();
+    renderCart();
+    renderItems();
+    setSyncStatus(`Mesa ${mesa} sin comanda abierta`, "ok");
+    return;
+  }
+
+  comandaIdActual = comanda.id;
+  if (comanda.mesero) {
+    meseroNombre = comanda.mesero;
+    meseroInput.value = comanda.mesero;
+  }
+
+  const { data: items, error: errItems } = await supabase
+    .from("comandas_items")
+    .select("*")
+    .eq("comanda_id", comanda.id)
+    .order("created_at", { ascending: true });
+
+  if(errItems){
+    console.error("Error cargando items:", errItems);
+    setSyncStatus("Error al cargar productos de la comanda", "bad");
+    alert("No se pudieron cargar los productos de la comanda.");
+    return;
+  }
+
+  cart = (items || []).map(it => ({
+    key: [it.producto_id, it.plato, it.nota || ""].join("|"),
+    id: it.producto_id,
+    name: it.producto_nombre,
+    persona: it.plato,
+    note: it.nota || "",
+    qty: Number(it.qty || 0),
+    cat: it.categoria || "",
+    cocina: !!it.cocina,
+    price: Number(it.precio_unitario || 0)
+  }));
+
+  Object.keys(lastConfigByPlateProduct).forEach(k=>delete lastConfigByPlateProduct[k]);
+  openGroups.clear();
+
+  cart.forEach(line=>{
+    saveLastConfig(line.id, line.persona, line.note || "");
+    openGroups.add(line.persona);
+  });
+
+  updateResumeViews();
+  updateHeaderPill();
+  renderCart();
+  renderItems();
+  setSyncStatus(`Mesa ${mesa} cargada desde Supabase`, "ok");
+}
+
+async function syncComandaToSupabase(){
+  if(!supabaseReady || !mesaActiva) return;
+
+  if(syncing){
+    syncQueued = true;
+    return;
+  }
+
+  syncing = true;
+  setSyncStatus(`Guardando ${mesaActiva}...`, "warn");
+
+  try {
+    const comandaId = await ensureComandaAbierta();
+    if(!comandaId){
+      setSyncStatus("No se pudo identificar la comanda", "bad");
+      return;
+    }
+
+    const { error: errUpdate } = await supabase
+      .from("comandas")
+      .update({
+        mesa: mesaActiva,
+        mesero: meseroNombre || null,
+        total_productos: totalProductos(),
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", comandaId);
+
+    if(errUpdate){
+      console.error("Error actualizando comanda:", errUpdate);
+      throw errUpdate;
+    }
+
+    const { error: errDelete } = await supabase
+      .from("comandas_items")
+      .delete()
+      .eq("comanda_id", comandaId);
+
+    if(errDelete){
+      console.error("Error borrando items:", errDelete);
+      throw errDelete;
+    }
+
+    if(cart.length){
+      const payload = cart.map(line => ({
+        comanda_id: comandaId,
+        producto_id: line.id,
+        producto_nombre: line.name,
+        categoria: line.cat || "",
+        plato: line.persona,
+        nota: line.note || "",
+        qty: line.qty,
+        cocina: !!line.cocina,
+        precio_unitario: Number(line.price || 0)
+      }));
+
+      const { error: errInsert } = await supabase
+        .from("comandas_items")
+        .insert(payload);
+
+      if(errInsert){
+        console.error("Error insertando items:", errInsert);
+        throw errInsert;
+      }
+    }
+
+    setSyncStatus(`Mesa ${mesaActiva} guardada`, "ok");
+  } catch (e) {
+    console.error("Error general de sync:", e);
+    setSyncStatus("Error al guardar en Supabase", "bad");
+  } finally {
+    syncing = false;
+
+    if(syncQueued){
+      syncQueued = false;
+      await syncComandaToSupabase();
+    }
+  }
+}
+
+/* =========================
+   UI
+   ========================= */
+function renderMesas(){
+  mesasGrid.innerHTML = "";
+  MESAS.forEach(mesa=>{
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "mesaBtn" + (mesaActiva===mesa ? " active":"");
+    btn.innerHTML = `
+      <div class="mesaCard">
+        <div class="mesaTop"></div>
+        <div class="mesaLegs"><span></span><span></span></div>
+        <div class="mesaText">${mesa}</div>
+      </div>
+    `;
+    btn.onclick = async ()=>{
+      mesaActiva = mesa;
+      renderMesas();
+      updateResumeViews();
+
+      try{
+        await cargarComandaDeMesa(mesaActiva);
+      }catch(err){
+        console.error(err);
+        setSyncStatus("No se pudo cargar la mesa desde Supabase", "bad");
+      }
+    };
+    mesasGrid.appendChild(btn);
+  });
+}
+
+function renderPersonas(){
+  personasBox.innerHTML = "";
+  PLATOS.forEach(p=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "personaBtn" + (p===personaActiva ? " active":"");
+    b.textContent = p;
+    b.onclick = ()=>{
+      personaActiva = p;
+      openGroups.add(p);
+      renderPersonas();
+      renderItems();
+    };
+    personasBox.appendChild(b);
+  });
+}
+
+function renderCats(){
+  catsBox.innerHTML = "";
+  CATS.forEach(c=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "catBtn" + (c===activeCat ? " active":"");
+    b.textContent = c;
+    b.onclick = ()=>{
+      activeCat = c;
+      renderCats();
+      renderItems();
+    };
+    catsBox.appendChild(b);
+  });
+}
+
+function flashAddedCard(cardEl){
+  if(!cardEl) return;
+  cardEl.classList.add("added");
+  setTimeout(()=>cardEl.classList.remove("added"), 550);
+}
+
+function showToast(text){
+  toastMsg.textContent = text || "Producto añadido";
+  toastMsg.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{
+    toastMsg.classList.remove("show");
+  }, 1200);
+}
+
+function getQuickMods(item){
+  const mods = [];
+  if(["TACOS","VOLCANES"].includes(item.cat)){
+    mods.push("Sin verdura", "Solo cebolla", "Solo cilantro");
+  }
+  if(item.cat === "QUESADILLAS"){
+    mods.push("Sin frijoles", "Sin verdura", "Solo cebolla", "Solo cilantro");
+  }
+  if(item.cat === "CHAROLAS"){
+    mods.push("Sin verdura", "Solo cebolla", "Solo cilantro");
+  }
+  return mods;
+}
+
+function getQtyForItemOnActivePlate(itemId){
+  return cart
+    .filter(x => x.id === itemId && x.persona === personaActiva)
+    .reduce((sum, x) => sum + x.qty, 0);
+}
+
+function renderItems(){
+  itemsBox.innerHTML = "";
+  const productos = catalogo.filter(x => x.cat === activeCat);
+
+  productos.forEach(item=>{
+    const qty = getQtyForItemOnActivePlate(item.id);
+    const lastCfg = getLastConfig(item.id, personaActiva);
+
+    const card = document.createElement("div");
+    card.className = "itemCard";
+
+    card.innerHTML = `
+      <button type="button" class="itemMain">
+        <div class="itemName">${escapeHtml(item.name)}</div>
+        ${item.desc ? `<div class="itemDesc">${escapeHtml(item.desc)}</div>` : ``}
+        ${lastCfg ? `<div class="itemLastCfg">Última config: ${escapeHtml(lastCfg)}</div>` : ``}
+      </button>
+      <div class="qtyMiniBar">
+        <div class="qtyMiniVal">${qty}</div>
+        <button type="button" class="qtyMiniBtn" data-act="inc">+</button>
+      </div>
+    `;
+
+    const mainBtn = card.querySelector(".itemMain");
+    const incBtn = card.querySelector('[data-act="inc"]');
+
+    mainBtn.addEventListener("click", function(e){
+      e.preventDefault();
+      abrirProducto(item, card, false);
+    });
+
+    incBtn.addEventListener("click", function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      abrirProducto(item, card, true);
+    });
+
+    itemsBox.appendChild(card);
+  });
+}
+
+function shouldOpenModal(item){
+  return item.requiereNota || getQuickMods(item).length > 0;
+}
+
+function abrirProducto(item, cardEl, sumaRapida=false){
+  if(sumaRapida){
+    const lastNote = getLastConfig(item.id, personaActiva);
+
+    if(lastNote){
+      agregarLinea(item, personaActiva, lastNote, cardEl);
+      return;
+    }
+
+    agregarLinea(item, personaActiva, "", cardEl);
+    return;
+  }
+
+  if(shouldOpenModal(item)){
+    abrirModal(item, cardEl);
+    return;
+  }
+
+  agregarLinea(item, personaActiva, "", cardEl);
+}
+
+async function agregarLinea(item, persona, note, cardEl=null){
+  const cleanNote = (note || "").trim();
+  const key = makeKey(item, persona, cleanNote);
+  const existing = cart.find(x=>x.key===key);
+
+  if(existing){
+    existing.qty += 1;
+  }else{
+    cart.push({
+      key,
+      id:item.id,
+      name:item.name,
+      persona,
+      note:cleanNote,
+      qty:1,
+      cat:item.cat,
+      cocina:!!item.cocina,
+      price:Number(item.price || 0)
+    });
+  }
+
+  saveLastConfig(item.id, persona, cleanNote);
+
+  openGroups.add(persona);
+  updateHeaderPill();
+  renderCart();
+  renderItems();
+  flashAddedCard(cardEl);
+
+  const nombreSimple = item.cat === "TACOS" ? "Taco" :
+                       item.cat === "QUESADILLAS" ? "Quesadilla" :
+                       item.cat === "VOLCANES" ? "Volcán" :
+                       item.cat === "CHAROLAS" ? "Charola" :
+                       "Producto";
+
+  const extra = cleanNote ? ` (${cleanNote})` : "";
+  showToast(`${nombreSimple} añadido a ${persona}${extra}`);
+
+  await syncComandaToSupabase();
+}
+
+function agruparCart(){
+  const grupos = {};
+  cart.forEach(line=>{
+    if(!grupos[line.persona]) grupos[line.persona] = [];
+    grupos[line.persona].push(line);
+  });
+
+  return PLATOS
+    .filter(p => grupos[p] && grupos[p].length)
+    .map(p => ({ persona:p, lines:grupos[p] }));
+}
+
+function toggleGroup(persona){
+  if(openGroups.has(persona)) openGroups.delete(persona);
+  else openGroups.add(persona);
+  renderCart();
+}
+
+function renderCart(){
+  if(!cart.length){
+    cartBox.innerHTML = `<div class="noteBox" style="margin-top:0">Aún no agregas productos a la comanda.</div>`;
+    return;
+  }
+
+  cartBox.innerHTML = "";
+
+  agruparCart().forEach(group=>{
+    const g = document.createElement("div");
+    const isOpen = openGroups.has(group.persona);
+    g.className = "group" + (isOpen ? " open":"");
+
+    const cocinaCount = group.lines.filter(x=>x.cocina).reduce((a,x)=>a+x.qty,0);
+    const extraCount = group.lines.filter(x=>!x.cocina).reduce((a,x)=>a+x.qty,0);
+
+    const bodyRows = group.lines.map((line)=>{
+      return `
+        <div class="line">
+          <div>
+            <div class="lineTitle">${escapeHtml(line.qty)} x ${escapeHtml(line.name)}</div>
+            ${line.note ? `<div class="lineMeta">${escapeHtml(line.note)}</div>` : ``}
+            <div class="lineCat">${escapeHtml(line.cat)} ${line.cocina ? "• cocina" : "• no imprimir cocina"}</div>
+          </div>
+          <div class="rightInfo">
+            <div class="qtyBadge">${line.qty}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    g.innerHTML = `
+      <div class="groupHead">
+        <div class="groupTitle">${escapeHtml(group.persona)}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="groupTag">${cocinaCount} cocina • ${extraCount} extra</span>
+          <button class="toggleBtn" data-toggle="${escapeHtml(group.persona)}">
+            ${isOpen ? "▼ Ocultar pedidos" : "▶ Ver pedidos"}
+          </button>
+        </div>
+      </div>
+      <div class="groupBody">${bodyRows}</div>
+    `;
+
+    cartBox.appendChild(g);
+  });
+
+  cartBox.querySelectorAll("[data-toggle]").forEach(btn=>{
+    btn.onclick = ()=> toggleGroup(btn.getAttribute("data-toggle"));
+  });
+}
+
+function abrirModal(item, cardEl){
+  draftItem = { item, cardEl, selectedMods: new Set() };
+  modalTitle.textContent = item.name;
+  modalPersonaLabel.textContent = `Indicaciones para ${personaActiva}`;
+  notaRapida.value = "";
+
+  const lastCfg = getLastConfig(item.id, personaActiva);
+
+  quickMods.innerHTML = "";
+  const mods = getQuickMods(item);
+
+  let rememberedMods = [];
+  let rememberedText = "";
+
+  if(lastCfg){
+    const parts = lastCfg.split("•").map(x=>x.trim()).filter(Boolean);
+    parts.forEach(p=>{
+      if(mods.includes(p)) rememberedMods.push(p);
+    });
+
+    const freeParts = parts.filter(p => !mods.includes(p));
+    rememberedText = freeParts.join(" • ");
+  }
+
+  draftItem.selectedMods = new Set(rememberedMods);
+  notaRapida.value = rememberedText;
+
+  mods.forEach(mod=>{
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "modBtn" + (draftItem.selectedMods.has(mod) ? " active" : "");
+    btn.textContent = mod;
+    btn.onclick = ()=>{
+      if(draftItem.selectedMods.has(mod)){
+        draftItem.selectedMods.delete(mod);
+        btn.classList.remove("active");
+      }else{
+        draftItem.selectedMods.add(mod);
+        btn.classList.add("active");
+      }
+    };
+    quickMods.appendChild(btn);
+  });
+
+  backdrop.style.display = "flex";
+  document.body.style.overflow = "hidden";
+  setTimeout(()=>notaRapida.focus(), 60);
+}
+
+function cerrarModal(){
+  draftItem = null;
+  notaRapida.value = "";
+  quickMods.innerHTML = "";
+  backdrop.style.display = "none";
+  document.body.style.overflow = "";
+}
+
+btnCerrarModal.onclick = cerrarModal;
+btnCancelarModal.onclick = cerrarModal;
+
+backdrop.addEventListener("click", (e)=>{
+  if(e.target === backdrop) cerrarModal();
+});
+
+btnGuardarModal.onclick = async ()=>{
+  if(!draftItem) return;
+
+  const modsText = Array.from(draftItem.selectedMods).join(" • ");
+  const freeText = notaRapida.value.trim();
+  const finalNote = [modsText, freeText].filter(Boolean).join(" • ");
+
+  await agregarLinea(draftItem.item, personaActiva, finalNote, draftItem.cardEl);
+  cerrarModal();
+};
+
+function buildTicketCocina(){
+  let html = `
+    <div class="ticket">
+      <div class="c b lg">COMANDA COCINA</div>
+      <div class="c b">${escapeHtml(mesaActiva)}</div>
+      <div class="hr"></div>
+  `;
+
+  PLATOS.forEach(persona=>{
+    const lines = cart.filter(x => x.persona===persona && x.cocina);
+    if(!lines.length) return;
+
+    html += `<div class="g">${escapeHtml(persona)}</div>`;
+
+    lines.forEach(l=>{
+      html += `
+        <div class="it">
+          <div class="itn">${escapeHtml(l.qty)} x ${escapeHtml(l.name)}</div>
+          ${l.note ? `<div class="sub">• ${escapeHtml(l.note)}</div>` : ``}
+        </div>
+      `;
+    });
+
+    html += `<div class="hr"></div>`;
+  });
+
+  return html + `</div>`;
+}
+
+function buildResumenComanda(){
+  let html = `
+    <div class="ticket">
+      <div class="c b lg">RESUMEN COMANDA</div>
+      <div class="c b">${escapeHtml(mesaActiva)}</div>
+      <div class="small c">Mesero: ${escapeHtml(meseroNombre || "—")}</div>
+      <div class="hr"></div>
+  `;
+
+  PLATOS.forEach(persona=>{
+    const lines = cart.filter(x => x.persona===persona);
+    if(!lines.length) return;
+
+    html += `<div class="g">${escapeHtml(persona)}</div>`;
+
+    lines.forEach(l=>{
+      html += `
+        <div class="it">
+          <div class="itn">${escapeHtml(l.qty)} x ${escapeHtml(l.name)}</div>
+          <div class="sub">${escapeHtml(l.cat)}</div>
+          ${l.note ? `<div class="sub">• ${escapeHtml(l.note)}</div>` : ``}
+        </div>
+      `;
+    });
+
+    html += `<div class="hr"></div>`;
+  });
+
+  return html + `</div>`;
+}
+
+function imprimirCocina(){
+  if(!cart.length) return alert("No hay productos en la comanda.");
+  if(!cart.some(x=>x.cocina)) return alert("No hay productos de cocina para imprimir.");
+  const area = document.getElementById("printArea");
+  area.innerHTML = buildTicketCocina();
+  setTimeout(()=>window.print(),100);
+}
+
+function verResumen(){
+  if(!cart.length) return alert("No hay productos en la comanda.");
+  const area = document.getElementById("printArea");
+  area.innerHTML = buildResumenComanda();
+  setTimeout(()=>window.print(),100);
+}
+
+function handleMainContinue(e){
+  if(e) e.preventDefault();
+
+  if(currentStep === 1){
+    const selectedIndex = meseroInput.selectedIndex;
+    const nombre = selectedIndex > 0
+      ? String(meseroInput.options[selectedIndex].value || "").trim()
+      : String(meseroInput.value || "").trim();
+
+    if(!nombre){
+      alert("Selecciona un mesero.");
+      return false;
+    }
+
+    meseroNombre = nombre;
+    updateResumeViews();
+    goToStep(2);
+    return false;
+  }
+
+  if(currentStep === 2){
+    if(!mesaActiva){
+      alert("Selecciona una mesa.");
+      return false;
+    }
+
+    updateResumeViews();
+    goToStep(3);
+    return false;
+  }
+
+  if(currentStep === 3){
+    if(!cart.length){
+      alert("Agrega al menos un producto.");
+      return false;
+    }
+
+    renderCart();
+    goToStep(4);
+    return false;
+  }
+
+  if(currentStep === 4){
+    goToStep(3);
+    return false;
+  }
+
+  return false;
+}
+
+meseroInput.addEventListener("change", ()=>{
+  meseroNombre = String(meseroInput.value || "").trim();
+  updateResumeViews();
+});
+
+mainContinueBtn.type = "button";
+mainContinueBtn.onclick = null;
+
+mainContinueBtn.addEventListener("click", handleMainContinue);
+mainContinueBtn.addEventListener("touchend", function(e){
+  e.preventDefault();
+  handleMainContinue(e);
+}, { passive:false });
+
+document.getElementById("backTo3").onclick = ()=> goToStep(3);
+document.getElementById("btnCambiarMesaPaso3").onclick = regresarASeleccionMesa;
+document.getElementById("btnCambiarMesaPaso4").onclick = regresarASeleccionMesa;
+
+document.getElementById("expandAll").onclick = ()=>{
+  PLATOS.forEach(p=>openGroups.add(p));
+  renderCart();
+};
+
+document.getElementById("collapseAll").onclick = ()=>{
+  openGroups.clear();
+  renderCart();
+};
+
+document.getElementById("btnResumen").onclick = verResumen;
+document.getElementById("btnImprimir").onclick = imprimirCocina;
+
+/* =========================
+   INIT
+   ========================= */
+renderMesas();
+renderPersonas();
+renderCats();
+renderItems();
+renderCart();
+updateHeaderPill();
+updateResumeViews();
+updateContinueButton();
+
+if(supabaseReady){
+  setSyncStatus("Supabase conectado. Listo para guardar comandas.", "ok");
+}else{
+  setSyncStatus("Supabase pendiente de configurar", "warn");
+}
+</script>
+</body>
+</html>
