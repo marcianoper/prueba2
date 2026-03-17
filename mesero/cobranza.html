@@ -1,1 +1,1434 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Cuentas por Mesa — Guadalupe Victoria</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#f4f7fb;
+  --paper:#ffffff;
+  --ink:#132238;
+  --muted:#61758d;
+  --line:#dbe6f3;
+
+  --blue:#1565c0;
+  --blue-dark:#0f4f98;
+  --green:#2e7d32;
+  --green-dark:#1f6a24;
+  --yellow:#f6c33b;
+  --yellow-dark:#dfa400;
+  --red:#c62828;
+  --red-dark:#8e1d1d;
+
+  --shadow:0 14px 34px rgba(15,35,60,.10);
+  --r:24px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(900px 380px at 0% 0%, rgba(246,195,59,.15), transparent 60%),
+    radial-gradient(900px 380px at 100% 0%, rgba(21,101,192,.12), transparent 60%),
+    linear-gradient(180deg,#f6f9fd 0%, #eef4fb 100%);
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  padding:14px;
+  color:#fff;
+  background:linear-gradient(135deg,var(--blue) 0%, var(--blue-dark) 100%);
+  box-shadow:0 12px 28px rgba(21,101,192,.24);
+}
+.head{
+  max-width:1180px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.brand h1{
+  margin:0;
+  font-size:22px;
+  line-height:1.05;
+}
+.brand .sub{
+  margin-top:4px;
+  font-size:14px;
+  opacity:.96;
+  font-weight:700;
+}
+.pill{
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.18);
+  padding:10px 14px;
+  border-radius:999px;
+  font-weight:1000;
+  white-space:nowrap;
+  font-size:16px;
+}
+
+.wrap{
+  max-width:1180px;
+  margin:auto;
+  padding:16px;
+  display:grid;
+  gap:16px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:390px 1fr;
+  gap:16px;
+}
+@media (max-width:960px){
+  .grid{grid-template-columns:1fr}
+}
+
+.card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.cardHead{
+  padding:18px 18px 14px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(21,101,192,.04), rgba(246,195,59,.06));
+}
+.cardHead h2{
+  margin:0;
+  font-size:20px;
+  color:#143f70;
+}
+.cardHead p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:15px;
+  font-weight:700;
+}
+.cardBody{
+  padding:18px;
+}
+
+.syncStatus{
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius:16px;
+  font-size:14px;
+  font-weight:1000;
+  border:1px solid #d6e4f5;
+  background:#f4f9ff;
+  color:#0b4f93;
+}
+.syncStatus.ok{
+  background:#edf9ef;
+  color:#1f6a24;
+  border-color:rgba(46,125,50,.22);
+}
+.syncStatus.warn{
+  background:#fff8ea;
+  color:#8a5a00;
+  border-color:rgba(246,195,59,.35);
+}
+.syncStatus.bad{
+  background:#fff1f1;
+  color:#8e1d1d;
+  border-color:rgba(198,40,40,.25);
+}
+
+.roleBox{
+  margin-top:12px;
+  display:grid;
+  gap:10px;
+}
+.roleInfo{
+  padding:12px 14px;
+  border-radius:16px;
+  background:#f7fbff;
+  border:1px solid #d8e5f3;
+  font-weight:900;
+  color:#365779;
+}
+
+.mesasGrid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  margin-top:12px;
+}
+.mesaBtn{
+  border:none;
+  cursor:pointer;
+  background:transparent;
+  padding:0;
+}
+.mesaCard{
+  position:relative;
+  min-height:136px;
+  border-radius:24px;
+  border:2px solid rgba(21,101,192,.16);
+  background:linear-gradient(180deg,#ffffff,#eef6ff);
+  box-shadow:0 10px 24px rgba(21,101,192,.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:8px;
+  transition:.18s ease;
+}
+.mesaBtn:active .mesaCard{ transform:scale(.98); }
+.mesaTop{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
+  border:3px solid rgba(90,59,0,.12);
+  box-shadow:inset 0 2px 8px rgba(255,255,255,.35);
+}
+.mesaLegs{
+  display:flex;
+  gap:18px;
+  margin-top:-4px;
+}
+.mesaLegs span{
+  width:6px;
+  height:18px;
+  border-radius:99px;
+  background:#8d6e63;
+}
+.mesaText{
+  font-weight:1000;
+  color:#0b3d6e;
+  font-size:20px;
+  line-height:1;
+}
+.mesaState{
+  font-size:12px;
+  font-weight:1000;
+  border-radius:999px;
+  padding:6px 10px;
+  background:#fff;
+  border:1px solid #d7e4f2;
+  color:#466887;
+}
+.mesaAmount{
+  font-size:18px;
+  font-weight:1000;
+  line-height:1;
+  color:#143f70;
+}
+
+.mesaBtn.selected .mesaCard{
+  border-color:var(--red);
+  background:linear-gradient(180deg,#fff1f1,#ffe2e2);
+  box-shadow:0 14px 30px rgba(198,40,40,.18);
+}
+.mesaBtn.selected .mesaText,
+.mesaBtn.selected .mesaAmount{
+  color:var(--red-dark);
+}
+
+.mesaBtn.activeMesa .mesaCard{
+  border-color:rgba(46,125,50,.55);
+  background:linear-gradient(180deg,#effdf2,#d9f6df);
+  box-shadow:0 14px 30px rgba(46,125,50,.18);
+}
+.mesaBtn.activeMesa .mesaText,
+.mesaBtn.activeMesa .mesaAmount{
+  color:var(--green-dark);
+}
+.mesaBtn.activeMesa .mesaState{
+  background:#edf9ef;
+  color:#1f6a24;
+  border-color:rgba(46,125,50,.22);
+}
+
+.mesaBtn.activeMesa.selected .mesaCard{
+  border-color:#14591b;
+  background:linear-gradient(180deg,#e4f8e8,#c6efcf);
+  box-shadow:0 16px 34px rgba(46,125,50,.24);
+}
+
+.actions{
+  display:grid;
+  gap:12px;
+  margin-top:18px;
+}
+.btn{
+  border:none;
+  border-radius:20px;
+  padding:18px 18px;
+  font-weight:1000;
+  font-size:22px;
+  cursor:pointer;
+  width:100%;
+}
+.btnBlue{
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  color:#fff;
+}
+.btnGreen{
+  background:linear-gradient(180deg,var(--green),var(--green-dark));
+  color:#fff;
+}
+.btnYellow{
+  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
+  color:#5a3b00;
+}
+.btnRed{
+  background:linear-gradient(180deg,var(--red),var(--red-dark));
+  color:#fff;
+}
+.btnLight{
+  background:#fff;
+  color:#0b4f93;
+  border:2px solid #d4e2f2;
+}
+.btnSmall{
+  border:none;
+  border-radius:14px;
+  padding:10px 12px;
+  font-weight:1000;
+  font-size:14px;
+  cursor:pointer;
+}
+.btnMiniBlue{
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  color:#fff;
+}
+.btnMiniRed{
+  background:linear-gradient(180deg,var(--red),var(--red-dark));
+  color:#fff;
+}
+.btnMiniYellow{
+  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
+  color:#5a3b00;
+}
+
+.tip{
+  margin-top:14px;
+  padding:14px 16px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(21,101,192,.05), rgba(246,195,59,.10));
+  border:1px solid #d9e6f2;
+  color:#365779;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.4;
+}
+
+.topInfo{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media (max-width:700px){
+  .topInfo{grid-template-columns:1fr}
+}
+.bigBox{
+  border:2px solid #d6e3f2;
+  border-radius:22px;
+  background:#fff;
+  padding:16px;
+}
+.bigBox b{
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.bigBox span{
+  display:block;
+  font-size:28px;
+  font-weight:1000;
+  line-height:1.05;
+}
+
+.mainSummary{
+  margin-top:14px;
+  border:2px solid #d8e4f2;
+  border-radius:24px;
+  background:linear-gradient(180deg,#ffffff,#f7fbff);
+  padding:18px;
+}
+.mainSummary .mesaGrande{
+  font-size:34px;
+  font-weight:1000;
+  color:#143f70;
+  line-height:1;
+}
+.mainSummary .sub{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:16px;
+  font-weight:800;
+  line-height:1.45;
+}
+
+.detalle{
+  margin-top:16px;
+  display:grid;
+  gap:14px;
+}
+
+.platoCard{
+  border:2px solid #dbe6f3;
+  border-radius:22px;
+  overflow:hidden;
+  background:#fff;
+}
+.platoHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:14px 16px;
+  background:linear-gradient(90deg, rgba(246,195,59,.24), rgba(21,101,192,.10));
+  border-bottom:1px dashed #d6e3f1;
+}
+.platoTitle{
+  font-size:18px;
+  font-weight:1000;
+  color:#143f70;
+}
+.platoBadge{
+  font-size:13px;
+  font-weight:1000;
+  background:#fff;
+  color:#355779;
+  border:1px solid #d4e2f2;
+  border-radius:999px;
+  padding:6px 10px;
+}
+
+.line{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:12px;
+  padding:14px 16px;
+  border-top:1px dashed #dbe6f3;
+}
+.line:first-child{border-top:none}
+.lineLeft{
+  min-width:0;
+}
+.lineTitle{
+  font-size:18px;
+  font-weight:1000;
+  line-height:1.2;
+}
+.lineMeta{
+  margin-top:5px;
+  font-size:14px;
+  color:var(--muted);
+  white-space:pre-wrap;
+  font-weight:800;
+  line-height:1.35;
+}
+.lineRight{
+  text-align:right;
+  min-width:160px;
+}
+.linePrice{
+  font-size:15px;
+  font-weight:900;
+}
+.lineTotal{
+  margin-top:6px;
+  font-size:24px;
+  font-weight:1000;
+  color:#143f70;
+  line-height:1;
+}
+.adminTools{
+  margin-top:8px;
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+
+.totalBox{
+  border-radius:24px;
+  padding:18px 20px;
+  background:linear-gradient(180deg,#fff7de,#ffe7a1);
+  border:2px solid rgba(246,195,59,.45);
+}
+.totalRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.totalRow span{
+  font-size:22px;
+  font-weight:1000;
+  color:#5a3b00;
+}
+.totalRow strong{
+  font-size:44px;
+  line-height:1;
+  color:#5a3b00;
+}
+
+.emptyState{
+  border-radius:22px;
+  padding:30px 20px;
+  background:#fff;
+  border:2px dashed #d4e2f2;
+  color:var(--muted);
+  font-weight:900;
+  text-align:center;
+  font-size:18px;
+}
+
+.backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.52);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:80;
+}
+.modal{
+  width:min(520px,100%);
+  background:#fff;
+  border-radius:24px;
+  overflow:hidden;
+  border:1px solid rgba(21,101,192,.14);
+  box-shadow:0 30px 80px rgba(2,6,23,.24);
+}
+.modalHead{
+  padding:16px 18px;
+  border-bottom:1px solid rgba(21,101,192,.12);
+  background:linear-gradient(180deg, rgba(21,101,192,.06), rgba(246,195,59,.08));
+}
+.modalHead h3{
+  margin:0;
+  font-size:18px;
+  color:#0b3d6e;
+}
+.modalBody{ padding:16px 18px; }
+.modalFoot{
+  padding:16px 18px;
+  border-top:1px solid rgba(21,101,192,.12);
+  display:flex;
+  gap:10px;
+}
+.modalInput, .modalSelect{
+  width:100%;
+  padding:14px 14px;
+  border-radius:16px;
+  border:2px solid #d4e2f2;
+  background:#fff;
+  font-size:18px;
+  color:var(--ink);
+  outline:none;
+}
+.modalLabel{
+  display:block;
+  margin-bottom:8px;
+  font-size:13px;
+  font-weight:1000;
+  color:#365779;
+  text-transform:uppercase;
+  letter-spacing:.35px;
+}
+.modalHelp{
+  margin-top:8px;
+  color:var(--muted);
+  font-weight:800;
+  font-size:14px;
+}
+
+.print-area{display:none}
+@media print{
+  body *{visibility:hidden!important}
+  .print-area,.print-area *{visibility:visible!important}
+  .print-area{
+    display:block!important;
+    position:absolute;
+    inset:0;
+    background:#fff;
+  }
+  @page{
+    size:80mm auto;
+    margin:1mm;
+  }
+}
+.ticket{
+  width:76mm;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  color:#000;
+  background:#fff;
+  padding:2mm;
+  font-size:14px;
+  line-height:1.24;
+}
+.ticket .c{text-align:center}
+.ticket .b{font-weight:900}
+.ticket .lg{font-size:22px}
+.ticket .hr{border-top:1px dashed #000;margin:6px 0}
+.ticket .g{font-weight:900;margin-top:7px;font-size:15px;text-transform:uppercase}
+.ticket .it{margin:5px 0}
+.ticket .itn{font-weight:900;font-size:16px;line-height:1.15}
+.ticket .sub{padding-left:8px;font-size:12px;white-space:pre-wrap}
+.ticket .priceRow{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  font-size:13px;
+  margin-top:2px;
+}
+.ticket .totalRowPrint{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  font-size:18px;
+  font-weight:900;
+  margin-top:8px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head">
+    <div class="brand">
+      <h1>💳 Cuentas por Mesa</h1>
+      <div class="sub">Pantalla simple para consultar, imprimir y cerrar</div>
+    </div>
+    <div class="pill" id="pillMesa">Sin mesa</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+
+    <section class="card">
+      <div class="cardHead">
+        <h2>1. Elegir mesa</h2>
+        <p>Toca una mesa y se cargará automáticamente.</p>
+        <div class="syncStatus warn" id="syncStatus">Supabase pendiente de configurar</div>
+      </div>
+
+      <div class="cardBody">
+        <div class="roleBox">
+          <div class="roleInfo" id="roleInfo">Modo actual: Operador</div>
+          <button class="btn btnLight" id="btnCambiarModo" type="button">Cambiar modo</button>
+        </div>
+
+        <div class="mesasGrid" id="mesasGrid"></div>
+
+        <div class="actions">
+          <button class="btn btnYellow" id="btnResumen" type="button">Imprimir resumen</button>
+          <button class="btn btnGreen" id="btnCuenta" type="button">Imprimir cuenta</button>
+          <button class="btn btnRed" id="btnCerrar" type="button">Cerrar cuenta</button>
+          <button class="btn btnLight" id="btnActualizarMesas" type="button">Actualizar mesas</button>
+          <button class="btn btnLight" id="btnAjusteAdmin" type="button" style="display:none">Ajuste admin</button>
+        </div>
+
+        <div class="tip">
+          Verde = mesa con cuenta abierta.<br>
+          Rojo = mesa seleccionada.<br>
+          Admin puede editar precios, borrar productos y ajustar total.
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="cardHead">
+        <h2>2. Revisar cuenta</h2>
+        <p>Aquí aparece todo lo de la mesa seleccionada.</p>
+      </div>
+
+      <div class="cardBody">
+        <div class="topInfo">
+          <div class="bigBox">
+            <b>Mesa</b>
+            <span id="kpiMesa">—</span>
+          </div>
+          <div class="bigBox">
+            <b>Mesero</b>
+            <span id="kpiMesero">—</span>
+          </div>
+        </div>
+
+        <div class="ticketBox" id="detalleCuenta">
+          <div class="emptyState">Toca una mesa para cargar la cuenta.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="backdrop" id="loginBackdrop">
+  <div class="modal">
+    <div class="modalHead">
+      <h3>Entrar como operador o admin</h3>
+    </div>
+    <div class="modalBody">
+      <label class="modalLabel">Modo</label>
+      <select class="modalSelect" id="loginRol">
+        <option value="operador">Operador</option>
+        <option value="admin">Admin</option>
+      </select>
+
+      <div id="pinWrap" style="display:none; margin-top:14px;">
+        <label class="modalLabel">PIN admin</label>
+        <input class="modalInput" id="loginPin" type="password" placeholder="Escribe el PIN">
+      </div>
+
+      <div class="modalHelp">
+        Operador: solo consulta, imprime y cierra.<br>
+        Admin: además puede editar precios, borrar productos y hacer ajustes.
+      </div>
+    </div>
+    <div class="modalFoot">
+      <button class="btn btnLight" id="btnCerrarLogin" type="button">Cancelar</button>
+      <button class="btn btnBlue" id="btnEntrarLogin" type="button">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="backdrop" id="editBackdrop">
+  <div class="modal">
+    <div class="modalHead">
+      <h3 id="editTitle">Editar</h3>
+    </div>
+    <div class="modalBody">
+      <label class="modalLabel">Valor</label>
+      <input class="modalInput" id="editValue" type="text" placeholder="Escribe el valor">
+      <div class="modalHelp" id="editHelp"></div>
+    </div>
+    <div class="modalFoot">
+      <button class="btn btnLight" id="btnEditCancel" type="button">Cancelar</button>
+      <button class="btn btnBlue" id="btnEditSave" type="button">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="print-area" id="printArea"></div>
+
+<script>
+const SUPABASE_URL = "https://rcegikeiaxptolrduguc.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZWdpa2VpYXhwdG9scmR1Z3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NTMyMDcsImV4cCI6MjA3MTIyOTIwN30.jbPM9F977zeITEmFA_xvVU6SCxlWWVCi3Dx7ZhFfTp8";
+
+/* Solo operativo, no seguridad real */
+const ADMIN_PIN = "1234";
+
+
+
+if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase && typeof window.supabase.createClient === "function") {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  supabaseReady = true;
+}
+
+const PRECIOS = {
+  taco_tripa:38,
+  taco_pastor:28,
+  taco_bistec:28,
+  taco_chorizo:28,
+  taco_higado:28,
+  taco_costilla:28,
+  taco_barbacoa:28,
+  taco_alambre:28,
+  taco_combi:38,
+
+  quesa_tripa:100,
+  quesa_pastor:90,
+  quesa_bistec:90,
+  quesa_chorizo:90,
+  quesa_higado:90,
+  quesa_costilla:90,
+  quesa_barbacoa:90,
+  quesa_alambre:90,
+
+  charola_combi:100,
+  charola_alam:90,
+
+  volcan_tripa:90,
+  volcan_pastor:85,
+  volcan_bistec:85,
+  volcan_chorizo:85,
+  volcan_higado:85,
+
+  beb_coca_light:35,
+  beb_coca:35,
+  beb_fresca:35,
+  beb_sprite:35,
+  beb_agua:30,
+  beb_agua_lt:60,
+
+  pos_pay:60,
+  pos_rompope:60,
+  pos_arroz:60,
+  pos_flan:60,
+  pos_fresa:60,
+  pos_napolitano:60
+};
+
+const MESAS = ["Mesa 1","Mesa 2","Mesa 3","Mesa 4","Mesa 5"];
+const PLATOS = ["Plato 1","Plato 2","Plato 3","Plato 4","Plato 5","General"];
+
+let comandaActual = null;
+let itemsActuales = [];
+let mesaActual = "";
+let mesasConCuenta = new Set();
+let resumenMesas = {};
+let userRole = "operador";
+let currentEditAction = null;
+let currentEditItem = null;
+
+const syncStatus = document.getElementById("syncStatus");
+const pillMesa = document.getElementById("pillMesa");
+const kpiMesa = document.getElementById("kpiMesa");
+const kpiMesero = document.getElementById("kpiMesero");
+const detalleCuenta = document.getElementById("detalleCuenta");
+const printArea = document.getElementById("printArea");
+const mesasGrid = document.getElementById("mesasGrid");
+const roleInfo = document.getElementById("roleInfo");
+const btnAjusteAdmin = document.getElementById("btnAjusteAdmin");
+
+const loginBackdrop = document.getElementById("loginBackdrop");
+const loginRol = document.getElementById("loginRol");
+const loginPin = document.getElementById("loginPin");
+const pinWrap = document.getElementById("pinWrap");
+
+const editBackdrop = document.getElementById("editBackdrop");
+const editTitle = document.getElementById("editTitle");
+const editValue = document.getElementById("editValue");
+const editHelp = document.getElementById("editHelp");
+
+function money(n){
+  return "$" + Number(n || 0).toFixed(2);
+}
+
+function escapeHtml(s){
+  return String(s || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
+function setSyncStatus(text, type="warn"){
+  syncStatus.textContent = text;
+  syncStatus.className = `syncStatus ${type}`;
+}
+
+function updateRoleUI(){
+  roleInfo.textContent = `Modo actual: ${userRole === "admin" ? "Admin" : "Operador"}`;
+  btnAjusteAdmin.style.display = userRole === "admin" ? "block" : "none";
+}
+
+function openLoginModal(){
+  loginRol.value = userRole;
+  loginPin.value = "";
+  pinWrap.style.display = loginRol.value === "admin" ? "block" : "none";
+  loginBackdrop.style.display = "flex";
+}
+
+function closeLoginModal(){
+  loginBackdrop.style.display = "none";
+}
+
+function openEditModal(title, help, action, item=null, initialValue=""){
+  currentEditAction = action;
+  currentEditItem = item;
+  editTitle.textContent = title;
+  editHelp.textContent = help || "";
+  editValue.value = initialValue;
+  editBackdrop.style.display = "flex";
+  setTimeout(()=>editValue.focus(), 50);
+}
+
+function closeEditModal(){
+  currentEditAction = null;
+  currentEditItem = null;
+  editValue.value = "";
+  editBackdrop.style.display = "none";
+}
+
+function getPrecioUnitario(item){
+  if (item.precio_unitario != null && item.precio_unitario !== "") {
+    return Number(item.precio_unitario || 0);
+  }
+  return Number(PRECIOS[item.producto_id] || 0);
+}
+
+function getTotalCuenta(){
+  return itemsActuales.reduce((sum, item) => {
+    return sum + (Number(item.qty || 0) * getPrecioUnitario(item));
+  }, 0);
+}
+
+function agruparItemsPorPlato(items){
+  const grupos = {};
+  items.forEach(item => {
+    const plato = item.plato || "General";
+    if(!grupos[plato]) grupos[plato] = [];
+    grupos[plato].push(item);
+  });
+
+  return PLATOS
+    .filter(plato => grupos[plato] && grupos[plato].length)
+    .map(plato => ({ plato, items: grupos[plato] }));
+}
+
+function resetVista(){
+  comandaActual = null;
+  itemsActuales = [];
+  kpiMesa.textContent = "—";
+  kpiMesero.textContent = "—";
+  pillMesa.textContent = mesaActual || "Sin mesa";
+  detalleCuenta.innerHTML = `<div class="emptyState">No hay cuenta cargada.</div>`;
+}
+
+function renderMesas(){
+  mesasGrid.innerHTML = "";
+
+  MESAS.forEach(mesa => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+
+    let cls = "mesaBtn";
+    if (mesaActual === mesa) cls += " selected";
+    if (mesasConCuenta.has(mesa)) cls += " activeMesa";
+    btn.className = cls;
+
+    const info = resumenMesas[mesa] || { total: 0, items: 0 };
+    const estadoTexto = mesasConCuenta.has(mesa) ? "Cuenta activa" : "Disponible";
+    const totalMesa = mesasConCuenta.has(mesa) ? money(info.total || 0) : "";
+
+    btn.innerHTML = `
+      <div class="mesaCard">
+        <div class="mesaTop"></div>
+        <div class="mesaLegs"><span></span><span></span></div>
+        <div class="mesaText">${mesa}</div>
+        ${totalMesa ? `<div class="mesaAmount">${totalMesa}</div>` : ``}
+        <div class="mesaState">${estadoTexto}</div>
+      </div>
+    `;
+
+    btn.onclick = async () => {
+      mesaActual = mesa;
+      pillMesa.textContent = mesa;
+      renderMesas();
+      await cargarCuenta();
+    };
+
+    mesasGrid.appendChild(btn);
+  });
+}
+
+async function cargarEstadoMesas(){
+  if(!supabaseReady){
+    mesasConCuenta = new Set();
+    resumenMesas = {};
+    renderMesas();
+    return;
+  }
+
+  const { data: comandas, error: errComandas } = await supabase
+    .from("comandas")
+    .select("id, mesa, estado")
+    .eq("estado", "abierta");
+
+  if(errComandas){
+    console.error(errComandas);
+    mesasConCuenta = new Set();
+    resumenMesas = {};
+    renderMesas();
+    return;
+  }
+
+  const abiertas = comandas || [];
+  mesasConCuenta = new Set(abiertas.map(x => x.mesa).filter(Boolean));
+  resumenMesas = {};
+
+  for (const com of abiertas) {
+    const { data: items } = await supabase
+      .from("comandas_items")
+      .select("qty, producto_id, precio_unitario")
+      .eq("comanda_id", com.id);
+
+    const lista = items || [];
+    const total = lista.reduce((acc, it) => {
+      const precio = (it.precio_unitario != null && it.precio_unitario !== "")
+        ? Number(it.precio_unitario || 0)
+        : Number(PRECIOS[it.producto_id] || 0);
+      return acc + (Number(it.qty || 0) * precio);
+    }, 0);
+
+    const totalItems = lista.reduce((acc, it) => acc + Number(it.qty || 0), 0);
+
+    resumenMesas[com.mesa] = {
+      total,
+      items: totalItems
+    };
+  }
+
+  renderMesas();
+}
+
+async function cargarCuenta(){
+  if(!supabaseReady){
+    setSyncStatus("Configura SUPABASE_URL y SUPABASE_ANON_KEY", "bad");
+    return;
+  }
+
+  const mesa = mesaActual;
+  if(!mesa){
+    alert("Selecciona una mesa.");
+    return;
+  }
+
+  pillMesa.textContent = mesa;
+  setSyncStatus(`Buscando cuenta en ${mesa}...`, "warn");
+
+  const { data: comanda, error: errCom } = await supabase
+    .from("comandas")
+    .select("*")
+    .eq("mesa", mesa)
+    .eq("estado", "abierta")
+    .order("created_at", { ascending:false })
+    .limit(1)
+    .maybeSingle();
+
+  if(errCom){
+    console.error(errCom);
+    setSyncStatus("Error al buscar la cuenta", "bad");
+    alert("No se pudo consultar la cuenta.");
+    return;
+  }
+
+  if(!comanda){
+    comandaActual = null;
+    itemsActuales = [];
+    kpiMesa.textContent = mesa;
+    kpiMesero.textContent = "—";
+    pillMesa.textContent = mesa;
+    detalleCuenta.innerHTML = `<div class="emptyState">No hay cuenta abierta en ${escapeHtml(mesa)}.</div>`;
+    setSyncStatus(`No hay comanda abierta en ${mesa}`, "warn");
+    await cargarEstadoMesas();
+    return;
+  }
+
+  comandaActual = comanda;
+
+  const { data: items, error: errItems } = await supabase
+    .from("comandas_items")
+    .select("*")
+    .eq("comanda_id", comanda.id)
+    .order("created_at", { ascending:true });
+
+  if(errItems){
+    console.error(errItems);
+    setSyncStatus("Error al cargar productos", "bad");
+    alert("No se pudieron cargar los productos.");
+    return;
+  }
+
+  itemsActuales = items || [];
+  renderCuenta();
+  setSyncStatus(`Cuenta cargada: ${mesa}`, "ok");
+  await cargarEstadoMesas();
+}
+
+function renderCuenta(){
+  if(!comandaActual){
+    resetVista();
+    return;
+  }
+
+  kpiMesa.textContent = comandaActual.mesa || "—";
+  kpiMesero.textContent = comandaActual.mesero || "—";
+  pillMesa.textContent = comandaActual.mesa || "Sin mesa";
+
+  const grupos = agruparItemsPorPlato(itemsActuales);
+  const total = getTotalCuenta();
+
+  let html = `
+    <div class="mainSummary">
+      <div class="mesaGrande">${escapeHtml(comandaActual.mesa || "Mesa")}</div>
+      <div class="sub">Mesero: ${escapeHtml(comandaActual.mesero || "—")}</div>
+      <div class="sub">Estado: ${escapeHtml(comandaActual.estado || "—")}</div>
+    </div>
+    <div class="detalle">
+  `;
+
+  if(!itemsActuales.length){
+    html += `<div class="emptyState">La comanda está vacía.</div>`;
+  } else {
+    grupos.forEach(group => {
+      const countGrupo = group.items.reduce((a, x) => a + Number(x.qty || 0), 0);
+
+      html += `
+        <div class="platoCard">
+          <div class="platoHead">
+            <div class="platoTitle">${escapeHtml(group.plato)}</div>
+            <div class="platoBadge">${countGrupo} productos</div>
+          </div>
+      `;
+
+      group.items.forEach(item => {
+        const precio = getPrecioUnitario(item);
+        const importe = Number(item.qty || 0) * precio;
+
+        html += `
+          <div class="line">
+            <div class="lineLeft">
+              <div class="lineTitle">${escapeHtml(item.qty)} x ${escapeHtml(item.producto_nombre || item.name || "Producto")}</div>
+              <div class="lineMeta">${escapeHtml(item.categoria || "")}</div>
+              ${item.nota ? `<div class="lineMeta">• ${escapeHtml(item.nota)}</div>` : ``}
+            </div>
+            <div class="lineRight">
+              <div class="linePrice">${money(precio)} c/u</div>
+              <div class="lineTotal">${money(importe)}</div>
+              ${userRole === "admin" ? `
+                <div class="adminTools">
+                  <button class="btnSmall btnMiniBlue" onclick="editarPrecio('${item.id}')">Precio</button>
+                  <button class="btnSmall btnMiniRed" onclick="eliminarProducto('${item.id}')">Borrar</button>
+                </div>
+              ` : ``}
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+    });
+
+    html += `
+      <div class="totalBox">
+        <div class="totalRow">
+          <span>Total</span>
+          <strong>${money(total)}</strong>
+        </div>
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+  detalleCuenta.innerHTML = html;
+}
+
+function findItemById(id){
+  return itemsActuales.find(x => String(x.id) === String(id));
+}
+
+async function editarPrecio(id){
+  if(userRole !== "admin") return;
+  const item = findItemById(id);
+  if(!item) return;
+
+  openEditModal(
+    `Cambiar precio de ${item.producto_nombre}`,
+    "Escribe el nuevo precio unitario.",
+    "precio",
+    item,
+    String(getPrecioUnitario(item))
+  );
+}
+
+async function eliminarProducto(id){
+  if(userRole !== "admin") return;
+  const item = findItemById(id);
+  if(!item) return;
+
+  if(!confirm(`¿Eliminar "${item.producto_nombre}" de la cuenta?`)) return;
+
+  const { error } = await supabase
+    .from("comandas_items")
+    .delete()
+    .eq("id", item.id);
+
+  if(error){
+    console.error(error);
+    alert("No se pudo eliminar el producto.");
+    return;
+  }
+
+  await cargarCuenta();
+}
+
+async function crearAjusteAdmin(){
+  if(userRole !== "admin"){
+    alert("Solo admin puede hacer ajustes.");
+    return;
+  }
+  if(!comandaActual){
+    alert("Primero toca una mesa con cuenta.");
+    return;
+  }
+
+  openEditModal(
+    "Ajuste admin",
+    "Ejemplo: -50 para descuento o 30 para recargo.",
+    "ajuste",
+    null,
+    ""
+  );
+}
+
+async function guardarEdicion(){
+  if(currentEditAction === "precio" && currentEditItem){
+    const nuevo = Number(editValue.value);
+    if(isNaN(nuevo) || nuevo < 0){
+      alert("Pon un precio válido.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("comandas_items")
+      .update({ precio_unitario: nuevo })
+      .eq("id", currentEditItem.id);
+
+    if(error){
+      console.error(error);
+      alert("No se pudo actualizar el precio.");
+      return;
+    }
+
+    closeEditModal();
+    await cargarCuenta();
+    return;
+  }
+
+  if(currentEditAction === "ajuste"){
+    const ajuste = Number(editValue.value);
+    if(isNaN(ajuste) || ajuste === 0){
+      alert("Pon un ajuste válido. Usa negativo para descuento.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("comandas_items")
+      .insert([{
+        comanda_id: comandaActual.id,
+        producto_id: "ajuste_admin",
+        producto_nombre: ajuste < 0 ? "Descuento admin" : "Recargo admin",
+        categoria: "AJUSTE",
+        plato: "General",
+        nota: "Ajuste manual admin",
+        qty: 1,
+        cocina: false,
+        precio_unitario: ajuste
+      }]);
+
+    if(error){
+      console.error(error);
+      alert("No se pudo guardar el ajuste.");
+      return;
+    }
+
+    closeEditModal();
+    await cargarCuenta();
+  }
+}
+
+async function cerrarCuenta(){
+  if(!supabaseReady){
+    setSyncStatus("Configura Supabase primero", "bad");
+    return;
+  }
+
+  if(!comandaActual){
+    alert("Primero carga una cuenta.");
+    return;
+  }
+
+  if(!confirm(`¿Cerrar la cuenta de ${comandaActual.mesa}?`)) return;
+
+  setSyncStatus(`Cerrando ${comandaActual.mesa}...`, "warn");
+
+  const { error } = await supabase
+    .from("comandas")
+    .update({
+      estado: "cerrada",
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", comandaActual.id);
+
+  if(error){
+    console.error(error);
+    setSyncStatus("Error al cerrar la cuenta", "bad");
+    alert("No se pudo cerrar la cuenta.");
+    return;
+  }
+
+  alert("Cuenta cerrada correctamente.");
+  comandaActual = null;
+  itemsActuales = [];
+  await cargarEstadoMesas();
+
+  if (mesaActual) {
+    kpiMesa.textContent = mesaActual;
+    kpiMesero.textContent = "—";
+    detalleCuenta.innerHTML = `<div class="emptyState">La cuenta de ${escapeHtml(mesaActual)} ya fue cerrada.</div>`;
+    pillMesa.textContent = mesaActual;
+  }
+
+  setSyncStatus(`Cuenta cerrada: ${mesaActual}`, "ok");
+}
+
+function buildCuentaPrint(){
+  if(!comandaActual) return "";
+
+  const total = getTotalCuenta();
+  const grupos = agruparItemsPorPlato(itemsActuales);
+
+  let html = `
+    <div class="ticket">
+      <div class="c b lg">CUENTA</div>
+      <div class="c b">${escapeHtml(comandaActual.mesa || "Mesa")}</div>
+      <div class="c">Mesero: ${escapeHtml(comandaActual.mesero || "—")}</div>
+      <div class="hr"></div>
+  `;
+
+  grupos.forEach(group => {
+    html += `<div class="g">${escapeHtml(group.plato)}</div>`;
+
+    group.items.forEach(item => {
+      const precio = getPrecioUnitario(item);
+      const importe = Number(item.qty || 0) * precio;
+
+      html += `
+        <div class="it">
+          <div class="itn">${escapeHtml(item.qty)} x ${escapeHtml(item.producto_nombre || "Producto")}</div>
+          ${item.nota ? `<div class="sub">• ${escapeHtml(item.nota)}</div>` : ``}
+          <div class="priceRow">
+            <span>${money(precio)} c/u</span>
+            <span>${money(importe)}</span>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `<div class="hr"></div>`;
+  });
+
+  html += `
+      <div class="totalRowPrint">
+        <span>TOTAL</span>
+        <span>${money(total)}</span>
+      </div>
+    </div>
+  `;
+
+  return html;
+}
+
+function buildResumenPrint(){
+  if(!comandaActual) return "";
+
+  const grupos = agruparItemsPorPlato(itemsActuales);
+
+  let html = `
+    <div class="ticket">
+      <div class="c b lg">RESUMEN</div>
+      <div class="c b">${escapeHtml(comandaActual.mesa || "Mesa")}</div>
+      <div class="c">Mesero: ${escapeHtml(comandaActual.mesero || "—")}</div>
+      <div class="hr"></div>
+  `;
+
+  grupos.forEach(group => {
+    html += `<div class="g">${escapeHtml(group.plato)}</div>`;
+
+    group.items.forEach(item => {
+      html += `
+        <div class="it">
+          <div class="itn">${escapeHtml(item.qty)} x ${escapeHtml(item.producto_nombre || "Producto")}</div>
+          <div class="sub">${escapeHtml(item.categoria || "")}</div>
+          ${item.nota ? `<div class="sub">• ${escapeHtml(item.nota)}</div>` : ``}
+        </div>
+      `;
+    });
+
+    html += `<div class="hr"></div>`;
+  });
+
+  return html + `</div>`;
+}
+
+function imprimirCuenta(){
+  if(!comandaActual){
+    alert("Primero toca una mesa con cuenta.");
+    return;
+  }
+  printArea.innerHTML = buildCuentaPrint();
+  setTimeout(()=>window.print(), 100);
+}
+
+function imprimirResumen(){
+  if(!comandaActual){
+    alert("Primero toca una mesa con cuenta.");
+    return;
+  }
+  printArea.innerHTML = buildResumenPrint();
+  setTimeout(()=>window.print(), 100);
+}
+
+loginRol.addEventListener("change", ()=>{
+  pinWrap.style.display = loginRol.value === "admin" ? "block" : "none";
+});
+
+document.getElementById("btnCambiarModo").onclick = openLoginModal;
+document.getElementById("btnCerrarLogin").onclick = closeLoginModal;
+document.getElementById("btnEntrarLogin").onclick = ()=>{
+  const rol = loginRol.value;
+  if(rol === "admin"){
+    if(loginPin.value !== ADMIN_PIN){
+      alert("PIN admin incorrecto.");
+      return;
+    }
+  }
+  userRole = rol;
+  updateRoleUI();
+  closeLoginModal();
+  renderCuenta();
+};
+
+document.getElementById("btnEditCancel").onclick = closeEditModal;
+document.getElementById("btnEditSave").onclick = guardarEdicion;
+
+document.getElementById("btnCerrar").onclick = cerrarCuenta;
+document.getElementById("btnCuenta").onclick = imprimirCuenta;
+document.getElementById("btnResumen").onclick = imprimirResumen;
+document.getElementById("btnActualizarMesas").onclick = async ()=>{
+  await cargarEstadoMesas();
+  if (mesaActual) await cargarCuenta();
+};
+document.getElementById("btnAjusteAdmin").onclick = crearAjusteAdmin;
+
+if(supabaseReady){
+  setSyncStatus("Supabase conectado. Toca una mesa para cargarla.", "ok");
+}else{
+  setSyncStatus("Supabase pendiente de configurar", "warn");
+}
+
+updateRoleUI();
+
+(async function init(){
+  await cargarEstadoMesas();
+  renderMesas();
+})();
+</script>
+</body>
+</html>
