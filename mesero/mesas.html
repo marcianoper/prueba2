@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -839,7 +840,7 @@ input:focus, select:focus{
 
       <section class="step" id="step2">
         <div class="noteBox" style="margin-top:0">
-          Elige el destino del pedido: mesa, carrito afuera o para llevar.
+          Elige el destino del pedido: mesa, carrito o para llevar.
         </div>
 
         <div class="ubicacionesWrap" style="margin-top:12px">
@@ -849,8 +850,13 @@ input:focus, select:focus{
           </div>
 
           <div class="ubicacionSection">
-            <div class="sectionTitle">Otros destinos</div>
-            <div class="destinosGrid" id="destinosGrid"></div>
+            <div class="sectionTitle">Carrito</div>
+            <div class="destinosGrid" id="carritosGrid"></div>
+          </div>
+
+          <div class="ubicacionSection">
+            <div class="sectionTitle">Para llevar</div>
+            <div class="destinosGrid" id="llevarGrid"></div>
           </div>
         </div>
       </section>
@@ -982,6 +988,7 @@ const SUPABASE_URL = "https://rcegikeiaxptolrduguc.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZWdpa2VpYXhwdG9scmR1Z3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NTMyMDcsImV4cCI6MjA3MTIyOTIwN30.jbPM9F977zeITEmFA_xvVU6SCxlWWVCi3Dx7ZhFfTp8";
 
 
+
 try{
   if (
     SUPABASE_URL &&
@@ -1065,10 +1072,8 @@ const catalogo = [
 const CATS = ["TACOS","QUESADILLAS","QUESADILLAS CHICAS","CHAROLAS","VOLCANES","BEBIDAS","POSTRES"];
 const PLATOS = ["Plato 1","Plato 2","Plato 3","Plato 4","Plato 5","General"];
 const MESAS = ["Mesa 1","Mesa 2","Mesa 3","Mesa 4","Mesa 5"];
-const DESTINOS_EXTRA = [
-  {id:"carrito_afuera", nombre:"Carrito afuera", icono:"🛒", desc:"Clientes sentados afuera"},
-  {id:"para_llevar", nombre:"Para llevar", icono:"🥡", desc:"Pedido sin mesa"}
-];
+const CARRITOS = ["Carrito 1","Carrito 2","Carrito 3","Carrito 4","Carrito 5"];
+const PARA_LLEVAR = ["Para llevar 1","Para llevar 2","Para llevar 3","Para llevar 4","Para llevar 5"];
 
 const PRECIO_REFRESCO = {
   taparosca: 35,
@@ -1102,14 +1107,15 @@ const steps = {
 
 const titles = {
   1: ["Paso 1 — Mesero","Primero selecciona quién está tomando el pedido."],
-  2: ["Paso 2 — Elegir ubicación","Toca la mesa, carrito afuera o para llevar."],
+  2: ["Paso 2 — Elegir ubicación","Toca la mesa, carrito o para llevar."],
   3: ["Paso 3 — Capturar pedido","Elige plato y agrega productos sin bajar hasta la comanda."],
   4: ["Paso 4 — Revisar e imprimir","Confirma la comanda y manda a imprimir cocina."],
 };
 
 const meseroInput = document.getElementById("mesero");
 const mesasGrid = document.getElementById("mesasGrid");
-const destinosGrid = document.getElementById("destinosGrid");
+const carritosGrid = document.getElementById("carritosGrid");
+const llevarGrid = document.getElementById("llevarGrid");
 const personasBox = document.getElementById("personas");
 const catsBox = document.getElementById("cats");
 const itemsBox = document.getElementById("items");
@@ -1504,7 +1510,8 @@ async function syncComandaToSupabase(){
 function selectUbicacion(ubicacion){
   mesaActiva = ubicacion;
   renderMesas();
-  renderDestinosExtra();
+  renderCarritos();
+  renderParaLlevar();
   updateResumeViews();
 
   cargarComandaDeMesa(mesaActiva).catch(err=>{
@@ -1531,21 +1538,39 @@ function renderMesas(){
   });
 }
 
-function renderDestinosExtra(){
-  destinosGrid.innerHTML = "";
-  DESTINOS_EXTRA.forEach(destino=>{
+function renderCarritos(){
+  carritosGrid.innerHTML = "";
+  CARRITOS.forEach(nombre=>{
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "destinoBtn" + (mesaActiva===destino.nombre ? " active":"");
+    btn.className = "destinoBtn" + (mesaActiva===nombre ? " active":"");
     btn.innerHTML = `
       <div class="destinoCard">
-        <div class="destinoIcon">${destino.icono}</div>
-        <div class="destinoName">${escapeHtml(destino.nombre)}</div>
-        <div class="destinoDesc">${escapeHtml(destino.desc)}</div>
+        <div class="destinoIcon">🛒</div>
+        <div class="destinoName">${escapeHtml(nombre)}</div>
+        <div class="destinoDesc">Clientes sentados afuera</div>
       </div>
     `;
-    btn.onclick = ()=> selectUbicacion(destino.nombre);
-    destinosGrid.appendChild(btn);
+    btn.onclick = ()=> selectUbicacion(nombre);
+    carritosGrid.appendChild(btn);
+  });
+}
+
+function renderParaLlevar(){
+  llevarGrid.innerHTML = "";
+  PARA_LLEVAR.forEach(nombre=>{
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "destinoBtn" + (mesaActiva===nombre ? " active":"");
+    btn.innerHTML = `
+      <div class="destinoCard">
+        <div class="destinoIcon">🥡</div>
+        <div class="destinoName">${escapeHtml(nombre)}</div>
+        <div class="destinoDesc">Pedido sin mesa</div>
+      </div>
+    `;
+    btn.onclick = ()=> selectUbicacion(nombre);
+    llevarGrid.appendChild(btn);
   });
 }
 
@@ -2452,7 +2477,8 @@ document.getElementById("btnReimprimirTodo").onclick = reimprimirTodoCocina;
    INIT
    ========================= */
 renderMesas();
-renderDestinosExtra();
+renderCarritos();
+renderParaLlevar();
 renderPersonas();
 renderCats();
 renderItems();
