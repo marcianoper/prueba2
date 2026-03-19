@@ -603,7 +603,7 @@ header{
         <div class="mesasGrid" id="mesasGrid"></div>
 
         <div class="actions">
-          <button class="btn btnYellow" id="btnResumen" type="button">Imprimir resumen</button>
+          <button class="btn btnYellow" id="btnResumen" type="button">Mandar resumen por WhatsApp</button>
           <button class="btn btnGreen" id="btnCuenta" type="button">Imprimir cuenta</button>
           <button class="btn btnRed" id="btnCerrar" type="button">Cerrar cuenta</button>
           <button class="btn btnLight" id="btnActualizarMesas" type="button">Actualizar</button>
@@ -690,6 +690,8 @@ const SUPABASE_URL = "https://rcegikeiaxptolrduguc.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZWdpa2VpYXhwdG9scmR1Z3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NTMyMDcsImV4cCI6MjA3MTIyOTIwN30.jbPM9F977zeITEmFA_xvVU6SCxlWWVCi3Dx7ZhFfTp8";
 
 const ADMIN_PIN = "1234";
+const WHATSAPP_RESUMEN = "524622527782";
+
 
 
 if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase && typeof window.supabase.createClient === "function") {
@@ -1312,36 +1314,39 @@ function buildCuentaPrint(){
   return html;
 }
 
-function buildResumenPrint(){
+function buildResumenWhatsappText(){
   if(!comandaActual) return "";
 
   const grupos = agruparItemsPorPlato(itemsActuales);
-
-  let html = `
-    <div class="ticket">
-      <div class="c b lg">RESUMEN</div>
-      <div class="c b">${escapeHtml(comandaActual.mesa || "Cuenta")}</div>
-      <div class="c">Mesero: ${escapeHtml(comandaActual.mesero || "—")}</div>
-      <div class="hr"></div>
-  `;
+  let texto = `*RESUMEN*\\n`;
+  texto += `*${comandaActual.mesa || "Cuenta"}*\\n`;
+  texto += `Mesero: ${comandaActual.mesero || "—"}\\n\\n`;
 
   grupos.forEach(group => {
-    html += `<div class="g">${escapeHtml(group.plato)}</div>`;
+    texto += `*${group.plato}*\\n`;
 
     group.items.forEach(item => {
-      html += `
-        <div class="it">
-          <div class="itn">${escapeHtml(item.qty)} x ${escapeHtml(item.producto_nombre || "Producto")}</div>
-          ${item.nota ? `<div class="sub">• ${escapeHtml(item.nota)}</div>` : ``}
-        </div>
-      `;
+      texto += `• ${item.qty} x ${item.producto_nombre || "Producto"}\\n`;
+      if(item.nota){
+        texto += `   - ${item.nota}\\n`;
+      }
     });
 
-    html += `<div class="hr"></div>`;
+    texto += `\\n`;
   });
 
-  html += `</div>`;
-  return html;
+  return texto;
+}
+
+function mandarResumenWhatsapp(){
+  if(!comandaActual){
+    alert("Primero selecciona una cuenta.");
+    return;
+  }
+
+  const texto = buildResumenWhatsappText();
+  const url = `https://wa.me/${WHATSAPP_RESUMEN}?text=${encodeURIComponent(texto)}`;
+  window.open(url, "_blank");
 }
 
 function imprimirHtmlTicket(htmlContenido){
@@ -1473,14 +1478,6 @@ function imprimirCuenta(){
   imprimirHtmlTicket(buildCuentaPrint());
 }
 
-function imprimirResumen(){
-  if(!comandaActual){
-    alert("Primero selecciona una cuenta.");
-    return;
-  }
-  imprimirHtmlTicket(buildResumenPrint());
-}
-
 function cambiarTipoVista(nuevoTipo){
   tipoVista = nuevoTipo;
   mesaActual = "";
@@ -1519,7 +1516,7 @@ document.getElementById("btnEditSave").onclick = guardarEdicion;
 
 document.getElementById("btnCerrar").onclick = cerrarCuenta;
 document.getElementById("btnCuenta").onclick = imprimirCuenta;
-document.getElementById("btnResumen").onclick = imprimirResumen;
+document.getElementById("btnResumen").onclick = mandarResumenWhatsapp;
 document.getElementById("btnActualizarMesas").onclick = async ()=>{
   await cargarEstadoMesas();
   if (mesaActual) await cargarCuenta();
