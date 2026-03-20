@@ -1590,14 +1590,16 @@ function renderPersonas(){
     b.textContent = p;
     b.onclick = ()=>{
       personaActiva = p;
+      activeCat = "TACOS"; // regresar siempre a tacos al cambiar de plato
       openGroups.add(p);
       renderPersonas();
+      renderCats();
       renderItems();
     };
     personasBox.appendChild(b);
   });
 }
-
+  
 function renderCats(){
   catsBox.innerHTML = "";
   CATS.forEach(c=>{
