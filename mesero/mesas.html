@@ -1022,6 +1022,17 @@ const catalogo = [
   {id:"taco_alambre",    cat:"TACOS",              name:"Taco de Alambre",           price:28,  desc:"", requiereNota:false, cocina:true},
   {id:"taco_combi",      cat:"TACOS",              name:"Taco Combinado",            price:38,  desc:"Escribe combinación", requiereNota:true, cocina:true},
 
+  {id:"burrito_tripa",     cat:"BURRITOS",        name:"Burrito de Tripa",       price:100, desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_pastor",    cat:"BURRITOS",        name:"Burrito de Pastor",      price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_bistec",    cat:"BURRITOS",        name:"Burrito de Bistec",      price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_chorizo",   cat:"BURRITOS",        name:"Burrito de Chorizo",     price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_higado",    cat:"BURRITOS",        name:"Burrito de Hígado",      price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_costilla",  cat:"BURRITOS",        name:"Burrito de Costilla",    price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_barbacoa",  cat:"BURRITOS",        name:"Burrito de Barbacoa",    price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_alambre",   cat:"BURRITOS",        name:"Burrito de Alambre",     price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_sencillo",  cat:"BURRITOS",        name:"Burrito sencillo",       price:30,  desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_combi",     cat:"BURRITOS",        name:"Burrito combinado",      price:100, desc:"Escribe combinación", requiereNota:true, cocina:true},
+
   {id:"quesa_tripa",     cat:"QUESADILLAS",        name:"Quesadilla de Tripa",       price:100, desc:"", requiereNota:false, cocina:true},
   {id:"quesa_pastor",    cat:"QUESADILLAS",        name:"Quesadilla de Pastor",      price:90,  desc:"", requiereNota:false, cocina:true},
   {id:"quesa_bistec",    cat:"QUESADILLAS",        name:"Quesadilla de Bistec",      price:90,  desc:"", requiereNota:false, cocina:true},
@@ -1058,10 +1069,11 @@ const catalogo = [
   {id:"volcan_combi",    cat:"VOLCANES",           name:"Volcán combiando",          price:90, desc:"Escribe combinación", requiereNota:true, cocina:true},
   {id:"volcan_sencillo", cat:"VOLCANES",           name:"Volcán sencillo",           price:35, desc:"", requiereNota:false, cocina:true},
 
-  {id:"beb_coca",        cat:"BEBIDAS",            name:"Coca",                      price:0, desc:"Elegir presentación", requiereNota:false, cocina:false, bebidaConPresentacion:true},
-  {id:"beb_coca_light",  cat:"BEBIDAS",            name:"Coca Light",                price:0, desc:"Elegir presentación", requiereNota:false, cocina:false, bebidaConPresentacion:true},
-  {id:"beb_fresca",      cat:"BEBIDAS",            name:"Fresca",                    price:0, desc:"Elegir presentación", requiereNota:false, cocina:false, bebidaConPresentacion:true},
-  {id:"beb_sprite",      cat:"BEBIDAS",            name:"Sprite",                    price:0, desc:"Elegir presentación", requiereNota:false, cocina:false, bebidaConPresentacion:true},
+  {id:"beb_coca",        cat:"BEBIDAS",            name:"Coca",                      price:30,  requiereNota:false, cocina:false, bebidaConPresentacion:true},
+   {id:"beb_coca_tapa",        cat:"BEBIDAS",            name:"Coca tapa",                      price:35,  requiereNota:false, cocina:false, bebidaConPresentacion:true},
+  {id:"beb_coca_light",  cat:"BEBIDAS",            name:"Coca Light",                price:30, requiereNota:false, cocina:false, bebidaConPresentacion:true},
+  {id:"beb_fresca",      cat:"BEBIDAS",            name:"Fresca",                    price:30,           requiereNota:false, cocina:false, bebidaConPresentacion:true},
+  {id:"beb_sprite",      cat:"BEBIDAS",            name:"Sprite",                    price:30,            requiereNota:false, cocina:false, bebidaConPresentacion:true},
     {id:"beb_sidral",        cat:"BEBIDAS",            name:"Sidral", price:30, desc:"", requiereNota:false, cocina:false},
    {id:"beb_agua_natural",        cat:"BEBIDAS",            name:"Agua natural 600", price:30, desc:"", requiereNota:false, cocina:false},
   {id:"beb_agua_natural_litro",        cat:"BEBIDAS",            name:"Agua natural litro",               price:40, desc:"", requiereNota:false, cocina:false},
@@ -1078,7 +1090,7 @@ const catalogo = [
   {id:"pos_napolitano",  cat:"POSTRES",            name:"Napolitano",                price:60, desc:"", requiereNota:false, cocina:false},
 ];
 
-const CATS = ["TACOS","QUESADILLAS","QUESADILLAS CHICAS","CHAROLAS","VOLCANES","BEBIDAS","POSTRES"];
+const CATS = ["TACOS","QUESADILLAS","BURRITOS","QUESADILLAS CHICAS","CHAROLAS","VOLCANES","BEBIDAS","POSTRES"];
 const PLATOS = ["Plato 1","Plato 2","Plato 3","Plato 4","Plato 5","General"];
 const MESAS = ["Mesa 1","Mesa 2","Mesa 3","Mesa 4","Mesa 5"];
 const CARRITOS = ["Carrito 1","Carrito 2","Carrito 3","Carrito 4","Carrito 5"];
@@ -1638,7 +1650,7 @@ function getQuickMods(item){
   if(["TACOS","VOLCANES"].includes(item.cat)){
     mods.push("Sin verdura", "Solo cebolla", "Solo cilantro");
   }
-  if(item.cat === "QUESADILLAS" || item.cat === "QUESADILLAS CHICAS"){
+    if(item.cat === "QUESADILLAS" || item.cat === "BURRITOS" || item.cat === "QUESADILLAS CHICAS"){
     mods.push("Sin frijoles", "Sin verdura", "Solo cebolla", "Solo cilantro");
   }
   if(item.cat === "CHAROLAS"){
