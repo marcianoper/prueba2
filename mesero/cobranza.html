@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.3/dist/jspdf.plugin.autotable.min.js"></script>
 
 <style>
+/* (estilos igual que antes, no cambian) */
 :root{
   --bg:#f4f7fb;
   --paper:#ffffff;
@@ -417,27 +418,6 @@ header{
   margin-bottom:16px;
 }
 
-.cambioBox{
-  margin-top:12px;
-  padding:12px;
-  border-radius:16px;
-  background:#f7fbff;
-  transition: all 0.3s ease;
-}
-.cambioBox.ok{
-  background:#e8f5e9;
-  border:1px solid #4caf50;
-}
-.cambioBox.bad{
-  background:#ffebee;
-  border:1px solid #f44336;
-}
-.cambioBox span{
-  font-size:24px;
-  font-weight:1000;
-  display:block;
-}
-
 .actionButtons{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -499,7 +479,7 @@ header{
 </head>
 <body>
 
-<header class="no-print">
+<header>
   <div class="head">
     <div class="brand">
       <h1>💳 Cuentas</h1>
@@ -511,7 +491,7 @@ header{
 
 <div class="wrap">
   <div class="grid">
-    <section class="card no-print">
+    <section class="card">
       <div class="cardHead">
         <h2>Cuentas activas</h2>
         <p>Toca una cuenta para ver opciones</p>
@@ -544,12 +524,12 @@ header{
     </section>
 
     <section class="card">
-      <div class="cardHead no-print">
+      <div class="cardHead">
         <h2>Detalle de la cuenta</h2>
         <p>Selecciona una cuenta para ver los productos</p>
       </div>
       <div class="cardBody">
-        <div class="topInfo no-print">
+        <div class="topInfo">
           <div class="bigBox"><b>Cuenta</b><span id="kpiMesa">—</span></div>
           <div class="bigBox"><b>Mesero</b><span id="kpiMesero">—</span></div>
         </div>
@@ -569,23 +549,16 @@ header{
     </div>
     <div class="modalBody">
       <div class="totalDisplay" id="mesaActionTotal">$0.00</div>
-      
-      <label class="modalLabel">💰 ¿Con cuánto pagan? (Opcional)</label>
-      <input class="modalInput" id="mesaActionPago" type="number" step="0.01" placeholder="Ingresa el monto (opcional)">
-      
-      <div class="cambioBox" id="mesaActionCambioBox">
+      <label class="modalLabel">💰 ¿Con cuánto pagan?</label>
+      <input class="modalInput" id="mesaActionPago" type="number" step="0.01" placeholder="Ingresa el monto">
+      <div id="mesaActionCambioBox" style="margin-top:12px; padding:12px; border-radius:16px; background:#f7fbff;">
         <b>💵 Cambio:</b>
-        <span id="mesaActionCambio">$0.00</span>
+        <span id="mesaActionCambio" style="font-size:24px; font-weight:1000; display:block;">$0.00</span>
       </div>
-      
       <div class="actionButtons">
-        <button class="actionBtn actionPrint" id="mesaActionPrintBtn">🖨️ Imprimir cuenta</button>
-        <button class="actionBtn actionPay" id="mesaActionPayBtn">💵 Cobrar y cerrar</button>
+        <button class="actionBtn actionPrint" id="mesaActionPrintBtn">🖨️ Imprimir</button>
+        <button class="actionBtn actionPay" id="mesaActionPayBtn">💵 Cobrar</button>
         <button class="actionBtn actionCancel" id="mesaActionCancelBtn">❌ Cancelar</button>
-      </div>
-      
-      <div style="margin-top:12px; text-align:center; font-size:12px; color:#61758d;">
-        El campo de pago es opcional. Puedes cerrar la cuenta sin ingresar el monto.
       </div>
     </div>
   </div>
@@ -638,7 +611,8 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const ADMIN_PIN = "1234";
 
 // Estado global
-
+let supabase = null;
+let supabaseReady = false;
 let comandaActual = null;
 let itemsActuales = [];
 let mesaActual = "";
@@ -682,7 +656,6 @@ const mesaActionTitle = document.getElementById("mesaActionTitle");
 const mesaActionTotal = document.getElementById("mesaActionTotal");
 const mesaActionPago = document.getElementById("mesaActionPago");
 const mesaActionCambio = document.getElementById("mesaActionCambio");
-const mesaActionCambioBox = document.getElementById("mesaActionCambioBox");
 const mesaActionPrintBtn = document.getElementById("mesaActionPrintBtn");
 const mesaActionPayBtn = document.getElementById("mesaActionPayBtn");
 const mesaActionCancelBtn = document.getElementById("mesaActionCancelBtn");
@@ -929,8 +902,9 @@ function renderMesas() {
         mesaActionTotal.textContent = money(total);
         mesaActionPago.value = "";
         mesaActionCambio.textContent = money(0);
-        mesaActionCambioBox.className = "cambioBox";
+        document.getElementById("mesaActionCambioBox").style.background = "#f7fbff";
         mesaActionBackdrop.style.display = "flex";
+        setTimeout(() => mesaActionPago.focus(), 300);
       } else {
         alert(`No se pudo cargar la cuenta de ${mesa}. Verifica que tenga productos.`);
       }
@@ -946,31 +920,84 @@ function calcularCambioModal() {
   const cambio = pago - total;
   mesaActionCambio.textContent = money(cambio);
   
+  const cambioBox = document.getElementById("mesaActionCambioBox");
   if (cambio >= 0 && pago > 0) {
-    mesaActionCambioBox.className = "cambioBox ok";
+    cambioBox.style.background = "#e8f5e9";
   } else if (pago > 0 && cambio < 0) {
-    mesaActionCambioBox.className = "cambioBox bad";
+    cambioBox.style.background = "#ffebee";
   } else {
-    mesaActionCambioBox.className = "cambioBox";
+    cambioBox.style.background = "#f7fbff";
   }
 }
 
-// Función de impresión corregida
+function buildCuentaPrint() {
+  if (!comandaActual) return "";
+  
+  const total = getTotalCuenta();
+  const pago = parseFloat(mesaActionPago.value) || 0;
+  const cambio = pago - total;
+  
+  let html = `
+    <div class="ticket">
+      <div class="center bold large">GUADALUPE VICTORIA</div>
+      <div class="center bold">${escapeHtml(comandaActual.mesa)}</div>
+      <div class="center">Mesero: ${escapeHtml(comandaActual.mesero || "—")}</div>
+      <div class="center">${new Date().toLocaleString()}</div>
+      <div class="divider"></div>
+  `;
+  
+  itemsActuales.forEach(item => {
+    const precio = getPrecioUnitario(item);
+    const importe = Number(item.qty || 0) * precio;
+    html += `
+      <div class="item">
+        <div class="item-name">${escapeHtml(item.qty)} x ${escapeHtml(item.producto_nombre)}</div>
+        <div class="item-price">
+          <span>${money(precio)} c/u</span>
+          <span>${money(importe)}</span>
+        </div>
+      </div>
+    `;
+  });
+  
+  if (pago > 0) {
+    html += `
+      <div class="divider"></div>
+      <div class="item-price">
+        <span>Pago:</span>
+        <span>${money(pago)}</span>
+      </div>
+      <div class="item-price">
+        <span>Cambio:</span>
+        <span>${money(cambio)}</span>
+      </div>
+    `;
+  }
+  
+  html += `
+    <div class="divider"></div>
+    <div class="total-row">
+      <span>TOTAL</span>
+      <span>${money(total)}</span>
+    </div>
+    <div class="footer">¡Gracias por su visita!</div>
+    </div>
+  `;
+  
+  return html;
+}
+
+// ========== FUNCIÓN DE IMPRESIÓN CORREGIDA (similar a la de Notas a Crédito) ==========
 function imprimirTicket() {
   if (!comandaActual) {
     alert("No hay cuenta cargada");
     return;
   }
   
-  const total = getTotalCuenta();
-  const fecha = new Date().toLocaleString();
-  const pago = parseFloat(mesaActionPago.value) || 0;
-  const cambio = pago - total;
-  
-  // Construir el contenido del ticket
-  let ticketHTML = `
+  const contenidoTicket = buildCuentaPrint();
+  const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="es">
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -988,7 +1015,7 @@ function imprimirTicket() {
         body {
           font-family: 'Courier New', 'Monaco', monospace;
           background: white;
-          padding: 8px;
+          padding: 5px;
           width: 80mm;
           margin: 0 auto;
         }
@@ -1037,75 +1064,31 @@ function imprimirTicket() {
     </head>
     <body>
       <div class="ticket">
-        <div class="center bold large">GUADALUPE VICTORIA</div>
-        <div class="center bold">${escapeHtml(comandaActual.mesa)}</div>
-        <div class="center">Mesero: ${escapeHtml(comandaActual.mesero || "—")}</div>
-        <div class="center">${fecha}</div>
-        <div class="divider"></div>
-  `;
-  
-  // Agregar cada producto
-  itemsActuales.forEach(item => {
-    const precio = getPrecioUnitario(item);
-    const importe = Number(item.qty || 0) * precio;
-    ticketHTML += `
-      <div class="item">
-        <div class="item-name">${escapeHtml(item.qty)} x ${escapeHtml(item.producto_nombre)}</div>
-        <div class="item-price">
-          <span>${money(precio)} c/u</span>
-          <span>${money(importe)}</span>
-        </div>
+        ${contenidoTicket}
       </div>
-    `;
-  });
-  
-  // Agregar pago y cambio si hay
-  if (pago > 0) {
-    ticketHTML += `
-      <div class="divider"></div>
-      <div class="item-price">
-        <span>Pago:</span>
-        <span>${money(pago)}</span>
-      </div>
-      <div class="item-price">
-        <span>Cambio:</span>
-        <span>${money(cambio)}</span>
-      </div>
-    `;
-  }
-  
-  // Total
-  ticketHTML += `
-    <div class="divider"></div>
-    <div class="total-row">
-      <span>TOTAL</span>
-      <span>${money(total)}</span>
-    </div>
-    <div class="footer">¡Gracias por su visita!</div>
-    </div>
-    <script>
-      window.onload = function() {
-        setTimeout(function() {
-          window.print();
+      <script>
+        window.onload = function() {
           setTimeout(function() {
-            window.close();
-          }, 1000);
-        }, 200);
-      };
-    <\/script>
+            window.print();
+            setTimeout(function() {
+              window.close();
+            }, 1000);
+          }, 300);
+        };
+      <\/script>
     </body>
     </html>
   `;
-  
-  // Abrir nueva ventana con el ticket
+
   const ventana = window.open('', '_blank', 'width=400,height=600');
-  if (ventana) {
-    ventana.document.write(ticketHTML);
-    ventana.document.close();
-  } else {
+  if (!ventana) {
     alert("Por favor, permite ventanas emergentes para imprimir");
+    return;
   }
+  ventana.document.write(html);
+  ventana.document.close();
 }
+// ========== FIN FUNCIÓN CORREGIDA ==========
 
 async function cerrarCuenta() {
   if (!comandaActual) {
@@ -1115,11 +1098,11 @@ async function cerrarCuenta() {
   
   const total = getTotalCuenta();
   const pago = parseFloat(mesaActionPago.value) || 0;
-  const cambio = pago - total;
   
-  let mensaje = `✅ Cuenta ${comandaActual.mesa} cerrada correctamente\nTotal: ${money(total)}`;
-  if (pago > 0) {
-    mensaje += `\nPago: ${money(pago)}\nCambio: ${money(cambio)}`;
+  if (pago > 0 && pago < total) {
+    if (!confirm(`El pago (${money(pago)}) es menor al total (${money(total)}). ¿Deseas continuar?`)) {
+      return;
+    }
   }
   
   setSyncStatus(`Cerrando ${comandaActual.mesa}...`, "warn");
@@ -1135,7 +1118,7 @@ async function cerrarCuenta() {
       return;
     }
     
-    alert(mensaje);
+    alert(`✅ Cuenta ${comandaActual.mesa} cerrada correctamente\nTotal: ${money(total)}\nPago: ${money(pago)}\nCambio: ${money(pago - total)}`);
     
     mesaActionBackdrop.style.display = "none";
     comandaActual = null;
@@ -1153,8 +1136,7 @@ async function cerrarCuenta() {
   }
 }
 
-// ==================== FUNCIONES PARA EL RESUMEN PDF ====================
-
+// ==================== FUNCIONES PARA EL RESUMEN PDF (sin cambios) ====================
 function getRangoLocalDia(fechaStr) {
   const [y, m, d] = fechaStr.split("-").map(Number);
   const inicio = new Date(y, m - 1, d, 0, 0, 0, 0);
