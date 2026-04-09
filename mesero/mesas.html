@@ -1042,12 +1042,14 @@ const catalogo = [
   {id:"taco_chorizo",    cat:"TACOS",              name:"Taco de Chorizo",           price:28,  desc:"", requiereNota:false, cocina:true},
   {id:"taco_higado",     cat:"TACOS",              name:"Taco de Hígado",            price:28,  desc:"", requiereNota:false, cocina:true},
   {id:"taco_costilla",   cat:"TACOS",              name:"Taco de Costilla",          price:28,  desc:"", requiereNota:false, cocina:true},
+  {id:"taco_trip_combi", cat:"TACOS",              name:"Taco de Tripa combinado",          price:38,  desc:"", requiereNota:false, cocina:true},
   {id:"taco_barbacoa",   cat:"TACOS",              name:"Taco de Barbacoa",          price:28,  desc:"", requiereNota:false, cocina:true},
   {id:"taco_alambre",    cat:"TACOS",              name:"Taco de Alambre",           price:28,  desc:"", requiereNota:false, cocina:true},
   {id:"taco_combi",      cat:"TACOS",              name:"Taco Combinado",            price:38,  desc:"Escribe combinación", requiereNota:true, cocina:true},
   {id:"taco_campechano", cat:"TACOS",              name:"Taco Campechano",           price:38,  desc:"", requiereNota:false, cocina:true},
 
   {id:"burrito_tripa",     cat:"BURRITOS",        name:"Burrito de Tripa",       price:100, desc:"", requiereNota:false, cocina:true},
+   {id:"burrito_tripa_combi",     cat:"BURRITOS",        name:"Burrito de Tripa Combinado",       price:100, desc:"", requiereNota:false, cocina:true},
   {id:"burrito_pastor",    cat:"BURRITOS",        name:"Burrito de Pastor",      price:90,  desc:"", requiereNota:false, cocina:true},
   {id:"burrito_bistec",    cat:"BURRITOS",        name:"Burrito de Bistec",      price:90,  desc:"", requiereNota:false, cocina:true},
   {id:"burrito_chorizo",   cat:"BURRITOS",        name:"Burrito de Chorizo",     price:90,  desc:"", requiereNota:false, cocina:true},
@@ -1059,6 +1061,7 @@ const catalogo = [
   {id:"burrito_combi",     cat:"BURRITOS",        name:"Burrito Campechano",     price:100, desc:"", requiereNota:false, cocina:true},
 
   {id:"burrito_chico_tripa",     cat:"BURRITOS CHICOS",        name:"Burrito chico de Tripa",       price:70, desc:"", requiereNota:false, cocina:true},
+  {id:"burrito_chico_tripa_combi",     cat:"BURRITOS CHICOS",        name:"Burrito chico de Tripa Combinado",       price:70, desc:"", requiereNota:false, cocina:true},
   {id:"burrito_chico_pastor",    cat:"BURRITOS CHICOS",        name:"Burrito chico de Pastor",      price:50,  desc:"", requiereNota:false, cocina:true},
   {id:"burrito_chico_bistec",    cat:"BURRITOS CHICOS",        name:"Burrito chico de Bistec",      price:50,  desc:"", requiereNota:false, cocina:true},
   {id:"burrito_chico_chorizo",   cat:"BURRITOS CHICOS",        name:"Burrito chico de Chorizo",     price:50,  desc:"", requiereNota:false, cocina:true},
@@ -1070,6 +1073,7 @@ const catalogo = [
   {id:"burrito_chico_combi",     cat:"BURRITOS CHICOS",        name:"Burrito Campechano",      price:50, desc:"", requiereNota:false, cocina:true},
 
   {id:"quesa_tripa",     cat:"QUESADILLAS",        name:"Quesadilla de Tripa",       price:120, desc:"", requiereNota:false, cocina:true},
+  {id:"quesa_tripa_combi",     cat:"QUESADILLAS",        name:"Quesadilla de Tripa Combinada",       price:120, desc:"", requiereNota:false, cocina:true},
   {id:"quesa_pastor",    cat:"QUESADILLAS",        name:"Quesadilla de Pastor",      price:90,  desc:"", requiereNota:false, cocina:true},
   {id:"quesa_bistec",    cat:"QUESADILLAS",        name:"Quesadilla de Bistec",      price:90,  desc:"", requiereNota:false, cocina:true},
   {id:"quesa_chorizo",   cat:"QUESADILLAS",        name:"Quesadilla de Chorizo",     price:90,  desc:"", requiereNota:false, cocina:true},
@@ -1081,6 +1085,7 @@ const catalogo = [
   {id:"quesa_combi",     cat:"QUESADILLAS",        name:"Quesadilla Campechana",      price:100, desc:"", requiereNota:false, cocina:true},
 
   {id:"quesa_chica_tripa",    cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Tripa",    price:70, desc:"", requiereNota:false, cocina:true},
+    {id:"quesa_chica_tripa_combi",    cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Tripa Combinado",    price:70, desc:"", requiereNota:false, cocina:true},
   {id:"quesa_chica_pastor",   cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Pastor",   price:50, desc:"", requiereNota:false, cocina:true},
   {id:"quesa_chica_bistec",   cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Bistec",   price:50, desc:"", requiereNota:false, cocina:true},
   {id:"quesa_chica_chorizo",  cat:"QUESADILLAS CHICAS", name:"Quesadilla chica de Chorizo",  price:50, desc:"", requiereNota:false, cocina:true},
@@ -1093,8 +1098,10 @@ const catalogo = [
 
   {id:"charola_combi",   cat:"CHAROLAS",           name:"Charola Combinada",         price:100, desc:"Elige precio (100, 150 o 200) y escribe combinación", requiereNota:true, cocina:true},
   {id:"charola_alam",    cat:"CHAROLAS",           name:"Charola de Alambre",        price:90,  desc:"", requiereNota:false, cocina:true},
+  {id:"charola_pastor",    cat:"CHAROLAS",           name:"Charola de pastor",        price:90,  desc:"", requiereNota:false, cocina:true},
 
   {id:"volcan_tripa",    cat:"VOLCANES",           name:"Volcán de Tripa",           price:90, desc:"", requiereNota:false, cocina:true},
+    {id:"volcan_tripa_combi",    cat:"VOLCANES",           name:"Volcán de Tripa Combinado",           price:90, desc:"", requiereNota:false, cocina:true},
   {id:"volcan_pastor",   cat:"VOLCANES",           name:"Volcán de Pastor",          price:85, desc:"", requiereNota:false, cocina:true},
   {id:"volcan_bistec",   cat:"VOLCANES",           name:"Volcán de Bistec",          price:85, desc:"", requiereNota:false, cocina:true},
   {id:"volcan_chorizo",  cat:"VOLCANES",           name:"Volcán de Chorizo",         price:85, desc:"", requiereNota:false, cocina:true},
